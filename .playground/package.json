@@ -1,0 +1,14 @@
+{
+  "name": "unified-nuxt-ui-playground",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "postinstall": "nuxt prepare",
+    "dev": "nuxt dev --port 8080",
+    "build": "nuxt build"
+  },
+  "dependencies": {
+    "nuxt": "4.2.1",
+    "unified-nuxt-ui": "file:../"
+  }
+}
