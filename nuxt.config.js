@@ -12,7 +12,6 @@ export default defineNuxtConfig({
 
   modules: [
     '@vueuse/nuxt',
-    'nuxt-radash',
     '@nuxt/ui',
   ],
 
@@ -20,15 +19,14 @@ export default defineNuxtConfig({
     pathRelativeToBase(import.meta.url, './app/assets/css/main.css'),
   ],
 
-  radash: {
-    prefix: 'rad',
+  ui: {
+    colorMode: false,
   },
 
   extends: [
     './layers/unified-toast',
     './layers/unified-dialog',
     './layers/unified-form',
-    './layers/unified-network',
   ],
 
 });

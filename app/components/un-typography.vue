@@ -44,31 +44,42 @@ const shouldShow = computed(() => {
 <template>
   <div v-if="shouldShow">
 
-    <div v-if="props.title || props.subtitle || props.icon || slots.append" class="flex gap-2">
-      <u-icon
-        v-if="props.icon"
-        :name="props.icon"
-        class="size-7 m-1"
-        :class="props.iconClasses"
-      />
-      <div v-if="props.title || props.subtitle">
-        <h1 v-if="props.title" class="text-[1.5em] font-medium" :class="props.titleClasses">
+    <div v-if="props.title || props.subtitle || props.icon || slots.append" class="flex items-start">
+      <div v-if="props.title || props.icon" class="flex items-center" style="gap: 0.5em;">
+        <u-icon
+          v-if="props.icon"
+          :name="props.icon"
+          :class="props.iconClasses"
+          style="width: 1.3em; height: 1.3em; flex-shrink: 0; flex-grow: 0;"
+        />
+        <h1
+          v-if="props.title"
+          class="font-medium"
+          :class="props.titleClasses"
+          style="font-size: 1.3em;">
           {{ props.title }}
         </h1>
-        <h2 v-if="props.subtitle" class="text-[0.9em] font-light" :class="props.subtitleClasses">
-          {{ props.subtitle }}
-        </h2>
       </div>
       <template v-if="$slots.append">
-        <div v-if="$slots.append" class="mt-1 ms-auto">
+        <div class="mt-1 ms-auto">
           <slot name="append" />
         </div>
       </template>
     </div>
 
+    <h2
+      v-if="props.subtitle"
+      class="font-light"
+      :class="props.subtitleClasses"
+      style="font-size: 0.9em;"
+      :style="{
+        marginInlineStart: props.icon ? '2em' : '0',
+      }">
+      {{ props.subtitle }}
+    </h2>
+
     <p
       v-if="props.text"
-      class="text-[1em]"
       :class="[
         {
           'mt-2': props.title || props.subtitle,

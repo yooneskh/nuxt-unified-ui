@@ -1,32 +1,26 @@
 {
   "name": "unified-nuxt-ui",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./nuxt.config.js",
   "files": [
     "nuxt.config.js",
-    "package.json"
+    "package.json",
+    "app",
+    "layers",
+    "modules"
   ],
-  "scripts": {
-    "postinstall": "nuxt prepare .playground",
-    "dev": "nuxt dev .playground --port 8080",
-    "build": "nuxt build .playground"
-  },
   "dependencies": {
     "@formkit/tempo": "0.1.2",
     "@iconify-json/lucide": "1.2.72",
+    "@nuxt/kit": "4.2.1",
     "@nuxt/ui": "4.1.0",
     "@vueuse/core": "14.0.0",
     "@vueuse/nuxt": "14.0.0",
-    "nuxt-radash": "1.0.0",
+    "radash": "12.1.1",
     "unified-mongo-filter": "0.4.0"
   },
-  "devDependencies": {
-    "nuxt": "latest",
-    "typescript": "latest",
-    "vue": "latest"
-  },
-  "patchedDependencies": {
-    "nuxt-radash@1.0.0": "patches/nuxt-radash@1.0.0.patch"
+  "peerDependencies": {
+    "nuxt": ">4.0.0"
   }
 }
