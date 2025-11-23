@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "postinstall": "nuxt prepare",
-    "dev": "nuxt dev --port 8080",
+    "serve": "nuxt dev --port 8080",
     "build": "nuxt build"
   },
   "dependencies": {

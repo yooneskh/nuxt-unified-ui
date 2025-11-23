@@ -31,6 +31,6 @@ export function parseDate(date: string, format: string, locale = 'en-US') {
     return parse(date, format, locale).valueOf();
   }
   catch {
-    return 0;
+    return undefined;
   }
 }

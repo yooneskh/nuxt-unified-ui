@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "./nuxt.config.js",
   "exports": {
     ".": "./nuxt.config.js",
@@ -15,9 +15,9 @@
   ],
   "dependencies": {
     "@formkit/tempo": "0.1.2",
-    "@iconify-json/lucide": "1.2.73",
+    "@iconify-json/lucide": "1.2.74",
     "@nuxt/kit": "4.2.1",
-    "@nuxt/ui": "4.1.0",
+    "@nuxt/ui": "4.2.1",
     "@vueuse/core": "14.0.0",
     "@vueuse/nuxt": "14.0.0",
     "radash": "12.1.1",

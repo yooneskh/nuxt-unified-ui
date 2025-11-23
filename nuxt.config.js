@@ -21,6 +21,11 @@ export default defineNuxtConfig({
 
   ui: {
     colorMode: false,
+    theme: {
+      defaultVariants: {
+        color: 'neutral',
+      },
+    },
   },
 
 });

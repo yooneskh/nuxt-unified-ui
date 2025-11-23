@@ -1,10 +1,10 @@
-import { defineNuxtModule, addImports } from "@nuxt/kit";
-import * as radash from "radash";
+import { defineNuxtModule, addImports } from '@nuxt/kit';
+import * as radash from 'radash';
 
 
 export default defineNuxtModule({
   meta: {
-    name: "nuxt-radash",
+    name: 'nuxt-radash',
   },
   setup() {
     for (const name of Object.keys(radash)) {
@@ -15,7 +15,7 @@ export default defineNuxtModule({
       addImports({
         name,
         as,
-        from: "radash",
+        from: 'radash',
       });
 
     }

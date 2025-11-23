@@ -21,7 +21,7 @@ const props = defineProps({
       {
         label: 'Submit',
         value: true,
-      }
+      },
     ],
   },
   endButtons: {
@@ -31,7 +31,7 @@ const props = defineProps({
         variant: 'ghost',
         label: 'Cancel',
         value: false,
-      }
+      },
     ],
   },
 });
@@ -60,7 +60,7 @@ async function handleButtonClick(button) {
   <u-modal @update:open="!$event && emit('close')">
     <template #content>
       <u-card>
-        
+
         <un-typography
           :icon="props.icon"
           :title="props.title"

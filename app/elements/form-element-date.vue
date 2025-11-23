@@ -16,7 +16,7 @@ import { CalendarDate } from '@internationalized/date';
 
 const internalModel = computed({
   get: () => {
-    
+
     if (!modelValue.value) {
       return null;
     }
@@ -48,10 +48,10 @@ const inputTitle = computed(() => {
 <template>
   <u-popover>
 
-    <u-form-field v-bind="radPick(props.field, [ 'label' ])">
+    <u-form-field v-bind="radPick(props.field, [ 'label', 'hint' ])">
       <u-input
         class="w-full"
-        v-bind="radOmit(props.field, [ 'key', 'identifier', 'label' ])"
+        v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint' ])"
         readonly
         :model-value="inputTitle"
       />
