@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "main": "./nuxt.config.js",
   "exports": {
     ".": "./nuxt.config.js",
@@ -20,7 +20,7 @@
     "@nuxt/ui": "4.2.1",
     "@vueuse/core": "14.1.0",
     "@vueuse/nuxt": "14.1.0",
-    "radash": "12.1.1",
+    "radashi": "12.7.1",
     "unified-mongo-filter": "0.4.0"
   },
   "peerDependencies": {

@@ -61,7 +61,7 @@ const shouldShow = computed(() => {
         </h1>
       </div>
       <template v-if="$slots.append">
-        <div class="mt-1 ms-auto">
+        <div class="ms-auto flex items-start gap-2">
           <slot name="append" />
         </div>
       </template>
@@ -89,5 +89,5 @@ const shouldShow = computed(() => {
       {{ props.text }}
     </p>
 
-  </div>  
+  </div>
 </template>

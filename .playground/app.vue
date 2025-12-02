@@ -41,7 +41,7 @@ async function openChoicePickerDialog() {
         icon: 'lucide:check',
         label: 'Submit',
         onClick: async () => {
-          
+
           await new Promise(resolve => setTimeout(resolve, 1000));
 
           toastSuccess({
@@ -111,95 +111,105 @@ async function openFormPickerDialog() {
       title="Unified Nuxt UI"
       subtitle="A Complete Package"
       text="A reuseable Nuxt layer which integrates Nuxt UI and some other useful libraries into your Nuxt application."
-      class="text-2xl max-w-6xl mx-auto mb-6 mt-12 p-3"
+      class="text-2xl max-w-7xl mx-auto mb-6 mt-12 p-3"
     />
 
-    <div class="grid grid-cols-3 gap-3 p-3 max-w-6xl mx-auto">
+    <div class="grid grid-cols-3 gap-3 p-3 max-w-7xl mx-auto items-start">
 
-      <u-card class="[&>div]:flex [&>div]:flex-col [&>div]:h-full">
-        <un-typography
-          icon="lucide:component"
-          title="Nuxt UI"
-          text="Nuxt UI is a component library that provides a set of styled components for your application."
-          class="mb-3"
-        />
-        <div class="flex gap-2 mt-auto">
+      <un-card
+        icon="lucide:component"
+        title="Nuxt UI"
+        subtitle="Component Library"
+        text="Nuxt UI is a component library that provides a set of styled components for your application."
+        :actions="[
+          {
+            label: `Counter: ${counter}`,
+            onClick: () => counter++,
+          },
+        ]">
+
+        <template #append>
+
+          <u-tooltip text="The underlying component library">
+            <u-button
+              variant="subtle"
+              icon="lucide:info"
+            />
+          </u-tooltip>
+
           <u-button
-            :label="`Counter: ${counter}`"
-            @click="counter++"
+            variant="subtle"
+            icon="lucide:link"
+            href="https://ui.nuxt.com"
+            target="_blank"
           />
-        </div>
-      </u-card>
 
-      <u-card class="[&>div]:flex [&>div]:flex-col [&>div]:h-full">
-        <un-typography
-          icon="lucide:message-circle"
-          title="Unified Toast"
-          text="Toast notifications are a simple way to display messages to the user."
-          class="mb-3"
-        />
-        <div class="flex gap-2 mt-auto">
-          <u-button 
-            label="Launch Success Toast" 
-            @click="toastSuccess({ title: 'Success' })" 
-          />
-          <u-button 
-            label="Launch Error Toast" 
-            @click="toastError({ title: 'Error' })" 
-          />
-        </div>
-      </u-card>
+        </template>
 
-      <u-card class="[&>div]:flex [&>div]:flex-col [&>div]:h-full">
-        <un-typography
-          icon="lucide:wrench"
-          title="Radash"
-          text="Radash is a library of utility functions for working with arrays, objects, and strings."
-          class="mb-3"
-        />
-        <div class="flex gap-2 mt-auto">
-          <u-button 
-            label="See Change Case" 
-            @click="toast({ title: `Camel case of 'a simple text' is ${radCamel('a simple text')}` })" 
-          />
-        </div>
-      </u-card>
+      </un-card>
 
-      <u-card class="[&>div]:flex [&>div]:flex-col [&>div]:h-full">
-        <un-typography
-          icon="lucide:text"
-          title="Form"
-          text="Form is a component that provides a set of styled form elements for your application."
-          class="mb-3"
-        />
-        <div class="mt-auto">
-          <form-tag />
-          <pre class="text-xs font-mono mt-3">{{ form }}</pre>
-        </div>
-      </u-card>
+      <un-card
+        icon="lucide:message-circle"
+        title="Unified Toast"
+        subtitle="Toast Notifications"
+        text="Toast notifications are a simple way to display messages to the user."
+        :actions="[
+          {
+            label: 'Launch Success Toast',
+            onClick: () => toastSuccess({ title: 'Success' }),
+          },
+          {
+            actionType: 'spacer',
+          },
+          {
+            label: 'Launch Error Toast',
+            onClick: () => toastError({ title: 'Error' }),
+          },
+        ]"
+      />
 
-      <u-card class="[&>div]:flex [&>div]:flex-col [&>div]:h-full">
-        <un-typography
-          icon="lucide:package"
-          title="Dialogs"
-          text="Dialogs are a way to display modal content to the user."
-          class="mb-3"
-        />
-        <div class="flex flex-col gap-2">
-          <u-button 
-            block
-            label="Launch Choice Picker Dialog" 
-            loading-auto
-            @click="openChoicePickerDialog()" 
-          />
-          <u-button 
-            block
-            label="Launch Form Picker Dialog" 
-            loading-auto
-            @click="openFormPickerDialog()" 
-          />
-        </div>
-      </u-card>
+      <un-card
+        icon="lucide:wrench"
+        title="Radashi"
+        subtitle="Utility Functions"
+        text="Radashi is a library of utility functions for working with arrays, objects, and strings."
+        :actions="[
+          {
+            label: 'See Change Case',
+            onClick: () => toast({ title: `Camel case of 'a simple text' is ${radCamel('a simple text')}` }),
+          },
+        ]"
+      />
+
+      <un-card
+        icon="lucide:text"
+        title="Form"
+        subtitle="Form Component"
+        text="Form is a component that provides a set of styled form elements for your application.">
+        <form-tag />
+        <pre class="text-xs font-mono mt-3">{{ form }}</pre>
+      </un-card>
+
+      <un-card
+        icon="lucide:package"
+        title="Dialogs"
+        subtitle="Modal Dialogs"
+        text="Dialogs are a way to display modal content to the user."
+        vertical-actions
+        :actions="[
+          {
+            label: 'Launch Choice Picker Dialog',
+            onClick: () => openChoicePickerDialog(),
+          },
+          {
+            actionType: 'spacer',
+          },
+          {
+            label: 'Launch Form Picker Dialog',
+            onClick: () => openFormPickerDialog(),
+          },
+        ]"
+      />
 
     </div>
   </u-app>
