@@ -104,7 +104,10 @@ async function openFormPickerDialog() {
 
 
 <template>
-  <u-app>
+  <u-app
+    :tooltip="{
+      delayDuration: 0,
+    }">
 
     <un-typography
       icon="lucide:package"
@@ -129,20 +132,39 @@ async function openFormPickerDialog() {
         ]">
 
         <template #append>
-
-          <u-tooltip text="The underlying component library">
-            <u-button
-              variant="subtle"
-              icon="lucide:info"
-            />
-          </u-tooltip>
-
-          <u-button
-            variant="subtle"
-            icon="lucide:link"
-            href="https://ui.nuxt.com"
-            target="_blank"
-          />
+          <div class="flex flex-col items-end gap-1">
+            <div class="flex gap-1 items-center">
+              <u-tooltip text="Base of the project">
+                <u-button
+                  variant="subtle"
+                  icon="lucide:star"
+                />
+              </u-tooltip>
+              <u-tooltip text="The underlying component library">
+                <u-button
+                  variant="subtle"
+                  icon="lucide:info"
+                />
+              </u-tooltip>
+              <u-button
+                variant="subtle"
+                icon="lucide:link"
+                href="https://ui.nuxt.com"
+                target="_blank"
+              />
+            </div>
+            <div class="flex gap-1 items-center">
+              <u-tooltip text="Meta Framework">
+                <u-button
+                  variant="subtle"
+                  icon="lucide:text"
+                  label="Nuxt"
+                  href="https://nuxt.com"
+                  target="_blank"
+                />
+              </u-tooltip>
+            </div>
+          </div>
 
         </template>
 
