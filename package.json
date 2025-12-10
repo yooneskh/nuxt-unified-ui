@@ -15,8 +15,8 @@
   ],
   "dependencies": {
     "@formkit/tempo": "0.1.2",
-    "@iconify-json/lucide": "1.2.78",
-    "@nuxt/kit": "4.2.1",
+    "@iconify-json/lucide": "1.2.79",
+    "@nuxt/kit": "4.2.2",
     "@nuxt/ui": "4.2.1",
     "@vueuse/core": "14.1.0",
     "@vueuse/nuxt": "14.1.0",
@@ -24,6 +24,6 @@
     "unified-mongo-filter": "0.4.0"
   },
   "peerDependencies": {
-    "nuxt": ">4.0.0"
+    "nuxt": ">4.2.2"
   }
 }
