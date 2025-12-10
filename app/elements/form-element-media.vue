@@ -69,7 +69,7 @@ onChange(async files => {
   <u-form-field v-bind="radPick(props.field, [ 'label' ])">
     <div class="flex items-start gap-2 ltr">
 
-      <template v-if="media?.type?.startsWith('image')">
+      <!-- <template v-if="media?.type?.startsWith('image')">
         <u-popover mode="hover">
 
           <img
@@ -85,7 +85,7 @@ onChange(async files => {
           </template>
 
         </u-popover>
-      </template>
+      </template> -->
 
       <u-input
         class="w-full ltr"
