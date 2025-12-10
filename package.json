@@ -1,14 +1,14 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.2.6",
-  "main": "./nuxt.config.js",
+  "version": "0.2.7",
+  "main": "./nuxt.config.ts",
   "exports": {
-    ".": "./nuxt.config.js",
+    ".": "./nuxt.config.ts",
     "./nuxt-ui-fixes.css": "./app/assets/css/nuxt-ui-fixes.css"
   },
   "files": [
-    "nuxt.config.js",
+    "nuxt.config.ts",
     "package.json",
     "app",
     "modules"
@@ -24,6 +24,6 @@
     "unified-mongo-filter": "0.4.0"
   },
   "peerDependencies": {
-    "nuxt": ">4.2.2"
+    "nuxt": ">4.2.0"
   }
 }
