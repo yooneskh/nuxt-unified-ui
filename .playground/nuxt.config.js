@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   ],
 
   extends: [
-    '..',
+    'nuxt-unified-ui',
   ],
 
 });

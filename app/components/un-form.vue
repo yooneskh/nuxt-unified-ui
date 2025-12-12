@@ -10,7 +10,7 @@ const props = defineProps({
 
 /* elements */
 
-import FormElementText from '../elements/form-element-text.vue';
+import FormElementInput from '../elements/form-element-input.vue';
 import FormElementTextarea from '../elements/form-element-textarea.vue';
 import FormElementSelect from '../elements/form-element-select.vue';
 import FormElementSeries from '../elements/form-element-series.vue';
@@ -20,7 +20,7 @@ import FormElementMedia from '../elements/form-element-media.vue';
 
 
 const elementsMap = {
-  'text': FormElementText,
+  'input': FormElementInput,
   'textarea': FormElementTextarea,
   'select': FormElementSelect,
   'series': FormElementSeries,

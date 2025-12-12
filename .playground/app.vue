@@ -10,17 +10,17 @@ const counter = ref(0);
 const { form, formTag } = useForm({
   fields: [
     {
-      key: 'firstName', identifier: 'text', label: 'First Name', width: 6,
+      key: 'firstName', identifier: 'input', label: 'First Name', width: 6,
     },
     {
-      key: 'lastName', identifier: 'text', label: 'Last Name', width: 6,
+      key: 'lastName', identifier: 'input', label: 'Last Name', width: 6,
     },
     {
-      key: 'email', identifier: 'text', label: 'Email',
+      key: 'email', identifier: 'input', label: 'Email',
       type: 'email',
     },
     {
-      key: 'password', identifier: 'text', label: 'Password',
+      key: 'password', identifier: 'input', label: 'Password',
       type: 'password',
     },
   ]
@@ -67,18 +67,23 @@ async function openFormPickerDialog() {
     },
     fields: [
       {
-        key: 'firstName', identifier: 'text', label: 'First Name', width: 6,
+        key: 'firstName', identifier: 'input', label: 'First Name', width: 6,
       },
       {
-        key: 'lastName', identifier: 'text', label: 'Last Name', width: 6,
+        key: 'lastName', identifier: 'input', label: 'Last Name', width: 6,
       },
       {
-        key: 'email', identifier: 'text', label: 'Email',
+        key: 'email', identifier: 'input', label: 'Email',
         type: 'email',
       },
       {
-        key: 'password', identifier: 'text', label: 'Password',
+        key: 'password', identifier: 'input', label: 'Password',
         type: 'password',
+      },
+      {
+        key: 'profilePicture', identifier: 'input', label: 'Profile Picture',
+        type: 'file',
+        accept: 'image/*',
       },
     ],
     submitButton: {
