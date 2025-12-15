@@ -68,7 +68,7 @@ const slots = useSlots();
 
     <div
       v-if="props.actions?.length || slots.actions"
-      class="flex items-end gap-1 p-2"
+      class="flex items-center gap-1 p-2"
       :class="{
         'flex-col': props.verticalActions,
       }">
