@@ -67,28 +67,34 @@ const slots = useSlots();
     </div>
 
     <div
-      v-if="props.actions?.length"
+      v-if="props.actions?.length || slots.actions"
       class="flex items-end gap-1 p-2"
       :class="{
         'flex-col': props.verticalActions,
       }">
+      <slot name="actions">
 
-      <template v-for="(action, index) of props.actions" :key="index">
+        <slot name="actions-prepend" />
 
-        <template v-if="!action.actionType || action.actionType === 'button'">
-          <u-button
-            loading-auto
-            :block="props.verticalActions"
-            v-bind="radOmit(action, [ 'actionType' ])"
-          />
+        <template v-for="(action, index) of props.actions" :key="index">
+
+          <template v-if="!action.actionType || action.actionType === 'button'">
+            <u-button
+              loading-auto
+              :block="props.verticalActions"
+              v-bind="radOmit(action, [ 'actionType' ])"
+            />
+          </template>
+
+          <template v-if="action.actionType === 'spacer'">
+            <div class="grow" />
+          </template>
+
         </template>
 
-        <template v-if="action.actionType === 'spacer'">
-          <div class="grow" />
-        </template>
+        <slot name="actions-append" />
 
-      </template>
-
+      </slot>
     </div>
 
   </u-card>
