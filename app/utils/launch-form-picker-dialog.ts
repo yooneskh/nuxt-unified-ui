@@ -9,7 +9,7 @@ interface IOptions {
   text?: string;
   fields: any[];
   initialForm?: any;
-  submitButton?: ButtonProps;
+  submitButton?: ButtonProps & { disabled?: boolean | (() => boolean) | object };
   cancelButton?: ButtonProps;
 }
 

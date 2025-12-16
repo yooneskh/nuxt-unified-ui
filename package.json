@@ -1,8 +1,9 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "main": "./nuxt.config.ts",
+  "types": "./index.d.ts",
   "exports": {
     ".": "./nuxt.config.ts",
     "./nuxt-ui-fixes.css": "./app/assets/css/nuxt-ui-fixes.css"
@@ -10,6 +11,7 @@
   "files": [
     "nuxt.config.ts",
     "package.json",
+    "index.d.ts",
     "app",
     "modules"
   ],

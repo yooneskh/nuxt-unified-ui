@@ -65,6 +65,7 @@ async function handleSubmit() {
           {
             label: 'Submit',
             ...props.submitButton,
+            disabled: smartMatch(props.submitButton?.disabled, form),
             loadingAuto: true,
             onClick: handleSubmit,
           },
