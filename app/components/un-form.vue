@@ -32,11 +32,9 @@ const elementsMap = {
 
 /* v-if */
 
-import { matches } from 'unified-mongo-filter';
-
 const filteredFields = computed(() => {
   return props.fields?.filter(it =>
-    !it.vIf || matches(it.vIf, props.target)
+    !('if' in it) || smartMatch(it.if, props.target)
   );
 });
 
