@@ -73,7 +73,7 @@ const shouldShow = computed(() => {
         </h2>
       </div>
       <template v-if="slots.append">
-        <div class="ms-auto flex items-start gap-1">
+        <div class="ms-auto flex items-center gap-1">
           <slot name="append" />
         </div>
       </template>
