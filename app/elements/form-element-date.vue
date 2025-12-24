@@ -48,10 +48,10 @@ const inputTitle = computed(() => {
 <template>
   <u-popover>
 
-    <u-form-field v-bind="radPick(props.field, [ 'label', 'hint', 'help' ])">
+    <u-form-field v-bind="radPick(props.field, [ 'label', 'hint', 'help', 'description' ])">
       <u-input
         class="w-full"
-        v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint', 'help' ])"
+        v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint', 'help', 'description' ])"
         readonly
         :model-value="inputTitle"
       />

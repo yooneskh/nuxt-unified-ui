@@ -12,10 +12,10 @@ const modelValue = defineModel();
 
 
 <template>
-  <u-form-field v-bind="radPick(props.field, [ 'label', 'hint', 'help' ])">
+  <u-form-field v-bind="radPick(props.field, [ 'label', 'hint', 'help', 'description' ])">
     <u-textarea
       class="w-full"
-      v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint', 'help' ])"
+      v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint', 'help', 'description' ])"
       v-model="modelValue"
     />
   </u-form-field>
