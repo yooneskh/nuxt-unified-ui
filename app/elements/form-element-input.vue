@@ -37,10 +37,10 @@ function handleChange(event) {
 
 
 <template>
-  <u-form-field v-bind="radPick(props.field, [ 'label', 'hint' ])">
+  <u-form-field v-bind="radPick(props.field, [ 'label', 'hint', 'help' ])">
     <u-input
       class="w-full"
-      v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint' ])"
+      v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint', 'help' ])"
       v-model="smartModel"
       @change="handleChange($event)"
     />

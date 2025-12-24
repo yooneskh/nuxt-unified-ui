@@ -66,7 +66,7 @@ onChange(async files => {
 
 
 <template>
-  <u-form-field v-bind="radPick(props.field, [ 'label' ])">
+  <u-form-field v-bind="radPick(props.field, [ 'label', 'hint', 'help' ])">
     <div class="flex items-start gap-2 ltr">
 
       <!-- <template v-if="media?.type?.startsWith('image')">
@@ -90,7 +90,7 @@ onChange(async files => {
       <u-input
         class="w-full ltr"
         icon="lucide:file"
-        v-bind="radOmit(props.field, [ 'key', 'identifier', 'label' ])"
+        v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint', 'help' ])"
         readonly
         :loading="pending || isUploading"
         :model-value="fieldTitle"

@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "main": "./nuxt.config.ts",
   "types": "./index.d.ts",
   "exports": {
