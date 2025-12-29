@@ -18,6 +18,8 @@ const props = defineProps<{
 
   fluidBody?: boolean;
 
+  appendActions?: ButtonProps[];
+
   actions?: ( ButtonProps & { actionType?: 'button' | 'spacer' } )[];
   verticalActions?: boolean;
 
@@ -40,7 +42,13 @@ const slots = useSlots();
       :title-classes="props.titleClasses"
       :subtitle-classes="props.subtitleClasses"
       class="p-3">
-      <template v-if="slots.append" #append>
+      <template v-if="slots.append || props.appendActions" #append>
+        <template v-for="(action, index) of props.appendActions" :key="index">
+          <u-button
+            loading-auto
+            v-bind="action"
+          />
+        </template>
         <slot name="append" />
       </template>
     </un-typography>
