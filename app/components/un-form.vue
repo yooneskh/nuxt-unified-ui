@@ -62,7 +62,8 @@ const filteredFields = computed(() => {
       <component
         :is="elementsMap[field.identifier]"
         :field="field"
-        v-model="props.target[field.key]"
+        :model-value="radGet(props.target, field.key)"
+        @update:model-value="radSet(props.target, field.key, $event)"
       />
     </div>
   </div>
