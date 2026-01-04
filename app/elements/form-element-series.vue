@@ -50,22 +50,22 @@ function handleMoveItem(index, direction) {
 <template>
   <div class="border border-default rounded">
 
-    <label class="text-sm flex items-center px-2 py-1 border-b border-default">
+    <label class="text-sm flex items-center gap-1 px-2 py-1 border-b border-default">
 
       <span>
         {{ props.field.label }}
       </span>
 
-      <span class="text-xs ms-1">
+      <span class="text-xs">
         ({{ (modelValue?.length > 0) ? (`${modelValue.length} Items`) : ('None') }})
       </span>
 
       <u-button
-        variant="soft"
+        variant="subtle"
         size="xs"
         icon="i-lucide-plus"
         label="New Item"
-        class="ms-3"
+        class="ms-2"
         @click="handleAddItem()"
       />
 
@@ -79,7 +79,7 @@ function handleMoveItem(index, direction) {
 
     <div
       v-else
-      class="p-2 grid gap-2 bg-stone-100"
+      class="p-2 grid gap-2 bg-muted"
       :class="{
         'grid-cols-1': props.field.seriesColumns === 1 || !props.field.seriesColumns,
         'grid-cols-2': props.field.seriesColumns === 2,
@@ -101,13 +101,13 @@ function handleMoveItem(index, direction) {
         <div
           class="
             absolute top-2 end-2
-            hidden
-            group-hover:flex group-hover:gap-1
+            hidden pointer-events-none
+            group-hover:flex group-hover:gap-1 group-hover:pointer-events-auto
           ">
 
           <u-tooltip text="Duplicate">
             <u-button
-              variant="soft"
+              variant="subtle"
               icon="i-lucide-copy"
               size="xs"
               @click="handleDuplicateItem(index)"
@@ -117,7 +117,7 @@ function handleMoveItem(index, direction) {
           <u-tooltip text="Move Back">
             <u-button
               v-if="index > 0"
-              variant="soft"
+              variant="subtle"
               icon="i-lucide-chevron-left"
               size="xs"
               @click="handleMoveItem(index, -1)"
@@ -127,7 +127,7 @@ function handleMoveItem(index, direction) {
           <u-tooltip text="Move Forward">
             <u-button
               v-if="index < modelValue.length - 1"
-              variant="soft"
+              variant="subtle"
               icon="i-lucide-chevron-right"
               size="xs"
               @click="handleMoveItem(index, 1)"
@@ -136,7 +136,7 @@ function handleMoveItem(index, direction) {
 
           <u-tooltip text="Delete">
             <u-button
-              variant="soft"
+              variant="subtle"
               color="error"
               icon="i-lucide-trash"
               size="xs"
@@ -149,5 +149,5 @@ function handleMoveItem(index, direction) {
       </div>
     </div>
 
-    </div>
+  </div>
 </template>
