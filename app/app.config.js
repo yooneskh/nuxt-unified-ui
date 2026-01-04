@@ -11,7 +11,7 @@ export default defineAppConfig({
 
     table: {
       slots: {
-        td: 'p-3',
+        td: 'py-3',
       },
     },
 
