@@ -63,7 +63,7 @@ const filteredFields = computed(() => {
         :is="elementsMap[field.identifier]"
         :field="field"
         :model-value="radGet(props.target, field.key)"
-        @update:model-value="radSet(props.target, field.key, $event)"
+        @update:model-value="unSet(props.target, field.key, $event)"
       />
     </div>
   </div>
