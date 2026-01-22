@@ -5,7 +5,7 @@ type ITypedToast = Omit<IToast, 'icon' | 'color'>;
 
 
 export function toast(options: IToast) {
-  useToast().add(options);
+  (useNuxtApp().$toaster as ReturnType<typeof useToast>).add(options);
 }
 
 
