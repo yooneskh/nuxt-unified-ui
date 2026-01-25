@@ -3,7 +3,7 @@
 export default defineNuxtPlugin(() => {
   return {
     provide: {
-      $toaster: useToast(),
+      toaster: useToast(),
     },
   };
 });
