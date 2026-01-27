@@ -8,7 +8,7 @@
     "build": "nuxt build"
   },
   "dependencies": {
-    "nuxt": "4.2.1",
+    "nuxt": "4.3.0",
     "nuxt-unified-ui": "file:../"
   }
 }

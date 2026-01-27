@@ -10,20 +10,35 @@ const counter = ref(0);
 const { form, formTag } = useForm({
   fields: [
     {
-      key: 'firstName', identifier: 'input', label: 'First Name', width: 6,
+      key: 'firstName',
+      identifier: 'input',
+      label: 'First Name',
+      width: 6,
     },
     {
-      key: 'lastName', identifier: 'input', label: 'Last Name', width: 6,
+      key: 'lastName',
+      identifier: 'input',
+      label: 'Last Name',
+      width: 6,
     },
     {
-      key: 'email', identifier: 'input', label: 'Email',
+      key: 'email',
+      identifier: 'input',
+      label: 'Email',
       type: 'email',
     },
     {
-      key: 'password', identifier: 'input', label: 'Password',
+      key: 'password',
+      identifier: 'input',
+      label: 'Password',
       type: 'password',
     },
-  ]
+    {
+      key: 'dateOfBirth',
+      identifier: 'date',
+      label: 'Date of Birth',
+    },
+  ],
 });
 
 
@@ -67,23 +82,40 @@ async function openFormPickerDialog() {
     },
     fields: [
       {
-        key: 'firstName', identifier: 'input', label: 'First Name', width: 6,
+        key: 'firstName',
+        identifier: 'input',
+        label: 'First Name',
+        width: 6,
       },
       {
-        key: 'lastName', identifier: 'input', label: 'Last Name', width: 6,
+        key: 'lastName',
+        identifier: 'input',
+        label: 'Last Name',
+        width: 6,
       },
       {
-        key: 'email', identifier: 'input', label: 'Email',
+        key: 'email',
+        identifier: 'input',
+        label: 'Email',
         type: 'email',
       },
       {
-        key: 'password', identifier: 'input', label: 'Password',
+        key: 'password',
+        identifier: 'input',
+        label: 'Password',
         type: 'password',
       },
       {
-        key: 'profilePicture', identifier: 'input', label: 'Profile Picture',
+        key: 'profilePicture',
+        identifier: 'input',
+        label: 'Profile Picture',
         type: 'file',
         accept: 'image/*',
+      },
+      {
+        key: 'dateOfBirth',
+        identifier: 'date',
+        label: 'Date of Birth',
       },
     ],
     submitButton: {
