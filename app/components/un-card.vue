@@ -42,8 +42,9 @@ const slots = useSlots();
       :title-classes="props.titleClasses"
       :subtitle-classes="props.subtitleClasses"
       class="p-3">
-      <template v-if="slots.append || props.appendActions" #append>
-        <template v-for="(action, index) of props.appendActions" :key="index">
+      <template v-if="props.appendActions || isSlotFilled(slots['append-prepend']) || isSlotFilled(slots.append)" #append>
+        <slot name="append-prepend" />
+        <template v-for="action of props.appendActions">
           <u-button
             loading-auto
             v-bind="action"
@@ -54,56 +55,52 @@ const slots = useSlots();
     </un-typography>
 
     <div
-      v-if="slots.default || props.text"
+      v-if="props.text || isSlotFilled(slots.default)"
       :class="{
         'p-3': !props.fluidBody,
       }">
 
-      <p
-        v-if="props.text"
-        :class="[
-          {
-            'mb-3': !!slots.default,
-          },
-          props.textClasses,
-        ]">
-        {{ props.text }}
-      </p>
+      <template v-if="props.text">
+        <p :class="[ { 'mb-3': !!slots.default }, props.textClasses ]">
+          {{ props.text }}
+        </p>
+      </template>
 
       <slot />
 
     </div>
 
-    <div
-      v-if="props.actions?.length || slots.actions"
-      class="flex items-center gap-1 p-2"
-      :class="{
-        'flex-col': props.verticalActions,
-      }">
-      <slot name="actions">
+    <template v-if="props.actions?.length || isSlotFilled(slots.actions)">
+      <div
+        class="flex items-center gap-1 p-2"
+        :class="{
+          'flex-col': props.verticalActions,
+        }">
+        <slot name="actions">
 
-        <slot name="actions-prepend" />
+          <slot name="actions-prepend" />
 
-        <template v-for="(action, index) of props.actions" :key="index">
+          <template v-for="(action, index) of props.actions" :key="index">
 
-          <template v-if="!action.actionType || action.actionType === 'button'">
-            <u-button
-              loading-auto
-              :block="props.verticalActions"
-              v-bind="radOmit(action, [ 'actionType' ])"
-            />
+            <template v-if="!action.actionType || action.actionType === 'button'">
+              <u-button
+                loading-auto
+                :block="props.verticalActions"
+                v-bind="radOmit(action, [ 'actionType' ])"
+              />
+            </template>
+
+            <template v-if="action.actionType === 'spacer'">
+              <div class="grow" />
+            </template>
+
           </template>
 
-          <template v-if="action.actionType === 'spacer'">
-            <div class="grow" />
-          </template>
+          <slot name="actions-append" />
 
-        </template>
-
-        <slot name="actions-append" />
-
-      </slot>
-    </div>
+        </slot>
+      </div>
+    </template>
 
   </u-card>
 </template>
