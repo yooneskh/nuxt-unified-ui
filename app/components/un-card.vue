@@ -18,9 +18,10 @@ const props = defineProps<{
 
   fluidBody?: boolean;
 
-  appendActions?: ButtonProps[];
+  subtitleActions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
+  appendActions?: ( ButtonProps & { tooltip?: string; } )[];
 
-  actions?: ( ButtonProps & { actionType?: 'button' | 'spacer' } )[];
+  actions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
   verticalActions?: boolean;
 
 }>();
@@ -42,16 +43,47 @@ const slots = useSlots();
       :title-classes="props.titleClasses"
       :subtitle-classes="props.subtitleClasses"
       class="p-3">
+
+      <template v-if="isSlotFilled(slots.title)" #title>
+        <slot name="title" />
+      </template>
+
+      <template v-if="props.subtitleActions || isSlotFilled(slots.subtitle)" #subtitle>
+        <slot name="subtitle">
+          <div class="flex flex-wrap justify-end gap-1">
+            <template v-for="(action, index) of props.subtitleActions" :key="index">
+
+              <template v-if="!action.actionType || action.actionType === 'button'">
+                <u-tooltip :text="action.tooltip">
+                  <u-button
+                    loading-auto
+                    v-bind="radOmit(action, [ 'actionType', 'tooltip' ])"
+                  />
+                </u-tooltip>
+              </template>
+
+              <template v-else-if="action.actionType === 'spacer'">
+                <div class="grow" />
+              </template>
+
+            </template>
+          </div>
+        </slot>
+      </template>
+
       <template v-if="props.appendActions || isSlotFilled(slots['append-prepend']) || isSlotFilled(slots.append)" #append>
         <slot name="append-prepend" />
         <template v-for="action of props.appendActions">
-          <u-button
-            loading-auto
-            v-bind="action"
-          />
+          <u-tooltip :text="action.tooltip">
+            <u-button
+              loading-auto
+              v-bind="radOmit(action, [ 'tooltip' ])"
+            />
+          </u-tooltip>
         </template>
         <slot name="append" />
       </template>
+
     </un-typography>
 
     <div
@@ -72,7 +104,7 @@ const slots = useSlots();
 
     <template v-if="props.actions?.length || isSlotFilled(slots.actions)">
       <div
-        class="flex items-center gap-1 p-2"
+        class="flex flex-wrap items-center gap-1 p-2"
         :class="{
           'flex-col': props.verticalActions,
         }">
@@ -83,14 +115,16 @@ const slots = useSlots();
           <template v-for="(action, index) of props.actions" :key="index">
 
             <template v-if="!action.actionType || action.actionType === 'button'">
-              <u-button
-                loading-auto
-                :block="props.verticalActions"
-                v-bind="radOmit(action, [ 'actionType' ])"
-              />
+              <u-tooltip :text="action.tooltip">
+                <u-button
+                  loading-auto
+                  :block="props.verticalActions"
+                  v-bind="radOmit(action, [ 'actionType', 'tooltip' ])"
+                />
+              </u-tooltip>
             </template>
 
-            <template v-if="action.actionType === 'spacer'">
+            <template v-else-if="action.actionType === 'spacer'">
               <div class="grow" />
             </template>
 

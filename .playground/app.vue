@@ -141,10 +141,7 @@ async function openFormPickerDialog() {
 
 
 <template>
-  <u-app
-    :tooltip="{
-      delayDuration: 0,
-    }">
+  <u-app>
 
     <un-typography
       icon="lucide:package"
@@ -270,7 +267,34 @@ async function openFormPickerDialog() {
         ]"
       />
 
-      <div />
+      <un-card
+        icon="lucide:text"
+        title="Many Append Actions"
+        text="You can put actions on the subtitle when there are too many."
+        :subtitle-actions="[
+          {
+            variant: 'subtle',
+            label: 'Launch 1',
+          },
+          {
+            variant: 'subtle',
+            label: 'Launch 2',
+          },
+          {
+            variant: 'subtle',
+            label: 'Launch 3',
+            tooltip: 'This is the third action',
+          },
+          {
+            variant: 'subtle',
+            label: 'Launch 4',
+          },
+          {
+            variant: 'subtle',
+            label: 'Launch 5',
+          },
+        ]"
+      />
 
       <un-card
         icon="lucide:star"
