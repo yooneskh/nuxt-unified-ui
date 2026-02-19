@@ -6,7 +6,7 @@
       "name": "nuxt-unified-ui",
       "dependencies": {
         "@formkit/tempo": "1.0.0",
-        "@iconify-json/lucide": "1.2.90",
+        "@iconify-json/lucide": "1.2.91",
         "@nuxt/kit": "4.3.1",
         "@nuxt/ui": "4.4.0",
         "@vueuse/core": "14.2.1",
@@ -158,7 +158,7 @@
 
     "@formkit/tempo": ["@formkit/tempo@1.0.0", "", {}, "sha512-2jhR8jnWFt4ajtbpHL2ZvJJ+ofj/XpAumb1OLmsY7U5iwCjGKuk0wqLR7dGsZfyvJeivfWLD9vzj9cdkUUWzyg=="],
 
-    "@iconify-json/lucide": ["@iconify-json/lucide@1.2.90", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-dPn1pRhfBa9KR+EVpdyM1Rvw3T36hCKYxd6TxK1ifffiNt0f5yXx8ZVhqnzPH4Vkz87yLMj5xFCXomNrnzd2kQ=="],
+    "@iconify-json/lucide": ["@iconify-json/lucide@1.2.91", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-8fuRiK+HiNRgCKMspn9UPsDpBw0TqVTIY0LOiDbMnFxOBwAulMXIl+SVOtp4LzxNvCXB5ofYffiiFIFDitqo7w=="],
 
     "@iconify/collections": ["@iconify/collections@1.0.643", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-mtXKNYlunC/HaEB+IwnJOw+dZ6Z7QwrUr4484qm/MiIk+7f8TyqDM9qYeJENEEDCWznyqR7ML/FNJ3F02nXF0g=="],
 
