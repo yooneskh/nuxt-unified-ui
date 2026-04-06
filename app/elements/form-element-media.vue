@@ -57,7 +57,7 @@ onChange(async files => {
   resetFilePicker();
 
   toastSuccess({
-    title: 'فایل با موفقیت آپلود شد.',
+    title: $t('un.media.uploadSuccess'),
   });
 
 });

@@ -19,7 +19,7 @@ const props = defineProps({
     type: Array,
     default: () => [
       {
-        label: 'Submit',
+        label: $t('common.submit'),
         value: true,
       },
     ],
@@ -29,7 +29,7 @@ const props = defineProps({
     default: () => [
       {
         variant: 'ghost',
-        label: 'Cancel',
+        label: $t('common.cancel'),
         value: false,
       },
     ],

@@ -1,0 +1,21 @@
+{
+  "common": {
+    "items": "Items",
+    "newItem": "New Item",
+    "none": "None",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "un": {
+    "series": {
+      "noItems": "No items added yet. Click on 'New Item' to add one.",
+      "duplicate": "Duplicate",
+      "moveBack": "Move Back",
+      "moveForward": "Move Forward",
+      "delete": "Delete"
+    },
+    "media": {
+      "uploadSuccess": "File uploaded successfully."
+    }
+  }
+}

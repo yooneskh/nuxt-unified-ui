@@ -57,14 +57,14 @@ function handleMoveItem(index, direction) {
       </span>
 
       <span class="text-xs">
-        ({{ (modelValue?.length > 0) ? (`${modelValue.length} Items`) : ('None') }})
+        ({{ (modelValue?.length > 0) ? (`${modelValue.length} ${$t('common.items')}`) : ($t('common.none')) }})
       </span>
 
       <u-button
         variant="subtle"
         size="xs"
         icon="i-lucide-plus"
-        label="New Item"
+        :label="$t('common.newItem')"
         class="ms-2"
         @click="handleAddItem()"
       />
@@ -73,7 +73,7 @@ function handleMoveItem(index, direction) {
 
     <template v-if="!modelValue || !(modelValue.length > 0)">
       <p class="text-xs text-center py-6">
-        No items added yet. Click on "New Item" to add one.
+        {{ $t('un.series.noItems') }}
       </p>
     </template>
 
@@ -105,7 +105,7 @@ function handleMoveItem(index, direction) {
             group-hover:flex group-hover:gap-1 group-hover:pointer-events-auto
           ">
 
-          <u-tooltip text="Duplicate">
+          <u-tooltip :text="$t('un.series.duplicate')">
             <u-button
               variant="subtle"
               icon="i-lucide-copy"
@@ -114,7 +114,7 @@ function handleMoveItem(index, direction) {
             />
           </u-tooltip>
 
-          <u-tooltip text="Move Back">
+          <u-tooltip :text="$t('un.series.moveBack')">
             <u-button
               v-if="index > 0"
               variant="subtle"
@@ -124,7 +124,7 @@ function handleMoveItem(index, direction) {
             />
           </u-tooltip>
 
-          <u-tooltip text="Move Forward">
+          <u-tooltip :text="$t('un.series.moveForward')">
             <u-button
               v-if="index < modelValue.length - 1"
               variant="subtle"
@@ -134,7 +134,7 @@ function handleMoveItem(index, direction) {
             />
           </u-tooltip>
 
-          <u-tooltip text="Delete">
+          <u-tooltip :text="$t('un.series.delete')">
             <u-button
               variant="subtle"
               color="error"

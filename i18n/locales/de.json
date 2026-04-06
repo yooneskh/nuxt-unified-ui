@@ -1,0 +1,21 @@
+{
+  "common": {
+    "items": "Elemente",
+    "newItem": "Neues Element",
+    "none": "Keine",
+    "submit": "Absenden",
+    "cancel": "Abbrechen"
+  },
+  "un": {
+    "series": {
+      "noItems": "Noch keine Elemente hinzugefügt. Klicken Sie auf 'Neues Element', um eines hinzuzufügen.",
+      "duplicate": "Duplizieren",
+      "moveBack": "Zurück bewegen",
+      "moveForward": "Vorwärts bewegen",
+      "delete": "Löschen"
+    },
+    "media": {
+      "uploadSuccess": "Datei erfolgreich hochgeladen."
+    }
+  }
+}

@@ -63,10 +63,9 @@ async function handleSubmit() {
         :text="props.text"
         :actions="[
           {
-            label: 'Submit',
+            label: $t('common.submit'),
             ...props.submitButton,
             disabled: smartMatch(props.submitButton?.disabled, form),
-            loadingAuto: true,
             onClick: handleSubmit,
           },
           {
@@ -74,9 +73,8 @@ async function handleSubmit() {
           },
           {
             variant: 'ghost',
-            label: 'Cancel',
+            label: $t('common.cancel'),
             ...props.cancelButton,
-            loadingAuto: true,
             onClick: () => emit('close'),
           },
         ]">
