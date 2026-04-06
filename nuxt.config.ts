@@ -29,4 +29,17 @@ export default defineNuxtConfig({
     },
   },
 
+  i18n: {
+    locales: [
+      {
+        code: 'en',
+        file: 'en.json',
+      },
+      {
+        code: 'de',
+        file: 'de.json',
+      },
+    ],
+  },
+
 });
