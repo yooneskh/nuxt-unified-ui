@@ -17,28 +17,35 @@ const props = defineProps({
   },
   startButtons: {
     type: Array,
-    default: () => [
-      {
-        label: $t('common.submit'),
-        value: true,
-      },
-    ],
   },
   endButtons: {
     type: Array,
-    default: () => [
-      {
-        variant: 'ghost',
-        label: $t('common.cancel'),
-        value: false,
-      },
-    ],
   },
 });
 
 const emit = defineEmits([
   'close',
 ]);
+
+
+const startButtons = computed(() => {
+  return props.startButtons || [
+    {
+      label: $t('common.submit'),
+      value: true,
+    },
+  ];
+});
+
+const endButtons = computed(() => {
+  return props.endButtons ?? [
+    {
+      variant: 'ghost',
+      label: $t('common.cancel'),
+      value: false,
+    },
+  ];
+});
 
 
 /* actions */
@@ -60,14 +67,14 @@ async function handleButtonClick(button) {
         :subtitle="props.subtitle"
         :text="props.text"
         :actions="[
-          ...(props.startButtons || []).map(button => ({
+          ...startButtons.map(button => ({
             ...button,
             onClick: () => handleButtonClick(button),
           })),
           {
             actionType: 'spacer',
           },
-          ...(props.endButtons || []).map(button => ({
+          ...endButtons.map(button => ({
             ...button,
             onClick: () => handleButtonClick(button),
           })),
