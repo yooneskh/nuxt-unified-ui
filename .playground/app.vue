@@ -52,7 +52,6 @@ async function openChoicePickerDialog() {
     text: 'Are you sure you want to submit your application?',
     startButtons: [
       {
-        color: 'primary',
         icon: 'lucide:check',
         label: 'Submit',
         onClick: async () => {
@@ -117,10 +116,14 @@ async function openFormPickerDialog() {
         identifier: 'date',
         label: 'Date of Birth',
       },
+      {
+        key: 'test',
+        identifier: 'test',
+        label: 'Test',
+      },
     ],
     submitButton: {
       icon: 'lucide:send',
-      color: 'primary',
       label: 'Submit Application',
       onClick: async form => {
 

@@ -1,14 +1,15 @@
 {
   "name": "nuxt-unified-ui-playground",
+  "version": "0.0.2",
   "type": "module",
-  "version": "0.0.1",
+  "packageManager": "bun@1.3.13",
   "scripts": {
     "postinstall": "nuxt prepare",
     "serve": "nuxt dev --port 8080",
     "build": "nuxt build"
   },
   "dependencies": {
-    "nuxt": "4.3.0",
+    "nuxt": "4.4.2",
     "nuxt-unified-ui": "file:../"
   }
 }

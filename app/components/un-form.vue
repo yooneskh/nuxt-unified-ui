@@ -16,18 +16,29 @@ import FormElementSelect from '../elements/form-element-select.vue';
 import FormElementSeries from '../elements/form-element-series.vue';
 import FormElementCheckbox from '../elements/form-element-checkbox.vue';
 import FormElementDate from '../elements/form-element-date.vue';
-import FormElementMedia from '../elements/form-element-media.vue';
 
 
-const elementsMap = {
-  'input': FormElementInput,
-  'textarea': FormElementTextarea,
-  'select': FormElementSelect,
-  'series': FormElementSeries,
-  'date': FormElementDate,
-  'checkbox': FormElementCheckbox,
-  'media': FormElementMedia,
-};
+const formExtraElements = useFormExtraElements();
+
+
+const elementsMap = computed(() => {
+  return {
+    'input': FormElementInput,
+    'textarea': FormElementTextarea,
+    'select': FormElementSelect,
+    'series': FormElementSeries,
+    'date': FormElementDate,
+    'checkbox': FormElementCheckbox,
+    ...(Object.fromEntries(
+      formExtraElements.value.map(it =>
+        [
+          it.identifier,
+          it.component,
+        ],
+      ),
+    )),
+  };
+});
 
 
 /* v-if */
