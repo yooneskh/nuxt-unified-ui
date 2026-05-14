@@ -7,7 +7,7 @@ A reuseable Nuxt layer which integrates Nuxt UI and some other useful libraries 
 Make sure to install the dependencies:
 
 ```bash
-bun i
+vp i
 ```
 
 ## Development Server
@@ -15,5 +15,5 @@ bun i
 Start the development server on http://localhost:8080
 
 ```bash
-bun dev
+vpr serve
 ```
