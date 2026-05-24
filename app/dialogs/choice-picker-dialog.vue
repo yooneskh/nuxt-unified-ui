@@ -15,6 +15,9 @@ const props = defineProps({
   text: {
     type: String,
   },
+  modalOptions: {
+    type: Object,
+  },
   startButtons: {
     type: Array,
   },
@@ -59,7 +62,7 @@ async function handleButtonClick(button) {
 
 
 <template>
-  <u-modal @update:open="!$event && emit('close')">
+  <u-modal v-bind="props.modalOptions" @update:open="!$event && emit('close')">
     <template #content>
       <un-card
         :icon="props.icon"

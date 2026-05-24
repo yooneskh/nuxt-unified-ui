@@ -1,4 +1,4 @@
-import type { ButtonProps } from '@nuxt/ui';
+import type { ButtonProps, ModalProps } from '@nuxt/ui';
 import FormPickerDialog from '../dialogs/form-picker-dialog.vue';
 
 
@@ -7,6 +7,7 @@ interface IOptions {
   title?: string;
   subtitle?: string;
   text?: string;
+  modalOptions?: ModalProps;
   fields: any[];
   initialForm?: any;
   submitButton?: Omit<ButtonProps, 'disabled'> & { disabled?: boolean | ((form: any) => boolean) | Record<string, any> };

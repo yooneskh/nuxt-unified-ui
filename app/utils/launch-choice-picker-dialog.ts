@@ -1,4 +1,4 @@
-import type { ButtonProps } from '@nuxt/ui';
+import type { ButtonProps, ModalProps } from '@nuxt/ui';
 import ChoicePickerDialog from '../dialogs/choice-picker-dialog.vue';
 
 
@@ -7,6 +7,7 @@ interface IOptions {
   title?: string;
   subtitle?: string;
   text?: string;
+  modalOptions?: ModalProps;
   startButtons?: ( ButtonProps & { value?: string } )[];
   endButtons?: ( ButtonProps & { value?: string } )[];
 }
