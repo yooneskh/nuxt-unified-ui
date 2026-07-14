@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.4.16",
+  "version": "0.4.18",
   "main": "./nuxt.config.ts",
   "types": "./index.d.ts",
   "exports": {
@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "@formkit/tempo": "1.1.0",
-    "@iconify-json/lucide": "1.2.116",
+    "@iconify-json/lucide": "1.2.117",
     "@nuxt/kit": "4.4.8",
     "@nuxt/ui": "4.9.0",
     "@nuxtjs/i18n": "10.4.1",
