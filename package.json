@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.4.24",
+  "version": "0.4.25",
   "main": "./nuxt.config.ts",
   "types": "./index.d.ts",
   "exports": {
@@ -22,7 +22,7 @@
     "@iconify-json/lucide": "1.2.120",
     "@nuxt/kit": "4.5.1",
     "@nuxt/ui": "4.10.0",
-    "@nuxtjs/i18n": "10.5.0",
+    "@nuxtjs/i18n": "10.6.0",
     "@vueuse/core": "14.4.0",
     "@vueuse/nuxt": "14.4.0",
     "radashi": "12.9.1",
