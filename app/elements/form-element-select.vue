@@ -13,8 +13,9 @@ const modelValue = defineModel();
 
 <template>
   <u-form-field v-bind="radPick(props.field, [ 'label', 'hint', 'help', 'description' ])">
-    <u-select
+    <u-select-menu
       class="w-full"
+      value-key="value"
       v-bind="radOmit(props.field, [ 'key', 'identifier', 'label', 'hint', 'help', 'description' ])"
       v-model="modelValue"
     />

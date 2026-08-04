@@ -22,6 +22,15 @@ const { form, formTag } = useForm({
       width: 6,
     },
     {
+      key: 'gender',
+      identifier: 'select',
+      label: 'Gender',
+      items: [
+        'Female',
+        'Male',
+      ],
+    },
+    {
       key: 'email',
       identifier: 'input',
       label: 'Email',
@@ -93,6 +102,21 @@ async function openFormPickerDialog() {
         width: 6,
       },
       {
+        key: 'gender',
+        identifier: 'select',
+        label: 'Gender',
+        items: [
+          {
+            value: 'male',
+            label: 'Male',
+          },
+          {
+            value: 'female',
+            label: 'Female',
+          },
+        ],
+      },
+      {
         key: 'email',
         identifier: 'input',
         label: 'Email',
@@ -145,185 +169,181 @@ async function openFormPickerDialog() {
 
 <template>
   <u-app>
+    <div class="min-h-dvh bg-muted">
 
-    <un-typography
-      icon="lucide:package"
-      title="Unified Nuxt UI"
-      subtitle="A Complete Package"
-      text="A reuseable Nuxt layer which integrates Nuxt UI and some other useful libraries into your Nuxt application."
-      class="text-2xl max-w-7xl mx-auto mb-6 mt-12 p-3"
-    />
+      <un-typography
+        icon="lucide:package"
+        title="Unified Nuxt UI"
+        subtitle="A Complete Package"
+        text="A reuseable Nuxt layer which integrates Nuxt UI and some other useful libraries into your Nuxt application."
+        class="text-2xl max-w-7xl mx-auto mb-6 mt-12 p-3"
+      />
 
-    <div class="grid grid-cols-3 gap-3 p-3 max-w-7xl mx-auto items-start">
+      <div class="grid grid-cols-3 gap-3 p-3 max-w-7xl mx-auto items-start">
 
-      <un-card
-        icon="lucide:component"
-        title="Nuxt UI"
-        subtitle="Component Library"
-        text="Nuxt UI is a component library that provides a set of styled components for your application."
-        :actions="[
-          {
-            label: `Counter: ${counter}`,
-            onClick: () => counter++,
-          },
-        ]">
+        <un-card
+          icon="lucide:component"
+          title="Nuxt UI"
+          subtitle="Component Library"
+          text="Nuxt UI is a component library that provides a set of styled components for your application."
+          :actions="[
+            {
+              label: `Counter: ${counter}`,
+              onClick: () => counter++,
+            },
+          ]">
 
-        <template #append>
-          <div class="flex flex-col items-end gap-1">
-            <div class="flex gap-1 items-center">
-              <u-tooltip text="Base of the project">
+          <template #append>
+            <div class="flex flex-col items-end gap-1">
+              <div class="flex gap-1 items-center">
+                <u-tooltip text="Base of the project">
+                  <u-button
+                    variant="subtle"
+                    icon="lucide:star"
+                  />
+                </u-tooltip>
+                <u-tooltip text="The underlying component library">
+                  <u-button
+                    variant="subtle"
+                    icon="lucide:info"
+                  />
+                </u-tooltip>
                 <u-button
                   variant="subtle"
-                  icon="lucide:star"
-                />
-              </u-tooltip>
-              <u-tooltip text="The underlying component library">
-                <u-button
-                  variant="subtle"
-                  icon="lucide:info"
-                />
-              </u-tooltip>
-              <u-button
-                variant="subtle"
-                icon="lucide:link"
-                href="https://ui.nuxt.com"
-                target="_blank"
-              />
-            </div>
-            <div class="flex gap-1 items-center">
-              <u-tooltip text="Meta Framework">
-                <u-button
-                  variant="subtle"
-                  icon="lucide:text"
-                  label="Nuxt"
-                  href="https://nuxt.com"
+                  icon="lucide:link"
+                  href="https://ui.nuxt.com"
                   target="_blank"
                 />
-              </u-tooltip>
+              </div>
+              <div class="flex gap-1 items-center">
+                <u-tooltip text="Meta Framework">
+                  <u-button
+                    variant="subtle"
+                    icon="lucide:text"
+                    label="Nuxt"
+                    href="https://nuxt.com"
+                    target="_blank"
+                  />
+                </u-tooltip>
+              </div>
             </div>
-          </div>
 
-        </template>
+          </template>
 
-      </un-card>
+        </un-card>
 
-      <un-card
-        icon="lucide:message-circle"
-        title="Unified Toast"
-        subtitle="Toast Notifications"
-        text="Toast notifications are a simple way to display messages to the user."
-        :actions="[
-          {
-            label: 'Launch Success Toast',
-            onClick: () => toastSuccess({ title: 'Success' }),
-          },
-          {
-            actionType: 'spacer',
-          },
-          {
-            label: 'Launch Error Toast',
-            onClick: () => toastError({ title: 'Error' }),
-          },
-        ]"
-      />
+        <un-card
+          icon="lucide:message-circle"
+          title="Unified Toast"
+          subtitle="Toast Notifications"
+          text="Toast notifications are a simple way to display messages to the user."
+          :actions="[
+            {
+              label: 'Launch Success Toast',
+              onClick: () => toastSuccess({ title: 'Success' }),
+            },
+            {
+              actionType: 'spacer',
+            },
+            {
+              label: 'Launch Error Toast',
+              onClick: () => toastError({ title: 'Error' }),
+            },
+          ]"
+        />
 
-      <un-card
-        icon="lucide:wrench"
-        title="Radashi"
-        subtitle="Utility Functions"
-        text="Radashi is a library of utility functions for working with arrays, objects, and strings."
-        :actions="[
-          {
-            label: 'See Change Case',
-            onClick: () => toast({ title: `Camel case of 'a simple text' is ${radCamel('a simple text')}` }),
-          },
-        ]"
-      />
+        <un-card
+          icon="lucide:wrench"
+          title="Radashi"
+          subtitle="Utility Functions"
+          text="Radashi is a library of utility functions for working with arrays, objects, and strings."
+          :actions="[
+            {
+              label: 'See Change Case',
+              onClick: () => toast({ title: `Camel case of 'a simple text' is ${radCamel('a simple text')}` }),
+            },
+          ]"
+        />
 
-      <un-card
-        icon="lucide:text"
-        title="Form"
-        subtitle="Form Component"
-        text="Form is a component that provides a set of styled form elements for your application.">
-        <form-tag />
-        <pre class="text-xs font-mono mt-3">{{ form }}</pre>
-      </un-card>
+        <un-card
+          icon="lucide:text"
+          title="Form"
+          subtitle="Form Component"
+          text="Form is a component that provides a set of styled form elements for your application.">
+          <form-tag />
+          <pre class="text-xs font-mono mt-3">{{ form }}</pre>
+        </un-card>
 
-      <un-card
-        icon="lucide:package"
-        title="Dialogs"
-        subtitle="Modal Dialogs"
-        text="Dialogs are a way to display modal content to the user."
-        vertical-actions
-        :actions="[
-          {
-            label: 'Launch Choice Picker Dialog',
-            onClick: () => openChoicePickerDialog(),
-          },
-          {
-            actionType: 'spacer',
-          },
-          {
-            label: 'Launch Form Picker Dialog',
-            onClick: () => openFormPickerDialog(),
-          },
-        ]"
-      />
+        <un-card
+          icon="lucide:package"
+          title="Dialogs"
+          subtitle="Modal Dialogs"
+          text="Dialogs are a way to display modal content to the user."
+          vertical-actions
+          :actions="[
+            {
+              label: 'Launch Choice Picker Dialog',
+              onClick: () => openChoicePickerDialog(),
+            },
+            {
+              actionType: 'spacer',
+            },
+            {
+              label: 'Launch Form Picker Dialog',
+              onClick: () => openFormPickerDialog(),
+            },
+          ]"
+        />
 
-      <un-card
-        icon="lucide:text"
-        title="Many Append Actions"
-        text="You can put actions on the subtitle when there are too many."
-        :subtitle-actions="[
-          {
-            variant: 'subtle',
-            label: 'Launch 1',
-          },
-          {
-            variant: 'subtle',
-            label: 'Launch 2',
-          },
-          {
-            variant: 'subtle',
-            label: 'Launch 3',
-            tooltip: 'This is the third action',
-          },
-          {
-            variant: 'subtle',
-            label: 'Launch 4',
-          },
-          {
-            variant: 'subtle',
-            label: 'Launch 5',
-          },
-        ]"
-      />
+        <un-card
+          icon="lucide:text"
+          title="Many Append Actions"
+          text="You can put actions on the subtitle when there are too many."
+          :subtitle-actions="[
+            {
+              variant: 'subtle',
+              label: 'Launch 1',
+            },
+            {
+              variant: 'subtle',
+              label: 'Launch 2',
+            },
+            {
+              variant: 'subtle',
+              label: 'Launch 3',
+              tooltip: 'This is the third action',
+            },
+            {
+              variant: 'subtle',
+              label: 'Launch 4',
+            },
+            {
+              variant: 'subtle',
+              label: 'Launch 5',
+            },
+          ]"
+        />
 
-      <un-card
-        icon="lucide:star"
-        title="Tailwinds"
-        subtitle="Utility Classes"
-      />
+        <un-card
+          icon="lucide:star"
+          title="Tailwinds"
+          subtitle="Utility Classes"
+        />
 
-      <un-card
-        icon="lucide:star"
-        title="Nuxt"
-        subtitle="Meta Framework"
-      />
+        <un-card
+          icon="lucide:star"
+          title="Nuxt"
+          subtitle="Meta Framework"
+        />
 
-      <un-card
-        icon="lucide:star"
-        title="Vue"
-        subtitle="Framework"
-      />
+        <un-card
+          icon="lucide:star"
+          title="Vue"
+          subtitle="Framework"
+        />
+
+      </div>
 
     </div>
   </u-app>
 </template>
-
-
-<style>
-  body {
-    background-color: #FAFAFA;
-  }
-</style>
