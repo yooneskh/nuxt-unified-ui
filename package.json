@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.4.28",
+  "version": "0.5.0",
   "main": "./nuxt.config.ts",
   "types": "./index.d.ts",
   "exports": {
@@ -15,7 +15,8 @@
     "index.d.ts",
     "app",
     "i18n",
-    "modules"
+    "modules",
+    "skills"
   ],
   "dependencies": {
     "@formkit/tempo": "1.1.0",
