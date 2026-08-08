@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "@formkit/tempo": "1.1.0",
-    "@iconify-json/lucide": "1.2.121",
+    "@iconify-json/lucide": "1.2.122",
     "@nuxt/kit": "4.5.2",
     "@nuxt/ui": "4.10.0",
     "@nuxtjs/i18n": "10.6.0",
