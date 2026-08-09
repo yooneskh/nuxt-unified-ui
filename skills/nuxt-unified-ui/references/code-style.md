@@ -330,18 +330,64 @@ Keep tight `v-if` / `v-else` chains adjacent (no blank line between matching bra
 When wrapping, order attributes as:
 
 1. Refs / identity: `ref`, `id`, `name`
-2. Visual props: `variant`, `color`, `size`, `icon`, static `label`
+2. Component visual props: `variant`, `color`, `size`, `icon`, static `label`
 3. Static presentation: `class`, `style`
 4. Data bindings: `:items`, `:data`, `:placeholder`, `:value`, dynamic `:label`, …
 5. `v-model` / `:model-value` / `v-model:*`
-6. Navigation / state: `to`, `href`, `block`, `disabled`, `loading`, `loading-auto`, `fluid-body`, …
+6. Navigation / state: `to`, `href`, `block`, `disabled`, `loading`, `loading-auto`, `fluid-body`, `scrollable`, …
 7. Events last: `@click`, `@update:*`, …
 
 Practical shortcuts:
 
 - `u-button`: `variant` → `color` → `size` → `icon` → label/value → `block` → `disabled` → `loading-auto` → events
-- `u-input` / `u-select*`: user-facing props → `:loading`/`:disabled` → `:items` → `class` → `v-model` → events
+- `u-input` / `u-select*`: user-facing props (`:placeholder`, `:label`) → transient state (`:loading`, `:disabled`) → data source (`:items`) → `class` → `v-model` → events
+- Action objects (`:actions`, `:append-actions`, table row actions): `vIf` → `color` → `icon` → `label` → `tooltip` → `disabled` → `to` → `onClick`
+- Tab / select item objects: `value` → `icon` → `label`
 
+### Default attribute values (omit noise)
+
+Prefer defaults by **omitting** props rather than restating them:
+
+| Component / context | Default convention |
+|---------------------|--------------------|
+| `u-button` | Prefer `variant="subtle"` over `ghost` for new buttons |
+| Async `u-button` clicks | Prefer `loading-auto` over hand-rolled `isLoading` when nothing else depends on that flag |
+| `u-badge` | Always `variant="subtle"`; use `icon` + `:label` (no default slot text); **do not** set `size`; **omit** `color` for neutral (use `undefined` in ternaries, never `color="neutral"`) |
+| `u-tooltip` | Do not set `:delay-duration` — use the default delay |
+| Action objects where subtle is the local default | Omit `variant: 'subtle'` unless overriding |
+| Icons | Always `lucide:*` prefix |
+
+```vue
+<!-- ✅ omit neutral color; subtle badge -->
+<u-badge
+  variant="subtle"
+  :label="item.name"
+/>
+
+<!-- ✅ ternary falls back with undefined -->
+<u-badge
+  variant="subtle"
+  :color="item.digital ? 'info' : undefined"
+  :label="item.digital ? 'Digital' : 'Physical'"
+/>
+
+<!-- ❌ restating neutral / wrong variant -->
+<u-badge
+  variant="outline"
+  color="neutral"
+  :label="item.name"
+/>
+```
+
+```vue
+<!-- ✅ async button -->
+<u-button
+  variant="subtle"
+  icon="lucide:trash"
+  loading-auto
+  @click="handleDelete()"
+/>
+```
 ### `>` and `/>` placement
 
 **Non-self-closing**, multi-attribute: `>` on the **same line** as the last attribute:
@@ -405,6 +451,38 @@ Put `{{ ... }}` on its own line:
 ### Refs in templates
 
 Refs unwrap automatically — do not write `.value` in template expressions or in object literals bound from the template.
+
+---
+
+## Pages, routing, and data fetching
+
+These are part of the same “shape” conventions when generating app code:
+
+- Pages / named routes / reactive params → [pages.md](pages.md)
+- `ufetch` / `useUFetch` wrapping, naming, options order → [data-fetching.md](data-fetching.md)
+
+### `useUFetch` wrapping (summary)
+
+```ts
+const { data: ordersData, pending: isOrdersLoading, refresh: refreshOrders } = useUFetch(
+  computed(() => `/api/patients/${patientUid.value}/orders`),
+  {
+    query: {
+      limit: itemsPerPage,
+    },
+  },
+);
+```
+
+- First line: destructure + `= useUFetch(`
+- Next line: URL (string or `computed`)
+- Optional multi-line options object
+- Closing `);` alone on the last line
+- Consecutive `useUFetch` calls: **one** blank line between them
+
+### `ufetch` wrapping (summary)
+
+Keep `ufetch(url, {` on one line — do not break the URL above `{`.
 
 ---
 
@@ -498,6 +576,9 @@ Leading blank line at top of file is fine when the local tree uses it. Prefer `a
 | `{{ x }}` glued to tags | interpolation on its own line |
 | Hoisted import block | imports co-located under section |
 | `computed(() => [ ... ])` | `computed(() => { return [ ... ]; })` |
+| `color="neutral"` on badge | omit `color` / use `undefined` |
+| `ufetch(\n  url,\n  {` | `ufetch(url, {` on one line |
+| One-line `useUFetch(...)` | URL on next line; options multi-line |
 
 ---
 
@@ -513,8 +594,10 @@ Leading blank line at top of file is fine when the local tree uses it. Prefer `a
 - [ ] Kebab-case component tags
 - [ ] `v-if` / `v-for` on `<template>` wrappers
 - [ ] 2+ attributes → one per line; `>` same line as last attr; multi-line self-closing `/>` on own line
-- [ ] Attribute order respected
+- [ ] Attribute order + default-value omissions respected (`subtle`, no neutral color noise, `loading-auto`)
 - [ ] `{{ }}` on own line
 - [ ] Section comments + import co-location where the file has sections
 - [ ] `handleXxx` for action handlers; `it` for short callbacks; descriptive loop names
 - [ ] Computeds that return structures use block + `return`
+- [ ] Pages: explicit `definePageMeta.name`, reactive route params, named navigation ([pages.md](pages.md))
+- [ ] Fetching: `ufetch` / `useUFetch` wrap styles and destructure names ([data-fetching.md](data-fetching.md))

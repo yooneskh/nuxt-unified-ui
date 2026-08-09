@@ -4,10 +4,11 @@ description: >-
   Single skill for the nuxt-unified-ui Nuxt layer and mandatory Nuxt code style:
   install/extend the layer, required CSS, modules/config, radashi radXxx
   auto-imports, un-form / useForm, launchFormPickerDialog /
-  launchChoicePickerDialog, toast helpers, un-card / un-typography, and the
-  whitespace/formatting/code-shape conventions for all Nuxt-generated code. Use
-  when working in or consuming nuxt-unified-ui, or whenever generating Vue/Nuxt
-  code that must match unified code style.
+  launchChoicePickerDialog, toast helpers, un-card / un-typography, pages /
+  definePageMeta, ufetch / useUFetch wrapping, attribute order/defaults, and
+  whitespace/formatting conventions for all Nuxt-generated code. Use when
+  working in or consuming nuxt-unified-ui, or whenever generating Vue/Nuxt code
+  that must match unified code style.
 ---
 
 # nuxt-unified-ui
@@ -29,6 +30,8 @@ This is the **only** installable skill in this repo. Deep topics live under `ref
 | Topic | File |
 |-------|------|
 | **Code style (mandatory)** | [references/code-style.md](references/code-style.md) |
+| Pages / routing | [references/pages.md](references/pages.md) |
+| Data fetching (`ufetch` / `useUFetch`) | [references/data-fetching.md](references/data-fetching.md) |
 | Layer install + required CSS | [references/layer-setup.md](references/layer-setup.md) |
 | Public surface inventory | [references/public-surface.md](references/public-surface.md) |
 | Forms (`useForm` / `un-form`) | [references/forms.md](references/forms.md) |
@@ -55,10 +58,12 @@ Absolute highlights:
 - Script object literals always multi-line (even one property)
 - Kebab-case tags (`u-button`, `un-card`)
 - `v-if` / `v-for` on `<template>` wrappers — not on rendered nodes
-- **2+ attributes → one per line**; non-self-closing `>` on same line as last attr; multi-line self-closing `/>` on its own line
+- **2+ attributes → one per line**; attribute order + default omissions (`variant="subtle"`, omit neutral `color`, `loading-auto`); non-self-closing `>` on same line as last attr; multi-line self-closing `/>` on its own line
 - `{{ ... }}` on its own line
 - `/* section */` comments; imports co-located under the section that uses them
 - Light naming: `handleXxx` handlers, `it` in short callbacks, descriptive `for...of`, computeds use block + `return`
+- Pages: explicit `definePageMeta.name`, reactive route params, named `navigateTo` / `nuxt-link` → [pages.md](references/pages.md)
+- Fetching: `ufetch(url, {` one line; `useUFetch` with URL on next line + `data*Data` / `is*Loading` / `refresh*` → [data-fetching.md](references/data-fetching.md)
 
 ---
 
@@ -132,6 +137,8 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 | Page chrome | `un-typography` + `un-card` |
 | Custom field | `registerFormExtraElement` in a plugin |
 | Utilities | `radXxx` → [radashi.md](references/radashi.md) |
+| New page / route | [pages.md](references/pages.md) |
+| List/detail fetch or mutation | [data-fetching.md](references/data-fetching.md) |
 | Formatting any of the above | [code-style.md](references/code-style.md) |
 
 ## Do / don’t

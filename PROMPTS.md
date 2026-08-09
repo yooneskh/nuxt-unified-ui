@@ -58,11 +58,14 @@ Audit the public surface of `nuxt-unified-ui` against the current source, then u
    - `<script setup>` without `lang="ts"`; no TS annotations in Vue
    - kebab-case tags; structural directives on `<template>` wrappers
    - attribute wrapping hard rule (2+ attrs → one per line); `>` / `/>` placement; attribute order
+   - default attribute values (prefer `variant="subtle"`, omit neutral `color`, `loading-auto`, no tooltip delay overrides)
    - `{{ }}` on own line; section comments; import co-location; script ordering
    - light naming (`handleXxx`, `it`, descriptive loops, computed block + `return`)
    - applies to Vue SFCs and app/server `.ts` alike
-8. Peer dependency: Nuxt `>=4.5.2`.
-9. Repository-relative paths; agent-oriented examples; no marketing tone.
+8. **Pages:** Keep `references/pages.md` — `definePageMeta` names, reactive params, named routes, page script order, heading/item ordering.
+9. **Data fetching:** Keep `references/data-fetching.md` — `ufetch` vs `useUFetch`, call wrapping styles, destructure naming (`*Data` / `is*Loading` / `refresh*`), options order, conditional fetch patterns.
+10. Peer dependency: Nuxt `>=4.5.2`.
+11. Repository-relative paths; agent-oriented examples; no marketing tone.
 
 ### Expected layout
 ```
@@ -70,6 +73,8 @@ skills/nuxt-unified-ui/
   SKILL.md
   references/
     code-style.md
+    pages.md
+    data-fetching.md
     layer-setup.md
     public-surface.md
     forms.md
