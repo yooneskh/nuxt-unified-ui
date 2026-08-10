@@ -153,6 +153,14 @@ Avoid setting `value` on custom buttons unless the await result must distinguish
 
 Action entries support `actionType: 'spacer'` (flex grow) and optional `tooltip`. Buttons use `loading-auto`.
 
+Cancel / dismiss actions use `variant: 'ghost'` (or `variant="ghost"`). Do **not** use `ghost` on primary/submit/other actions — prefer omit / `subtle`.
+
+Hand-rolled dialog shells keep **`u-modal` attributes on one line** (see [code-style.md](code-style.md)):
+
+```vue
+<u-modal :ui="{ content: 'max-w-5xl' }" scrollable @update:open="!$event && emit('close')">
+```
+
 ## Do / don’t
 
 **Do**
@@ -160,9 +168,12 @@ Action entries support `actionType: 'spacer'` (flex grow) and optional `tooltip`
 - Prefer `launchFormPickerDialog` / `launchChoicePickerDialog` over hand-rolled `u-modal` for these flows
 - Handle actions in button / submit `onClick`
 - Keep field lists consistent with `un-form` (`identifier`, not `type`, for element kind)
+- Mark Cancel with `variant: 'ghost'`; keep `u-modal` attrs on one line
 
 **Don’t**
 
 - Call `toast*` without `u-app` / toaster setup
 - Set `value` on choice buttons by default — omit it unless needed
 - Put primary dialog logic only after `await` when `onClick` should own it
+- Use `ghost` on non-Cancel buttons
+- Wrap `u-modal` attributes across multiple lines

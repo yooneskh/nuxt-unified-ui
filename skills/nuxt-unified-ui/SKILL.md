@@ -58,8 +58,8 @@ Absolute highlights:
 - Script object literals always multi-line (even one property)
 - Kebab-case tags (`u-button`, `un-card`)
 - `v-if` / `v-for` on `<template>` wrappers — not on rendered nodes
-- **2+ attributes → one per line**; attribute order + default omissions (`variant="subtle"`, omit neutral `color`, `loading-auto`); non-self-closing `>` on same line as last attr; multi-line self-closing `/>` on its own line
-- `{{ ... }}` on its own line
+- **2+ attributes → one per line** except **`u-modal`** (keep all `u-modal` attrs on one line); attribute order + default omissions (`variant="subtle"`, **Cancel only → `ghost`**, omit neutral `color`, `loading-auto`); non-self-closing `>` on same line as last attr; multi-line self-closing `/>` on its own line
+- `{{ ... }}` on its own line (static + dynamic text may mix)
 - `/* section */` comments; imports co-located under the section that uses them
 - Light naming: `handleXxx` handlers, `it` in short callbacks, descriptive `for...of`, computeds use block + `return`
 - Pages: explicit `definePageMeta.name`, reactive route params, named `navigateTo` / `nuxt-link` → [pages.md](references/pages.md)

@@ -27,7 +27,7 @@ Default action row:
 
 1. Submit (merged `submitButton`, label default `$t('common.submit')`)
 2. Spacer
-3. Cancel (ghost, `$t('common.cancel')`)
+3. Cancel (`variant: 'ghost'` only here — `$t('common.cancel')`)
 
 `handleSubmit`:
 

@@ -20,7 +20,7 @@ Write code so a reader can **scan vertically** and see structure before details.
    Object/array literals in script are multi-line with trailing commas — even single-property objects passed to helpers (`toastSuccess`, `ufetch` options, etc.). Compact one-liners hide diffs and force horizontal reading.
 
 4. **Templates are layout, not mini-scripts.**
-   Structural directives live on `<template>` wrappers so the rendered node stays a clean component/element. Attributes wrap predictably; closing `>` / `/>` placement is consistent; interpolations sit on their own line so markup nesting is obvious.
+   Structural directives live on `<template>` wrappers so the rendered node stays a clean component/element. Attributes wrap predictably (`u-modal` stays one line); closing `>` / `/>` placement is consistent; interpolations sit on their own line (static + dynamic text may share one `{{ ... }}` or surrounding text).
 
 5. **Section comments are the map.**
    `/* section */` labels replace scavenger hunts through long `<script setup>` blocks. Imports sit next to the section that needs them, not in a hoisted pile at the top.
@@ -300,7 +300,8 @@ Keep tight `v-if` / `v-else` chains adjacent (no blank line between matching bra
 ### Attribute wrapping (hard rule)
 
 - **0–1 attributes:** may stay on one line with the tag
-- **2+ attributes:** one attribute per line (always)
+- **2+ attributes:** one attribute per line — **except `u-modal`**
+- **`u-modal` only:** keep **all** attributes on the **same single line** as the tag (do not wrap), even when there are many
 
 ```vue
 <!-- ✅ 0–1 attributes — inline OK -->
@@ -310,14 +311,12 @@ Keep tight `v-if` / `v-else` chains adjacent (no blank line between matching bra
 </u-form-field>
 <u-icon name="lucide:check" />
 
-<!-- ✅ 2+ attributes — one per line -->
-<u-modal
-  :ui="{ content: 'max-w-5xl' }"
-  scrollable
-  @update:open="!$event && emit('close')">
+<!-- ✅ u-modal — always one line (exception) -->
+<u-modal :ui="{ content: 'max-w-5xl' }" scrollable @update:open="!$event && emit('close')">
   ...
 </u-modal>
 
+<!-- ✅ other components — 2+ attributes, one per line -->
 <u-button
   variant="subtle"
   icon="lucide:refresh-ccw"
@@ -350,11 +349,12 @@ Prefer defaults by **omitting** props rather than restating them:
 
 | Component / context | Default convention |
 |---------------------|--------------------|
-| `u-button` | Prefer `variant="subtle"` over `ghost` for new buttons |
+| `u-button` | Prefer `variant="subtle"` (or omit) for normal actions |
+| Cancel buttons only | Use `variant="ghost"` / `variant: 'ghost'` — **only** for Cancel dismiss actions; do not use `ghost` on other buttons |
 | Async `u-button` clicks | Prefer `loading-auto` over hand-rolled `isLoading` when nothing else depends on that flag |
 | `u-badge` | Always `variant="subtle"`; use `icon` + `:label` (no default slot text); **do not** set `size`; **omit** `color` for neutral (use `undefined` in ternaries, never `color="neutral"`) |
 | `u-tooltip` | Do not set `:delay-duration` — use the default delay |
-| Action objects where subtle is the local default | Omit `variant: 'subtle'` unless overriding |
+| Action objects where subtle is the local default | Omit `variant: 'subtle'` unless overriding; Cancel actions set `variant: 'ghost'` |
 | Icons | Always `lucide:*` prefix |
 
 ```vue
@@ -417,12 +417,24 @@ Closing tags for block components (`</un-card>`, `</u-modal>`, …) always on th
 
 ### Text interpolation
 
-Put `{{ ... }}` on its own line:
+Put `{{ ... }}` on its own line (not glued onto the opening/closing tag). **Static + dynamic text may mix** in the same interpolation or around it — do not force template literals / split words solely to isolate dynamics:
 
 ```vue
 <h1 class="text-2xl font-semibold">
   Login
 </h1>
+
+<!-- ✅ static + dynamic together -->
+<h1 class="text-2xl font-semibold">
+  Welcome, {{ user.name }}!
+</h1>
+
+<h2 class="mt-1">
+  {{ flashCardData?.category?.name }} - by {{ flashCardData?.owner?.name }}
+</h2>
+
+<!-- ❌ glued to tags -->
+<h1 class="text-2xl font-semibold">{{ user.name }}</h1>
 ```
 
 ### Root structure
@@ -571,9 +583,11 @@ Leading blank line at top of file is fine when the local tree uses it. Prefer `a
 | `if (!x) return;` | braced block |
 | `} else {` | `}\nelse {` |
 | `toastSuccess({ title: 'x' })` one-liner object | multi-line object + trailing comma |
-| 3 attrs on one line | one attr per line |
+| 3 attrs on one line (non-`u-modal`) | one attr per line |
+| Multi-line `u-modal` attrs | keep `u-modal` attrs on one line |
 | `>` on its own line after attrs | `>` after last attr |
-| `{{ x }}` glued to tags | interpolation on its own line |
+| `{{ x }}` glued to tags | interpolation on its own line (static + dynamic mix OK) |
+| `ghost` on non-Cancel buttons | `ghost` only for Cancel |
 | Hoisted import block | imports co-located under section |
 | `computed(() => [ ... ])` | `computed(() => { return [ ... ]; })` |
 | `color="neutral"` on badge | omit `color` / use `undefined` |
@@ -593,9 +607,9 @@ Leading blank line at top of file is fine when the local tree uses it. Prefer `a
 - [ ] Script objects multi-line; template single-key objects may be inline
 - [ ] Kebab-case component tags
 - [ ] `v-if` / `v-for` on `<template>` wrappers
-- [ ] 2+ attributes → one per line; `>` same line as last attr; multi-line self-closing `/>` on own line
-- [ ] Attribute order + default-value omissions respected (`subtle`, no neutral color noise, `loading-auto`)
-- [ ] `{{ }}` on own line
+- [ ] 2+ attributes → one per line (**`u-modal` attrs stay on one line**); `>` same line as last attr; multi-line self-closing `/>` on own line
+- [ ] Attribute order + default-value omissions respected (`subtle`, **Cancel → `ghost` only**, no neutral color noise, `loading-auto`)
+- [ ] `{{ }}` on own line (static + dynamic mix OK)
 - [ ] Section comments + import co-location where the file has sections
 - [ ] `handleXxx` for action handlers; `it` for short callbacks; descriptive loop names
 - [ ] Computeds that return structures use block + `return`
