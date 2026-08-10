@@ -48,10 +48,48 @@ When editing an existing file, **absolute rules below always win**. For choices 
 | Component tags | lowercase kebab-case (`u-button`, `un-card`) — never PascalCase |
 | Braces | always for `if` / `else` / `for` / `while` — no brace-less single-liners |
 | `else` / `catch` | on their **own line** after `}` |
+| `.js` / `.ts` file start | **two** blank lines at the top, **unless** the file starts with imports — then **no** blank lines before the first `import` |
 
 ---
 
 ## Vertical whitespace (script / TS)
+
+### File start (`.js` / `.ts` only)
+
+Start of every `.js` and `.ts` file must have **two blank lines**, except if it has imports at the start of the file — then put **no** blank lines before the first import.
+
+```ts
+// ✅ no imports — exactly two blank lines, then code
+
+
+export default defineEventHandler(async event => {
+  ...
+});
+```
+
+```ts
+// ✅ imports at start — import on line 1, no leading blanks
+import { join } from 'node:path';
+
+
+const { schema, type, inferred } = parseSchema({
+  ...
+});
+```
+
+```ts
+// ❌ missing leading blanks when there are no imports
+export default defineEventHandler(async event => {
+  ...
+});
+```
+
+```ts
+// ❌ blank lines before the first import
+import { join } from 'node:path';
+```
+
+Vue SFCs are unchanged: `<script setup>` begins immediately inside the script block (no artificial leading blanks at the top of the `.vue` file).
 
 ### Section rhythm
 
@@ -533,9 +571,11 @@ Pass handler **references** into action objects / watchers when possible (`onCli
 
 ## Server / plain TS files
 
-Same whitespace, brace, literal, and call-formatting rules as script blocks:
+Same whitespace, brace, literal, and call-formatting rules as script blocks. Honor the **file-start** rule (two leading blanks, or imports flush at line 1). Prefer `async event =>` style consistent with siblings:
 
 ```ts
+
+
 export default defineEventHandler(async event => {
 
   await assertRateLimit({
@@ -569,8 +609,6 @@ export default defineEventHandler(async event => {
 });
 ```
 
-Leading blank line at top of file is fine when the local tree uses it. Prefer `async event =>` style consistent with siblings.
-
 ---
 
 ## Anti-patterns (quick)
@@ -593,6 +631,8 @@ Leading blank line at top of file is fine when the local tree uses it. Prefer `a
 | `color="neutral"` on badge | omit `color` / use `undefined` |
 | `ufetch(\n  url,\n  {` | `ufetch(url, {` on one line |
 | One-line `useUFetch(...)` | URL on next line; options multi-line |
+| `.ts`/`.js` with no leading blanks (and no imports) | two blank lines at file start |
+| Blank lines before first `import` | `import` on line 1 |
 
 ---
 
@@ -600,6 +640,7 @@ Leading blank line at top of file is fine when the local tree uses it. Prefer `a
 
 - [ ] `<script setup>` without `lang="ts"`; no TS annotations in Vue
 - [ ] 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
+- [ ] `.js`/`.ts`: two leading blank lines, or imports flush at line 1 (no blanks before first import)
 - [ ] Double blanks between major sections; blank line before `</script>`; two blanks before `<template>`
 - [ ] Non-trivial functions: blank after `{`, double blank between major steps, blank before `}`
 - [ ] Tiny helpers stay tight

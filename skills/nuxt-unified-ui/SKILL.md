@@ -5,10 +5,12 @@ description: >-
   install/extend the layer, required CSS, modules/config, radashi radXxx
   auto-imports, un-form / useForm, launchFormPickerDialog /
   launchChoicePickerDialog, toast helpers, un-card / un-typography, pages /
-  definePageMeta, ufetch / useUFetch wrapping, attribute order/defaults, and
-  whitespace/formatting conventions for all Nuxt-generated code. Use when
-  working in or consuming nuxt-unified-ui, or whenever generating Vue/Nuxt code
-  that must match unified code style.
+  definePageMeta, ufetch / useUFetch wrapping, unified resources
+  (server plugins, REST handleResource*, resource-manager dashboard /
+  customization), attribute order/defaults, and whitespace/formatting
+  conventions for all Nuxt-generated code. Use when working in or consuming
+  nuxt-unified-ui, declaring or customizing resources, or whenever generating
+  Vue/Nuxt code that must match unified code style.
 ---
 
 # nuxt-unified-ui
@@ -23,6 +25,7 @@ This is the **only** installable skill in this repo. Deep topics live under `ref
 
 - Installing / extending `nuxt-unified-ui` as a Nuxt layer
 - Using `un-form`, dialogs, toasts, `un-card`, radashi `radXxx`, etc.
+- Declaring or customizing **unified resources** (plugins, REST, dashboard)
 - **Whenever generating or editing Nuxt/Vue/server code** that must follow the unified look (whitespace, wrapping, template shape, sectioning)
 
 ## References (read as needed)
@@ -30,6 +33,7 @@ This is the **only** installable skill in this repo. Deep topics live under `ref
 | Topic | File |
 |-------|------|
 | **Code style (mandatory)** | [references/code-style.md](references/code-style.md) |
+| Unified resources (plugins → REST → dashboard) | [references/resources.md](references/resources.md) |
 | Pages / routing | [references/pages.md](references/pages.md) |
 | Data fetching (`ufetch` / `useUFetch`) | [references/data-fetching.md](references/data-fetching.md) |
 | Layer install + required CSS | [references/layer-setup.md](references/layer-setup.md) |
@@ -52,6 +56,7 @@ Absolute highlights:
 
 - `<script setup>` only — **never** `lang="ts"`; no TS annotations in Vue (runtime prop types)
 - 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
+- **`.js` / `.ts` file start:** two leading blank lines, **except** when the file starts with imports — then **no** blank lines before the first `import`
 - Double blank lines between major sections; blank line before `</script>`; **two** blanks before `<template>`
 - Non-trivial async/functions: blank line after `{`, double blank between major steps, blank before `}`
 - `else` / `catch` on their own line after `}`
@@ -139,6 +144,7 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 | Utilities | `radXxx` → [radashi.md](references/radashi.md) |
 | New page / route | [pages.md](references/pages.md) |
 | List/detail fetch or mutation | [data-fetching.md](references/data-fetching.md) |
+| New / custom resource | [resources.md](references/resources.md) |
 | Formatting any of the above | [code-style.md](references/code-style.md) |
 
 ## Do / don’t
@@ -150,6 +156,7 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 - Use field `identifier` for element kind; `type` only for HTML input types
 - Handle dialog actions in `onClick`
 - Follow code style for every generated file
+- Resources: plugin → full REST set → dashboard nav / custom `<resource-manager>` page → [resources.md](references/resources.md)
 
 **Don’t**
 
@@ -158,3 +165,4 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 - Use PascalCase component tags in templates
 - Set choice-button `value` unless the await result must distinguish buttons
 - Assume color mode is enabled (layer disables it)
+- Reimplement resource CRUD in route files (use `handleResource*`; customize via dedicated pages + domain APIs)
