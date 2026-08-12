@@ -50,20 +50,23 @@ This is the **only** installable skill in this repo. Deep topics live under `ref
 
 ## Code style (read [code-style.md](references/code-style.md) before writing code)
 
-**Always apply** to Vue SFCs and app/server `.ts` files. Higher-level idea: code should **scan vertically** — double blanks between major sections, multi-line literals, predictable template wrapping, section comments as a map.
+**Always apply** to Vue SFCs and app/server `.ts` files. Higher-level idea: code should **scan vertically** — named sections, declaration-kind groups, multi-line literals, and predictable template wrapping.
 
 Absolute highlights:
 
 - `<script setup>` only — **never** `lang="ts"`; no TS annotations in Vue (runtime prop types)
 - 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
 - **`.js` / `.ts` file start:** two leading blank lines, **except** when the file starts with imports — then **no** blank lines before the first `import`
-- Double blank lines between major sections; blank line before `</script>`; **two** blanks before `<template>`
+- Every `<script setup>` section starts with `/* section name */`, then a blank line
+- Within a section, group declarations by kind (imports, refs, computeds, watchers, functions, etc.): two blank lines between groups; no blanks between consecutive refs; one blank between consecutive members of other groups
 - Non-trivial async/functions: blank line after `{`, double blank between major steps, blank before `}`
+- A function dedicated to choosing a return value from multiple criteria uses one exhaustive `if` / `else if` / `else` chain; broader functions may use guard clauses and early returns
 - `else` / `catch` on their own line after `}`
 - Script object literals always multi-line (even one property)
 - Kebab-case tags (`u-button`, `un-card`)
 - `v-if` / `v-for` on `<template>` wrappers — not on rendered nodes
-- **2+ attributes → one per line** except **`u-modal`** (keep all `u-modal` attrs on one line); attribute order + default omissions (`variant="subtle"`, **Cancel only → `ghost`**, omit neutral `color`, `loading-auto`); non-self-closing `>` on same line as last attr; multi-line self-closing `/>` on its own line
+- If a condition changes several component attributes, prefer explicit `<template v-if>` / `v-else` component variants over nested ternaries and overly dynamic bindings
+- **2+ attributes → one per line** except structural **`template` wrappers** and **`u-modal`** (keep either on one line); attribute order + default omissions (`variant="subtle"`, **Cancel only → `ghost`**, omit neutral `color`, `loading-auto`); non-self-closing `>` on same line as last attr; multi-line self-closing `/>` on its own line
 - `{{ ... }}` on its own line (static + dynamic text may mix)
 - `/* section */` comments; imports co-located under the section that uses them
 - Light naming: `handleXxx` handlers, `it` in short callbacks, descriptive `for...of`, computeds use block + `return`

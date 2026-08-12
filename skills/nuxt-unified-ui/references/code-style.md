@@ -10,20 +10,20 @@ This document is about the **look and shape** of code — whitespace, wrapping, 
 
 Write code so a reader can **scan vertically** and see structure before details.
 
-1. **Paragraphs of logic, not walls of text.**
-   Double blank lines mark major boundaries (sections, handlers, big steps). Single blank lines separate related statements inside a section. Tiny one-liner helpers stay tight — do not decorate them with empty lines.
+1. **Sections contain declaration-kind groups.**
+   Start each logical `<script setup>` domain with a `/* section name */` comment and a blank line. Within that section, group imports, refs, computeds, watchers, functions, and other declarations by kind. Double blank lines separate groups; refs stay tightly stacked; consecutive members of other groups have one blank line between them.
 
-2. **Breathing room inside non-trivial blocks.**
-   A non-trivial function/computed is a mini-document: blank line after `{`, full-block guards, double blank between guard/setup and the main sequence, blank line before `}`. That rhythm makes async flows readable without comments.
+2. **Function body spacing follows the work.**
+   A non-trivial workflow function is a mini-document: blank line after `{`, full-block guards, double blanks between major steps, and a blank before `}`. Small helpers and functions whose whole job is choosing a return value stay compact.
 
 3. **One idea per line in structured data.**
    Object/array literals in script are multi-line with trailing commas — even single-property objects passed to helpers (`toastSuccess`, `ufetch` options, etc.). Compact one-liners hide diffs and force horizontal reading.
 
 4. **Templates are layout, not mini-scripts.**
-   Structural directives live on `<template>` wrappers so the rendered node stays a clean component/element. Attributes wrap predictably (`u-modal` stays one line); closing `>` / `/>` placement is consistent; interpolations sit on their own line (static + dynamic text may share one `{{ ... }}` or surrounding text).
+   Structural directives live on one-line `<template>` wrappers so the rendered node stays a clean component/element. Rendered component attributes wrap predictably (`u-modal` stays one line); closing `>` / `/>` placement is consistent; interpolations sit on their own line (static + dynamic text may share one `{{ ... }}` or surrounding text).
 
 5. **Section comments are the map.**
-   `/* section */` labels replace scavenger hunts through long `<script setup>` blocks. Imports sit next to the section that needs them, not in a hoisted pile at the top.
+   `/* section */` labels define logical domains, while declaration-kind spacing exposes the structure inside each domain. Imports sit in the section that needs them, not in a hoisted pile at the top.
 
 6. **Names that match role.**
    Handlers read as actions (`handleLogin`), short callbacks use `it`, loops use real nouns. Shape and naming reinforce each other so you rarely need narrating comments.
@@ -93,13 +93,18 @@ Vue SFCs are unchanged: `<script setup>` begins immediately inside the script bl
 
 ### Section rhythm
 
-- **Double blank line** between major boundaries: after `defineProps`/`defineEmits` blocks, between `/* section */` domains, before handler functions, between major async steps.
-- **Single blank line** within a section (related consts, consecutive small helpers).
-- Blank line **before and after** each `/* section */` comment.
+- Start every logical `<script setup>` domain with `/* section name */`, followed by a blank line.
+- Within each section, group declarations by kind: imports, props/models, refs, computeds, watchers/lifecycle, functions, and outlets.
+- Use **two blank lines between different declaration groups** within a section.
+- Keep consecutive refs together with **no blank lines**.
+- Use **one blank line between consecutive declarations** in other same-kind groups, including computeds, watchers, and functions.
+- Keep a blank line before each section comment; the preceding group's double-boundary spacing still applies.
 - Blank line before `</script>`.
 - **Two** blank lines between `</script>` and `<template>`.
 
-### Non-trivial functions and computeds
+Declaration-group spacing is independent from spacing inside a function body. Do not add a new section comment merely because the declaration kind changes.
+
+### Non-trivial workflow functions
 
 Applies to async handlers, multi-step loaders, and non-trivial callbacks:
 
@@ -150,6 +155,26 @@ async function handleSubmitSelection(items) {
 ```
 
 Same for a `finally` that only flips one flag.
+
+### Return-only decision functions
+
+When a function's whole job is to choose and return a value from multiple criteria, express the complete decision as one compact `if` / `else if` / `else` chain:
+
+```ts
+function getSortLabel(column) {
+  if (sortedColumn.value !== column) {
+    return `Sort ${column} descending`;
+  }
+  else if (sortDirection.value === 'desc') {
+    return `Sort ${column} ascending`;
+  }
+  else {
+    return `Clear ${column} sorting`;
+  }
+}
+```
+
+Use this pattern only when value selection is essentially the function's entire body. Functions that perform broader work may use guard clauses and early returns when those make the workflow clearer; do not force their logic into an exhaustive chain.
 
 ### `else` / `catch`
 
@@ -223,6 +248,33 @@ const response = await ufetch(
 - Single-key object binding may stay inline: `:ui="{ content: 'max-w-7xl' }"`
 - Multi-key template object/array bindings are multi-line
 - Simple scalars and simple ternaries stay inline; break only when branches become objects/arrays or nested structure
+- When one condition changes several attributes, labels/icons, or an object-shaped binding such as `to`, use adjacent `<template v-if>` / `v-else-if` / `v-else` branches with explicit component variants. Prefer small markup duplication over nested ternaries and overly dynamic attributes.
+
+```vue
+<template v-if="state === 'complete'">
+  <u-badge
+    variant="subtle"
+    color="success"
+    icon="lucide:circle-check"
+    label="Completed"
+  />
+</template>
+<template v-else-if="state === 'in-progress'">
+  <u-badge
+    variant="subtle"
+    color="warning"
+    icon="lucide:clock"
+    label="In Progress"
+  />
+</template>
+<template v-else>
+  <u-badge
+    variant="subtle"
+    icon="lucide:circle"
+    label="Not Started"
+  />
+</template>
+```
 
 ---
 
@@ -262,18 +314,49 @@ Group with `/* name */`:
 | domain names | `/* login */`, `/* resource */`, `/* captcha */`, … |
 | `/* outlets */` | `defineExpose` |
 
-Blank line before and after the comment. Avoid comments that only restate obvious option names.
+The comment names a logical domain, not a declaration kind. Follow it with a blank line, then organize that domain into declaration-kind groups. Avoid comments that only restate obvious option names.
+
+```ts
+/* resource */
+
+import ResourceExplorerCell from '~/atoms/resource-explorer-cell.vue';
+
+
+const itemsPerPage = ref(20);
+const currentPage = ref(1);
+const sortedColumn = ref('createdAt');
+const sortDirection = ref('desc');
+
+
+const sort = computed(() => {
+  return `${sortedColumn.value}:${sortDirection.value}`;
+});
+
+const hasResources = computed(() => {
+  return !!resourcesData.value?.length;
+});
+
+
+watchImmediate(resourcePath, refreshResources);
+
+
+function getSortIcon(column) {
+  return sortedColumn.value === column ? 'lucide:arrow-down' : 'lucide:arrow-up-down';
+}
+
+function refreshAll() {
+  refreshResources();
+}
+```
 
 ### Script ordering
 
 **Components / dialogs**
 
-1. `/* interface */`
-2. State refs
-3. Computeds
-4. Watchers / lifecycle
-5. Handlers / async functions
-6. `/* outlets */` / `defineExpose` if needed
+1. `/* interface */` section
+2. Domain sections in reading order
+3. Within each section: imports, refs, computeds, watchers/lifecycle, functions
+4. `/* outlets */` / `defineExpose` section if needed
 
 **Pages**
 
@@ -338,7 +421,8 @@ Keep tight `v-if` / `v-else` chains adjacent (no blank line between matching bra
 ### Attribute wrapping (hard rule)
 
 - **0–1 attributes:** may stay on one line with the tag
-- **2+ attributes:** one attribute per line — **except `u-modal`**
+- **Structural `<template>` wrappers:** keep the opening tag on one line, even with several directives, keys, or dynamic slot bindings
+- **2+ attributes on rendered elements/components:** one attribute per line — **except `u-modal`**
 - **`u-modal` only:** keep **all** attributes on the **same single line** as the tag (do not wrap), even when there are many
 
 ```vue
@@ -348,6 +432,11 @@ Keep tight `v-if` / `v-else` chains adjacent (no blank line between matching bra
   ...
 </u-form-field>
 <u-icon name="lucide:check" />
+
+<!-- ✅ structural template wrappers stay on one line -->
+<template v-for="column in columns" :key="column.accessorKey" #[column.accessorKey+'-cell']="{ row }">
+  ...
+</template>
 
 <!-- ✅ u-modal — always one line (exception) -->
 <u-modal :ui="{ content: 'max-w-5xl' }" scrollable @update:open="!$event && emit('close')">
@@ -621,13 +710,15 @@ export default defineEventHandler(async event => {
 | `if (!x) return;` | braced block |
 | `} else {` | `}\nelse {` |
 | `toastSuccess({ title: 'x' })` one-liner object | multi-line object + trailing comma |
-| 3 attrs on one line (non-`u-modal`) | one attr per line |
+| 3 attrs on one line (rendered element/component other than `u-modal`) | one attr per line |
 | Multi-line `u-modal` attrs | keep `u-modal` attrs on one line |
 | `>` on its own line after attrs | `>` after last attr |
 | `{{ x }}` glued to tags | interpolation on its own line (static + dynamic mix OK) |
 | `ghost` on non-Cancel buttons | `ghost` only for Cancel |
 | Hoisted import block | imports co-located under section |
 | `computed(() => [ ... ])` | `computed(() => { return [ ... ]; })` |
+| Early-return ladder in a return-only decision function | Compact exhaustive `if` / `else if` / `else` |
+| Multiple nested ternaries across component attributes | Explicit component variants in `<template v-if>` / `v-else` branches |
 | `color="neutral"` on badge | omit `color` / use `undefined` |
 | `ufetch(\n  url,\n  {` | `ufetch(url, {` on one line |
 | One-line `useUFetch(...)` | URL on next line; options multi-line |
@@ -641,17 +732,20 @@ export default defineEventHandler(async event => {
 - [ ] `<script setup>` without `lang="ts"`; no TS annotations in Vue
 - [ ] 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
 - [ ] `.js`/`.ts`: two leading blank lines, or imports flush at line 1 (no blanks before first import)
-- [ ] Double blanks between major sections; blank line before `</script>`; two blanks before `<template>`
-- [ ] Non-trivial functions: blank after `{`, double blank between major steps, blank before `}`
+- [ ] Every `<script setup>` section starts with `/* section name */`, followed by a blank line
+- [ ] Declarations are grouped by kind inside each section: two blanks between groups; no blanks between refs; one blank between other same-kind declarations
+- [ ] Non-trivial workflow functions: blank after `{`, double blanks between major steps, blank before `}`
 - [ ] Tiny helpers stay tight
+- [ ] Return-only multi-criteria functions use a compact exhaustive `if` / `else if` / `else`; broader functions may use early returns
 - [ ] `else` / `catch` on new line
 - [ ] Script objects multi-line; template single-key objects may be inline
 - [ ] Kebab-case component tags
 - [ ] `v-if` / `v-for` on `<template>` wrappers
-- [ ] 2+ attributes → one per line (**`u-modal` attrs stay on one line**); `>` same line as last attr; multi-line self-closing `/>` on own line
+- [ ] Conditional states that change several attributes use explicit `<template v-if>` component variants, not nested ternaries
+- [ ] Structural `<template>` wrappers stay on one line; rendered elements/components with 2+ attributes wrap one per line (**`u-modal` stays on one line**); closing `>` / `/>` placement is correct
 - [ ] Attribute order + default-value omissions respected (`subtle`, **Cancel → `ghost` only**, no neutral color noise, `loading-auto`)
 - [ ] `{{ }}` on own line (static + dynamic mix OK)
-- [ ] Section comments + import co-location where the file has sections
+- [ ] Every section is named; imports are co-located with the section that uses them
 - [ ] `handleXxx` for action handlers; `it` for short callbacks; descriptive loop names
 - [ ] Computeds that return structures use block + `return`
 - [ ] Pages: explicit `definePageMeta.name`, reactive route params, named navigation ([pages.md](pages.md))
