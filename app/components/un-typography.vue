@@ -27,9 +27,34 @@ const props = defineProps({
   textClasses: {
     type: String,
   },
+  headerLevel: {
+    type: Number,
+    default: 2,
+  },
 });
 
 const slots = useSlots();
+
+
+/* header */
+
+const titleTag = computed(() => {
+  return `h${resolveHeaderLevel(props.headerLevel)}`;
+});
+
+const subtitleTag = computed(() => {
+  return `h${Math.min(resolveHeaderLevel(props.headerLevel) + 1, 6)}`;
+});
+
+
+function resolveHeaderLevel(level) {
+  if (level >= 1 && level <= 6) {
+    return level;
+  }
+  else {
+    return 2;
+  }
+}
 
 
 /* flags */
@@ -59,12 +84,12 @@ const shouldShow = computed(() => {
           <template v-if="props.title || isSlotFilled(slots.title)">
             <div style="font-size: 1.3em;">
               <slot name="title">
-                <h1
-                  v-if="props.title"
+                <component
+                  :is="titleTag"
                   class="font-medium"
                   :class="props.titleClasses">
                   {{ props.title }}
-                </h1>
+                </component>
               </slot>
             </div>
           </template>
@@ -74,12 +99,12 @@ const shouldShow = computed(() => {
         <template v-if="props.subtitle || isSlotFilled(slots.subtitle)">
           <div style="font-size: 0.9em;" :style="{ marginInlineStart: props.icon ? '2em' : '0' }">
             <slot name="subtitle">
-              <h2
-                v-if="props.subtitle"
+              <component
+                :is="subtitleTag"
                 class="font-light"
                 :class="props.subtitleClasses">
                 {{ props.subtitle }}
-              </h2>
+              </component>
             </slot>
           </div>
         </template>

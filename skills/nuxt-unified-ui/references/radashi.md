@@ -1,6 +1,6 @@
 # Radashi auto-imports (`radXxx`)
 
-Layer module `modules/radashi.ts` registers every runtime export from `radashi` as a Nuxt auto-import:
+Layer module `modules/radashi.ts` registers every runtime export from `radashi` as a Nuxt auto-import in both the Vue app (`addImports`) and Nitro server (`addServerImports`):
 
 ```text
 rad + PascalCase(originalName)

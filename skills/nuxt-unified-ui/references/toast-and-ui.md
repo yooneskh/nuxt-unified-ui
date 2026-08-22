@@ -9,6 +9,8 @@ type ITypedToast = Omit<IToast, 'icon' | 'color'>
 toast(options: IToast)
 toastSuccess(options: ITypedToast) // icon lucide:check, color success
 toastError(options: ITypedToast)   // icon lucide:circle-alert, color error
+toastWarning(options: ITypedToast) // icon lucide:triangle-alert, color warning
+toastInfo(options: ITypedToast)    // icon lucide:info, color info
 ```
 
 Implementation uses `useNuxtApp().$toaster` from `app/plugins/use-toaster.ts`:
@@ -23,11 +25,13 @@ export default defineNuxtPlugin(() => {
 })
 ```
 
-Pass any Nuxt UI toast fields (`title`, `description`, `color`, …). Success/error helpers omit `icon`/`color` from the options type; call `toast` directly for full control.
+Pass any Nuxt UI toast fields (`title`, `description`, `color`, …). Typed helpers omit `icon`/`color` from the options type; call `toast` directly for full control.
 
 ## `un-typography` — `app/components/un-typography.vue`
 
-Props: `icon`, `title`, `subtitle`, `text`, plus `*Classes` variants.
+Props: `icon`, `title`, `subtitle`, `text`, plus `*Classes` variants, and `headerLevel` (1–6, default `2`).
+
+Title renders as `h{headerLevel}`; subtitle renders as the next heading level (capped at `h6`).
 
 Slots: `title`, `subtitle`, `append`.
 
@@ -42,6 +46,7 @@ Notable props:
 | Prop | Role |
 |------|------|
 | `icon`, `title`, `subtitle`, `text` | Header / body copy |
+| `headerLevel` | Passed to `un-typography` (1–6, default `2`) |
 | `fluidBody` | Drop body padding when true |
 | `actions` | Footer buttons; items may set `actionType: 'spacer' \| 'button'`, `tooltip` |
 | `verticalActions` | Stack actions; buttons `block` |

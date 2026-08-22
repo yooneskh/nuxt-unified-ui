@@ -1,4 +1,4 @@
-import { defineNuxtModule, addImports } from '@nuxt/kit';
+import { addImports, addServerImports, defineNuxtModule } from '@nuxt/kit';
 import * as radashi from 'radashi';
 
 
@@ -9,14 +9,14 @@ export default defineNuxtModule({
   setup() {
     for (const name of Object.keys(radashi)) {
 
-      const prefix = 'rad';
-      const as = `${prefix}${radashi.pascal(name)}`;
-
-      addImports({
+      const spec = {
         name,
-        as,
+        as: `rad${radashi.pascal(name)}`,
         from: 'radashi',
-      });
+      };
+
+      addImports(spec);
+      addServerImports(spec);
 
     }
   },

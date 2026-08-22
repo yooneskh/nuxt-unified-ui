@@ -35,6 +35,8 @@ Reference components in **kebab-case** in templates.
 | `toast` | `utils/launch-toast.ts` | Uses `$toaster` from plugin |
 | `toastSuccess` | same | `icon: lucide:check`, `color: success` |
 | `toastError` | same | `icon: lucide:circle-alert`, `color: error` |
+| `toastWarning` | same | `icon: lucide:triangle-alert`, `color: warning` |
+| `toastInfo` | same | `icon: lucide:info`, `color: info` |
 
 Plugin: `plugins/use-toaster.ts` → `provide.toaster = useToast()`.
 
@@ -53,6 +55,7 @@ Plugin: `plugins/use-toaster.ts` → `provide.toaster = useToast()`.
 | `formatDate` / `parseDate` | `utils/format-date.ts` | `@formkit/tempo` helpers |
 | `isSlotFilled` | `utils/is-slot-filled.ts` | Slot emptiness check |
 | `pathRelativeToBase` | `utils/path-relative.ts` | Also exported from package entry |
+| `makeConfettiParade` / `makeConfettiOnTop` / `makeConfettiOnEdges` | `utils/make-confetti.ts` | `canvas-confetti` helpers |
 
 ## Built-in form element identifiers
 
@@ -60,7 +63,7 @@ Mapped in `un-form`: `input`, `textarea`, `select`, `series`, `date`, `checkbox`
 
 ## Radashi
 
-All radashi runtime exports are auto-imported as `radXxx`. See [radashi.md](radashi.md).
+All radashi runtime exports are auto-imported as `radXxx` in both `app/` and `server/`. See [radashi.md](radashi.md).
 
 ## Package entry types (`index.d.ts`)
 

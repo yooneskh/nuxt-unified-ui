@@ -52,7 +52,7 @@ Audit the public surface of `nuxt-unified-ui` against the current source, then u
 5. **Radashi catalog:** Keep/regenerate `references/radashi.md` with every runtime export as `radXxx`, short description, and typing from installed radashi types.
 6. **Dialogs:** actions in button / `submitButton` `onClick`; avoid choice-button `value` unless needed for the await result.
 7. **Code style:** Keep `references/code-style.md` complete and mandatory for all Nuxt-generated code. Preserve higher-level reasoning first, then absolute rules covering:
-   - whitespace / blank-line rhythm (including non-trivial function breathing room vs tiny tight helpers)
+   - whitespace / blank-line rhythm (including non-trivial function breathing room vs tiny tight helpers vs single-block flush: a function that is only one `for`/`while`/`if` or one connected `if`/`else`/`try`/`catch` chain has no blanks between the function braces and that block)
    - indentation, quotes, semicolons, trailing commas
    - object/array/call wrapping
    - `<script setup>` without `lang="ts"`; no TS annotations in Vue

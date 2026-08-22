@@ -37,7 +37,7 @@ Both are required:
 ## Peer / stack
 
 - Peer dependency: `nuxt >= 4.5.2` (required)
-- Bundled deps (layer): `@nuxt/ui`, `@nuxtjs/i18n`, `@vueuse/nuxt`, `@vueuse/core`, `radashi`, `unified-mongo-filter`, `@formkit/tempo`, Lucide iconify JSON, `@nuxt/kit`
+- Bundled deps (layer): `@nuxt/ui`, `@nuxtjs/i18n`, `@vueuse/nuxt`, `@vueuse/core`, `radashi`, `unified-mongo-filter`, `@formkit/tempo`, `canvas-confetti`, `@types/canvas-confetti`, Lucide iconify JSON, `@nuxt/kit`
 
 ## Modules
 
@@ -51,7 +51,7 @@ modules: [
 ]
 ```
 
-Additionally, Nuxt auto-loads `modules/radashi.ts`, which registers every radashi export as `rad` + PascalCase name (`get` → `radGet`, `pick` → `radPick`, `camel` → `radCamel`, …). Full catalog: [radashi.md](radashi.md).
+Additionally, Nuxt auto-loads `modules/radashi.ts`, which registers every radashi export as `rad` + PascalCase name (`get` → `radGet`, `pick` → `radPick`, `camel` → `radCamel`, …) in both the Vue app (`addImports`) and Nitro server (`addServerImports`). Full catalog: [radashi.md](radashi.md).
 
 ## UI defaults
 

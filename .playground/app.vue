@@ -51,6 +51,27 @@ const { form, formTag } = useForm({
 });
 
 
+/* confetti */
+
+function handleConfettiParade() {
+  makeConfettiParade(1500, {
+    particleCount: 7,
+    spread: 70,
+    origin: {
+      y: 0.6,
+    },
+  });
+}
+
+function handleConfettiOnTop() {
+  makeConfettiOnTop();
+}
+
+function handleConfettiOnEdges() {
+  makeConfettiOnEdges();
+}
+
+
 /* dialog */
 
 async function openChoicePickerDialog() {
@@ -176,6 +197,7 @@ async function openFormPickerDialog() {
         title="Unified Nuxt UI"
         subtitle="A Complete Package"
         text="A reuseable Nuxt layer which integrates Nuxt UI and some other useful libraries into your Nuxt application."
+        :header-level="1"
         class="text-2xl max-w-7xl mx-auto mb-6 mt-12 p-3"
       />
 
@@ -237,13 +259,19 @@ async function openFormPickerDialog() {
           title="Unified Toast"
           subtitle="Toast Notifications"
           text="Toast notifications are a simple way to display messages to the user."
+          vertical-actions
           :actions="[
             {
               label: 'Launch Success Toast',
               onClick: () => toastSuccess({ title: 'Success' }),
             },
             {
-              actionType: 'spacer',
+              label: 'Launch Warning Toast',
+              onClick: () => toastWarning({ title: 'Warning' }),
+            },
+            {
+              label: 'Launch Info Toast',
+              onClick: () => toastInfo({ title: 'Info' }),
             },
             {
               label: 'Launch Error Toast',
@@ -323,6 +351,32 @@ async function openFormPickerDialog() {
             },
           ]"
         />
+
+        <un-card
+          icon="lucide:sparkles"
+          title="Confetti"
+          subtitle="Celebration Effects"
+          text="Reusable canvas-confetti helpers for a continuous parade, a top burst, and a mexican-wave around the screen edges."
+          vertical-actions
+          :actions="[
+            {
+              label: 'Parade',
+              onClick: handleConfettiParade,
+            },
+            {
+              label: 'On Top',
+              onClick: handleConfettiOnTop,
+            },
+            {
+              label: 'On Edges',
+              onClick: handleConfettiOnEdges,
+            },
+          ]"
+        />
+
+        <div />
+
+        <div />
 
         <un-card
           icon="lucide:star"

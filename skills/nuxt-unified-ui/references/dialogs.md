@@ -110,7 +110,7 @@ Requires app tree under `u-app` (toaster from Nuxt UI + layer plugin `plugins/us
 | `launchDialog({ component, props })` | `modal.open(props).result` | `app/utils/launch-dialog.ts` |
 | `launchFormPickerDialog(options)` | submitted form object (or dismiss) | `app/utils/launch-form-picker-dialog.ts` |
 | `launchChoicePickerDialog(options)` | button `value` if set (or dismiss) | `app/utils/launch-choice-picker-dialog.ts` |
-| `toast` / `toastSuccess` / `toastError` | void | `app/utils/launch-toast.ts` |
+| `toast` / `toastSuccess` / `toastError` / `toastWarning` / `toastInfo` | void | `app/utils/launch-toast.ts` |
 
 ```ts
 await launchDialog({

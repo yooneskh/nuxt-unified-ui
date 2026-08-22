@@ -24,3 +24,19 @@ export function toastError(options: ITypedToast) {
     ...options,
   });
 }
+
+export function toastWarning(options: ITypedToast) {
+  toast({
+    icon: 'lucide:triangle-alert',
+    color: 'warning',
+    ...options,
+  });
+}
+
+export function toastInfo(options: ITypedToast) {
+  toast({
+    icon: 'lucide:info',
+    color: 'info',
+    ...options,
+  });
+}

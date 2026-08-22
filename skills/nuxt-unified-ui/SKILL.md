@@ -60,6 +60,7 @@ Absolute highlights:
 - Every `<script setup>` section starts with `/* section name */`, then a blank line
 - Within a section, group declarations by kind (imports, refs, computeds, watchers, functions, etc.): two blank lines between groups; no blanks between consecutive refs; one blank between consecutive members of other groups
 - Non-trivial async/functions: blank line after `{`, double blank between major steps, blank before `}`
+- A function whose body is one `for` / `while` / `if` or one connected `if` / `else` / `else if` or `try` / `catch` / `finally` chain stays flush: no blank lines between the function `{` / `}` and that block
 - A function dedicated to choosing a return value from multiple criteria uses one exhaustive `if` / `else if` / `else` chain; broader functions may use guard clauses and early returns
 - `else` / `catch` on their own line after `}`
 - Script object literals always multi-line (even one property)
@@ -141,7 +142,7 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 | Schema form | `useForm` + `<form-tag />` / `<un-form>` → [forms.md](references/forms.md) |
 | Modal form | `launchFormPickerDialog` + `submitButton.onClick` → [dialogs.md](references/dialogs.md) |
 | Confirm / choice | `launchChoicePickerDialog` + button `onClick` (avoid `value`) |
-| Feedback | `toastSuccess` / `toastError` / `toast` |
+| Feedback | `toastSuccess` / `toastError` / `toastWarning` / `toastInfo` / `toast` |
 | Page chrome | `un-typography` + `un-card` |
 | Custom field | `registerFormExtraElement` in a plugin |
 | Utilities | `radXxx` → [radashi.md](references/radashi.md) |

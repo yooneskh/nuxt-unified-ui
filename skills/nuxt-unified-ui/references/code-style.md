@@ -14,7 +14,7 @@ Write code so a reader can **scan vertically** and see structure before details.
    Start each logical `<script setup>` domain with a `/* section name */` comment and a blank line. Within that section, group imports, refs, computeds, watchers, functions, and other declarations by kind. Double blank lines separate groups; refs stay tightly stacked; consecutive members of other groups have one blank line between them.
 
 2. **Function body spacing follows the work.**
-   A non-trivial workflow function is a mini-document: blank line after `{`, full-block guards, double blanks between major steps, and a blank before `}`. Small helpers and functions whose whole job is choosing a return value stay compact.
+   A non-trivial workflow function is a mini-document: blank line after `{`, full-block guards, double blanks between major steps, and a blank before `}`. A function whose body is one control block — or one connected `if` / `else` / `else if` or `try` / `catch` / `finally` chain — stays flush: no blanks between the function braces and that block. Small helpers and functions whose whole job is choosing a return value stay compact.
 
 3. **One idea per line in structured data.**
    Object/array literals in script are multi-line with trailing commas — even single-property objects passed to helpers (`toastSuccess`, `ufetch` options, etc.). Compact one-liners hide diffs and force horizontal reading.
@@ -138,6 +138,7 @@ async function handleLogin() {
 - Guards as full blocks
 - Double blank between guard/setup and main work / between major steps
 - Blank line before closing `}`
+- **Not** when the body is a single (connected) control block — that stays flush; see below
 
 ### Tiny blocks stay tight
 
@@ -155,6 +156,56 @@ async function handleSubmitSelection(items) {
 ```
 
 Same for a `finally` that only flips one flag.
+
+### Single-block functions stay flush
+
+When a function body is **only** one control block (`for`, `while`, `if`, or similar) or **only** one connected chain (`if` / `else if` / `else`, or `try` / `catch` / `finally`), do **not** put blank lines before or after that block. The declaration line connects to the block (next line after `{` is the block), and the function’s closing `}` connects to the end of the block (no blank above it).
+
+`if` / `else` / `else if` and `try` / `catch` / `finally` already stay adjacent — no blank lines between their parts — so the whole chain counts as one block.
+
+```ts
+function fireBumps(bumps) {
+  for (const bump of bumps) {
+    confetti({
+      particleCount: 20,
+      origin: {
+        x: bump.x,
+        y: bump.y,
+      },
+    });
+  }
+}
+
+function abortIfServer() {
+  if (import.meta.server) {
+    return Promise.resolve();
+  }
+}
+
+async function saveOrToast() {
+  try {
+    await save();
+  }
+  catch {
+    toastError({
+      title: 'Failed',
+    });
+  }
+}
+```
+
+```ts
+// ❌ breathing-room blanks around a lone block
+function fireBumps(bumps) {
+
+  for (const bump of bumps) {
+    ...
+  }
+
+}
+```
+
+If the function has **any other statement** besides that one block (a guard plus a loop, setup then a `for`, two separate `if`s, …), use the non-trivial workflow spacing instead. Interior spacing *inside* the block still follows the other rules.
 
 ### Return-only decision functions
 
@@ -174,7 +225,7 @@ function getSortLabel(column) {
 }
 ```
 
-Use this pattern only when value selection is essentially the function's entire body. Functions that perform broader work may use guard clauses and early returns when those make the workflow clearer; do not force their logic into an exhaustive chain.
+Use this pattern only when value selection is essentially the function's entire body. Keep the chain flush with the function braces (single-block rule). Functions that perform broader work may use guard clauses and early returns when those make the workflow clearer; do not force their logic into an exhaustive chain.
 
 ### `else` / `catch`
 
@@ -724,6 +775,7 @@ export default defineEventHandler(async event => {
 | One-line `useUFetch(...)` | URL on next line; options multi-line |
 | `.ts`/`.js` with no leading blanks (and no imports) | two blank lines at file start |
 | Blank lines before first `import` | `import` on line 1 |
+| Blank lines around a function that is only one `for` / `if` / `try` chain | Function `{` / `}` flush against that block |
 
 ---
 
@@ -735,6 +787,7 @@ export default defineEventHandler(async event => {
 - [ ] Every `<script setup>` section starts with `/* section name */`, followed by a blank line
 - [ ] Declarations are grouped by kind inside each section: two blanks between groups; no blanks between refs; one blank between other same-kind declarations
 - [ ] Non-trivial workflow functions: blank after `{`, double blanks between major steps, blank before `}`
+- [ ] Single-block functions (one `for` / `while` / `if`, or one connected `if` / `else` / `try` / `catch` chain) stay flush with the function braces
 - [ ] Tiny helpers stay tight
 - [ ] Return-only multi-criteria functions use a compact exhaustive `if` / `else if` / `else`; broader functions may use early returns
 - [ ] `else` / `catch` on new line

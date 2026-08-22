@@ -15,6 +15,7 @@ const props = defineProps<{
   titleClasses?: string;
   subtitleClasses?: string;
   textClasses?: string;
+  headerLevel?: number;
 
   fluidBody?: boolean;
 
@@ -42,6 +43,7 @@ const slots = useSlots();
       :icon-classes="props.iconClasses"
       :title-classes="props.titleClasses"
       :subtitle-classes="props.subtitleClasses"
+      :header-level="props.headerLevel"
       class="p-3">
 
       <template v-if="isSlotFilled(slots.title)" #title>
