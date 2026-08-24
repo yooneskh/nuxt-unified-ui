@@ -1,90 +1,121 @@
 import confetti from 'canvas-confetti';
 
 
-function makeEdgeBumps() {
+type IMakeConfettiArgs = {
+  template?: 'parade' | 'on-top' | 'on-left' | 'on-right' | 'on-bottom' | 'on-frame' | 'split-on-top' | 'on-curtain';
+  duration?: number;
+  amount?: number;
+} & confetti.Options;
 
-  const bumpsPerFullEdge = 24;
-  const bumpsPerHalfEdge = bumpsPerFullEdge / 2;
+type IConfettiBump = {
+  x: number;
+  y: number;
+  angle: number;
+};
 
 
+const bumpsPerFullEdge = 24;
+const bumpsPerHalfEdge = bumpsPerFullEdge / 2;
+const bumpsPerFullFrame = (bumpsPerHalfEdge * 2) + bumpsPerFullEdge;
+const sequenceAmount = 6;
+const sequenceDelay = 70;
+
+
+function makeWaveBumps(options: { includeTop?: boolean; includeSides?: boolean; includeBottom?: boolean; }) {
   return {
     left: [
-      ...makeSectionBumps({
-        from: {
-          x: 0.5,
-          y: 0,
-        },
-        to: {
-          x: 0,
-          y: 0,
-        },
-        angle: 270,
-        count: bumpsPerHalfEdge,
-      }),
-      ...makeSectionBumps({
-        from: {
-          x: 0,
-          y: 0,
-        },
-        to: {
-          x: 0,
-          y: 1,
-        },
-        angle: 0,
-        count: bumpsPerFullEdge,
-      }),
-      ...makeSectionBumps({
-        from: {
-          x: 0,
-          y: 1,
-        },
-        to: {
-          x: 0.5,
-          y: 1,
-        },
-        angle: 90,
-        count: bumpsPerHalfEdge,
-        includeEnd: true,
-      }),
+      ...(options.includeTop
+        ? makeSectionBumps({
+            from: {
+              x: 0.5,
+              y: 0,
+            },
+            to: {
+              x: 0,
+              y: 0,
+            },
+            angle: 270,
+            count: bumpsPerHalfEdge,
+            includeEnd: !options.includeSides && !options.includeBottom,
+          })
+        : []),
+      ...(options.includeSides
+        ? makeSectionBumps({
+            from: {
+              x: 0,
+              y: 0,
+            },
+            to: {
+              x: 0,
+              y: 1,
+            },
+            angle: 0,
+            count: bumpsPerFullEdge,
+            includeEnd: !options.includeBottom,
+          })
+        : []),
+      ...(options.includeBottom
+        ? makeSectionBumps({
+            from: {
+              x: 0,
+              y: 1,
+            },
+            to: {
+              x: 0.5,
+              y: 1,
+            },
+            angle: 90,
+            count: bumpsPerHalfEdge,
+            includeEnd: true,
+          })
+        : []),
     ],
     right: [
-      ...makeSectionBumps({
-        from: {
-          x: 0.5,
-          y: 0,
-        },
-        to: {
-          x: 1,
-          y: 0,
-        },
-        angle: 270,
-        count: bumpsPerHalfEdge,
-      }),
-      ...makeSectionBumps({
-        from: {
-          x: 1,
-          y: 0,
-        },
-        to: {
-          x: 1,
-          y: 1,
-        },
-        angle: 180,
-        count: bumpsPerFullEdge,
-      }),
-      ...makeSectionBumps({
-        from: {
-          x: 1,
-          y: 1,
-        },
-        to: {
-          x: 0.5,
-          y: 1,
-        },
-        angle: 90,
-        count: bumpsPerHalfEdge,
-        includeEnd: true,
-      }),
+      ...(options.includeTop
+        ? makeSectionBumps({
+            from: {
+              x: 0.5,
+              y: 0,
+            },
+            to: {
+              x: 1,
+              y: 0,
+            },
+            angle: 270,
+            count: bumpsPerHalfEdge,
+            includeEnd: !options.includeSides && !options.includeBottom,
+          })
+        : []),
+      ...(options.includeSides
+        ? makeSectionBumps({
+            from: {
+              x: 1,
+              y: 0,
+            },
+            to: {
+              x: 1,
+              y: 1,
+            },
+            angle: 180,
+            count: bumpsPerFullEdge,
+            includeEnd: !options.includeBottom,
+          })
+        : []),
+      ...(options.includeBottom
+        ? makeSectionBumps({
+            from: {
+              x: 1,
+              y: 1,
+            },
+            to: {
+              x: 0.5,
+              y: 1,
+            },
+            angle: 90,
+            count: bumpsPerHalfEdge,
+            includeEnd: true,
+          })
+        : []),
     ],
   };
 
@@ -106,22 +137,23 @@ function makeSectionBumps(options: { from: { x: number, y: number; }; to: { x: n
   });
 }
 
+function makeSequence(args: IMakeConfettiArgs, options: confetti.Options) {
 
-export function makeConfettiParade(duration = 1000, config: confetti.Options) {
-
-  if (import.meta.server) {
-    return Promise.resolve();
-  }
-
-
+  const duration = args.duration ?? 1000;
+  const amount = args.amount ?? sequenceAmount;
   const end = Date.now() + duration;
 
   (function frame() {
 
-    confetti(config);
+    confetti({
+      startVelocity: 22,
+      scalar: 0.7,
+      ...options,
+      particleCount: amount,
+    });
 
     if (Date.now() < end) {
-      requestAnimationFrame(frame);
+      setTimeout(frame, sequenceDelay);
     }
 
   }());
@@ -131,35 +163,35 @@ export function makeConfettiParade(duration = 1000, config: confetti.Options) {
 
 }
 
-export function makeConfettiOnTop(duration = 1000) {
-  return makeConfettiParade(duration, {
-    particleCount: 7,
-    angle: 270,
+function makeParade(args: IMakeConfettiArgs) {
+  return makeSequence(args, args);
+}
+
+function makeOnDirection(args: IMakeConfettiArgs, direction: { angle: number; x: number; y: number; }) {
+  return makeSequence(args, {
+    angle: direction.angle,
     origin: {
-      x: 0.5,
-      y: 0,
+      x: direction.x,
+      y: direction.y,
     },
   });
 }
 
-export function makeConfettiOnEdges(duration = 2000) {
+function makeWave(args: IMakeConfettiArgs, bumps: { left: IConfettiBump[]; right: IConfettiBump[]; }) {
 
-  if (import.meta.server) {
-    return Promise.resolve();
-  }
-
-
-  const { left, right } = makeEdgeBumps();
-  const delay = duration / left.length;
+  const duration = args.duration ?? 2000;
+  const amount = args.amount ?? 24;
+  const delay = duration / bumpsPerFullFrame;
+  const elapsed = delay * bumps.left.length;
 
 
-  for (const [index, leftBump] of left.entries()) {
+  for (const [index, leftBump] of bumps.left.entries()) {
 
     setTimeout(() => {
 
-      for (const bump of [leftBump, right[index]!]) {
+      for (const bump of [leftBump, bumps.right[index]!]) {
         confetti({
-          particleCount: 24,
+          particleCount: amount,
           angle: bump.angle,
           spread: 50,
           startVelocity: 22,
@@ -177,6 +209,69 @@ export function makeConfettiOnEdges(duration = 2000) {
   }
 
 
-  return new Promise(resolve => setTimeout(resolve, duration));
+  return new Promise(resolve => setTimeout(resolve, elapsed));
+
+}
+
+
+export function makeConfetti(args: IMakeConfettiArgs) {
+
+  if (import.meta.server) {
+    return Promise.resolve();
+  }
+
+
+  if (args.template === 'parade') {
+    return makeParade(args);
+  }
+  else if (args.template === 'on-top') {
+    return makeOnDirection(args, {
+      angle: 270,
+      x: 0.5,
+      y: 0,
+    });
+  }
+  else if (args.template === 'on-left') {
+    return makeOnDirection(args, {
+      angle: 0,
+      x: 0,
+      y: 0.5,
+    });
+  }
+  else if (args.template === 'on-right') {
+    return makeOnDirection(args, {
+      angle: 180,
+      x: 1,
+      y: 0.5,
+    });
+  }
+  else if (args.template === 'on-bottom') {
+    return makeOnDirection(args, {
+      angle: 90,
+      x: 0.5,
+      y: 1,
+    });
+  }
+  else if (args.template === 'on-frame') {
+    return makeWave(args, makeWaveBumps({
+      includeTop: true,
+      includeSides: true,
+      includeBottom: true,
+    }));
+  }
+  else if (args.template === 'split-on-top') {
+    return makeWave(args, makeWaveBumps({
+      includeTop: true,
+    }));
+  }
+  else if (args.template === 'on-curtain') {
+    return makeWave(args, makeWaveBumps({
+      includeTop: true,
+      includeSides: true,
+    }));
+  }
+  else {
+    return confetti(args);
+  }
 
 }

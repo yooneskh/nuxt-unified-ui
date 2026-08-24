@@ -55,7 +55,7 @@ Plugin: `plugins/use-toaster.ts` → `provide.toaster = useToast()`.
 | `formatDate` / `parseDate` | `utils/format-date.ts` | `@formkit/tempo` helpers |
 | `isSlotFilled` | `utils/is-slot-filled.ts` | Slot emptiness check |
 | `pathRelativeToBase` | `utils/path-relative.ts` | Also exported from package entry |
-| `makeConfettiParade` / `makeConfettiOnTop` / `makeConfettiOnEdges` | `utils/make-confetti.ts` | `canvas-confetti` helpers |
+| `makeConfetti` | `utils/make-confetti.ts` | `canvas-confetti` helper; `template` runs a built-in effect (`parade`, `on-top` / `on-left` / `on-right` / `on-bottom`, `on-frame`, `split-on-top`, `on-curtain`), `amount` overrides particles per burst, otherwise args go to `confetti()` |
 
 ## Built-in form element identifiers
 
