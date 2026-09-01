@@ -361,7 +361,9 @@ Group with `/* name */`:
 | Common section | Contents |
 |----------------|----------|
 | `/* interface */` | props, emits, models |
-| `/* page */` | `definePageMeta`, `useHead` |
+| `/* page */` | `definePageMeta` only |
+| `/* params */` | `useRoute` + reactive `route.params` computeds (dynamic routes only) |
+| `/* seo */` | `useHead` + `useSeoMeta` (and `useJsonld` when the project has it) |
 | domain names | `/* login */`, `/* resource */`, `/* captcha */`, … |
 | `/* outlets */` | `defineExpose` |
 
@@ -411,11 +413,13 @@ function refreshAll() {
 
 **Pages**
 
-1. `/* page */`
-2. Route/params
-3. Data / forms / domain sections
-4. Watchers / lifecycle
-5. Handlers
+1. `/* page */` — `definePageMeta` only
+2. `/* params */` — only when the page has dynamic `route.params`
+3. Domain sections SEO needs (fetches / derived data)
+4. `/* seo */` — required; under the last block it reads
+5. Remaining domain sections
+6. Watchers / lifecycle
+7. Handlers
 
 ### Import co-location
 
@@ -648,7 +652,7 @@ Refs unwrap automatically — do not write `.value` in template expressions or i
 
 These are part of the same “shape” conventions when generating app code:
 
-- Pages / named routes / reactive params → [pages.md](pages.md)
+- Pages / named routes / `/* params */` / `/* seo */` → [pages.md](pages.md)
 - `ufetch` / `useUFetch` wrapping, naming, options order → [data-fetching.md](data-fetching.md)
 
 ### `useUFetch` wrapping (summary)
@@ -801,5 +805,5 @@ export default defineEventHandler(async event => {
 - [ ] Every section is named; imports are co-located with the section that uses them
 - [ ] `handleXxx` for action handlers; `it` for short callbacks; descriptive loop names
 - [ ] Computeds that return structures use block + `return`
-- [ ] Pages: explicit `definePageMeta.name`, reactive route params, named navigation ([pages.md](pages.md))
+- [ ] Pages: explicit `definePageMeta.name`, `/* params */` + `/* seo */` placement, named navigation ([pages.md](pages.md))
 - [ ] Fetching: `ufetch` / `useUFetch` wrap styles and destructure names ([data-fetching.md](data-fetching.md))

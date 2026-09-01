@@ -4,8 +4,8 @@ description: >-
   Single skill for the nuxt-unified-ui Nuxt layer and mandatory Nuxt code style:
   install/extend the layer, required CSS, modules/config, radashi radXxx
   auto-imports, un-form / useForm, launchFormPickerDialog /
-  launchChoicePickerDialog, toast helpers, un-card / un-typography, pages /
-  definePageMeta, ufetch / useUFetch wrapping, unified resources
+  launchChoicePickerDialog, toast helpers,   un-card / un-typography, pages /
+  definePageMeta, page /* params */ and /* seo */ blocks, ufetch / useUFetch wrapping, unified resources
   (server plugins, REST handleResource*, resource-manager dashboard /
   customization), attribute order/defaults, and whitespace/formatting
   conventions for all Nuxt-generated code. Use when working in or consuming
@@ -71,7 +71,7 @@ Absolute highlights:
 - `{{ ... }}` on its own line (static + dynamic text may mix)
 - `/* section */` comments; imports co-located under the section that uses them
 - Light naming: `handleXxx` handlers, `it` in short callbacks, descriptive `for...of`, computeds use block + `return`
-- Pages: explicit `definePageMeta.name`, reactive route params, named `navigateTo` / `nuxt-link` → [pages.md](references/pages.md)
+- Pages: explicit `definePageMeta.name`, `/* params */` for dynamic `route.params`, required `/* seo */` (`useHead` + `useSeoMeta`, `useJsonld` when installed) → [pages.md](references/pages.md)
 - Fetching: `ufetch(url, {` one line; `useUFetch` with URL on next line + `data*Data` / `is*Loading` / `refresh*` → [data-fetching.md](references/data-fetching.md)
 
 ---
