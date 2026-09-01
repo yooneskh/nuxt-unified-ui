@@ -71,7 +71,7 @@ A page with no dynamic params and no fetched SEO fields puts `/* seo */` directl
 ## Script ordering (pages)
 
 1. `/* page */` — only `definePageMeta`
-2. `/* params */` — only when the page has dynamic `route.params` (see Page params)
+2. `/* params */` — only when the page reads `route.params` or `route.query` (see Page params)
 3. Domain sections the SEO block needs (`useUFetch`, derived data, …)
 4. `/* seo */` — required on every page (see Page SEO)
 5. Remaining domain sections (forms, sessions, UI state, …)
@@ -82,11 +82,13 @@ Do **not** put `useHead` / `useSeoMeta` / `useJsonld` inside `/* page */`. Those
 
 ## Page params
 
-If a page has a dynamic param (`route.params`), add a `/* params */` block **immediately under** `/* page */`.
+If a page reads `route.params` or `route.query`, add a `/* params */` block **immediately under** `/* page */`.
 
 1. Declare `const route = useRoute();`
 2. Two blank lines
-3. One `computed` per param — keep it reactive; do not snapshot into a bare `const`
+3. One `computed` per value — `route.params` first, then `route.query` — keep each reactive; do not snapshot into a bare `const`
+
+Consecutive computeds: **one** blank line between them.
 
 ```ts
 /* params */
@@ -99,7 +101,16 @@ const flashCardSlug = computed(() => {
 });
 ```
 
-Consecutive param computeds: **one** blank line between them. `route.query` values the page reads go in the same block, as extra computeds after the `route.params` computeds:
+```ts
+/* params */
+
+const route = useRoute();
+
+
+const returnUrl = computed(() => {
+  return route.query.returnUrl;
+});
+```
 
 ```ts
 /* params */
@@ -118,7 +129,8 @@ const journeySlug = computed(() => {
 
 - Files: `[patientUid].vue`, `[flashCardSlug]/index.vue`
 - Params: **camelCase** in brackets and when reading `route.params`
-- Omit `/* params */` entirely on pages with no dynamic route params — do not create an empty block, and do not call `useRoute()` only to leave it unused (call it later in a domain section if something else needs `route`)
+- Query keys stay as they appear on the URL; the computed name is camelCase (`returnUrl` for `returnUrl`)
+- Omit `/* params */` entirely on pages that read neither `route.params` nor `route.query` — do not create an empty block. If something else needs `route` (for example `route.fullPath`), call `useRoute()` in that domain section instead.
 
 ## Page SEO
 

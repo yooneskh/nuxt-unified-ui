@@ -362,7 +362,7 @@ Group with `/* name */`:
 |----------------|----------|
 | `/* interface */` | props, emits, models |
 | `/* page */` | `definePageMeta` only |
-| `/* params */` | `useRoute` + reactive `route.params` computeds (dynamic routes only) |
+| `/* params */` | `useRoute` + reactive computeds for `route.params` and `route.query` |
 | `/* seo */` | `useHead` + `useSeoMeta` (and `useJsonld` when the project has it) |
 | domain names | `/* login */`, `/* resource */`, `/* captcha */`, … |
 | `/* outlets */` | `defineExpose` |
@@ -414,7 +414,7 @@ function refreshAll() {
 **Pages**
 
 1. `/* page */` — `definePageMeta` only
-2. `/* params */` — only when the page has dynamic `route.params`
+2. `/* params */` — only when the page reads `route.params` or `route.query`
 3. Domain sections SEO needs (fetches / derived data)
 4. `/* seo */` — required; under the last block it reads
 5. Remaining domain sections
