@@ -69,6 +69,8 @@ async function handleButtonClick(button) {
         :title="props.title"
         :subtitle="props.subtitle"
         :text="props.text"
+        closable
+        @close="emit('close')"
         :actions="[
           ...startButtons.map(button => ({
             ...button,

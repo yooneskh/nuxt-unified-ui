@@ -18,6 +18,7 @@ const props = defineProps<{
   headerLevel?: number;
 
   fluidBody?: boolean;
+  closable?: boolean;
 
   subtitleActions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
   appendActions?: ( ButtonProps & { tooltip?: string; } )[];
@@ -25,6 +26,11 @@ const props = defineProps<{
   actions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
   verticalActions?: boolean;
 
+}>();
+
+
+const emit = defineEmits<{
+  close: [];
 }>();
 
 
@@ -73,8 +79,10 @@ const slots = useSlots();
         </slot>
       </template>
 
-      <template v-if="props.appendActions || isSlotFilled(slots['append-prepend']) || isSlotFilled(slots.append)" #append>
+      <template v-if="props.closable || props.appendActions || isSlotFilled(slots['append-prepend']) || isSlotFilled(slots.append)" #append>
+
         <slot name="append-prepend" />
+
         <template v-for="action of props.appendActions">
           <u-tooltip :text="action.tooltip">
             <u-button
@@ -83,7 +91,18 @@ const slots = useSlots();
             />
           </u-tooltip>
         </template>
+
         <slot name="append" />
+
+        <template v-if="props.closable">
+          <u-button
+            variant="ghost"
+            icon="lucide:x"
+            :aria-label="$t('common.close')"
+            @click="emit('close')"
+          />
+        </template>
+
       </template>
 
     </un-typography>

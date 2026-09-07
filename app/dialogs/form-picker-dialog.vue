@@ -64,6 +64,8 @@ async function handleSubmit() {
         :title="props.title"
         :subtitle="props.subtitle"
         :text="props.text"
+        closable
+        @close="emit('close')"
         :actions="[
           {
             label: $t('common.submit'),
