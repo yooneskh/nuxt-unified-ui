@@ -569,6 +569,24 @@ const tableActions = computed(() => {
       onClick: handleTableView,
     },
     {
+      actionType: 'split',
+      icon: 'lucide:download',
+      tooltip: 'Export',
+      onClick: handleTableCopyEmail,
+      items: [
+        {
+          icon: 'lucide:file-text',
+          label: 'Copy email',
+          onSelect: handleTableCopyEmail,
+        },
+        {
+          icon: 'lucide:archive',
+          label: 'Archive',
+          onSelect: handleTableArchive,
+        },
+      ],
+    },
+    {
       icon: 'lucide:mail',
       tooltip: 'Email',
       href: it => `mailto:${it.email}`,
@@ -580,7 +598,8 @@ const tableActions = computed(() => {
       vIf: it => it.status !== 'archived',
       color: 'error',
       icon: 'lucide:trash',
-      tooltip: 'Delete',
+      tooltip: it => it.role === 'admin' ? 'Admins cannot be deleted' : 'Delete',
+      warning: it => it.role === 'admin' ? 'Admins cannot be deleted' : undefined,
       disabled: it => it.role === 'admin',
       onClick: handleTableDelete,
     },
@@ -1369,7 +1388,7 @@ function handleUnsetReset() {
                   {{ sectionTitle }}
                 </p>
                 <p class="max-w-2xl text-pretty text-sm text-toned">
-                  un-table wraps u-table with an actions column and a pagination footer. Parent owns the page of data. Slots, vIf, separators, extraActions, and stickyActions are the rest of the surface.
+                  un-table wraps u-table with an actions column and a pagination footer. Parent owns the page of data. Slots, vIf, split, warning, separators, extraActions, and stickyActions are the rest of the surface.
                 </p>
               </div>
 

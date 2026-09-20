@@ -34,7 +34,7 @@ Do **not** add sort, filter, or selection props to `un-table`. Resource dashboar
 
 The actions column is added when **either** `actions` or `extraActions` has length. `#actions-cell` is then owned by the wrapper — do not override it.
 
-`to` / `href` / `disabled` on an action may be a value or `(row) => …`. `vIf(row)` hides the item. `onClick(row)` receives the original row. Buttons use `loading-auto`.
+`to` / `href` / `disabled` / `label` / `tooltip` / `warning` on an action may be a value or `(row) => …`. `vIf(row)` hides the item. `onClick(row)` receives the original row. Action clicks use `@click.stop` so they do not select the row. Buttons use `loading-auto`.
 
 ## Attribute order on `<un-table>`
 
@@ -160,9 +160,19 @@ Two channels:
 
 Use `actions` for the one or two primary row operations (view, edit, delete). Use `extraActions` for the rest (assign, revoke, copy, archive). A vertical separator is inserted between the two groups automatically.
 
+`actionType` values on `actions`:
+
+| `actionType` | UI |
+|--------------|----|
+| omitted / `'button'` | Inline `u-button` |
+| `'split'` | Primary button plus a chevron `u-dropdown-menu` |
+| `'separator'` | Vertical rule between button groups |
+
+`warning` is a string or `(row) => string | undefined` rendered under the button (triangle + text). Split `items` may be an array or `(row) => array`. Each item uses `label` (value or `(row) => …`) and `onSelect(row)` — do not put `onClick` on split items.
+
 Field order on **every** action object (omit unused):
 
-`vIf` → `actionType` → `color` → `icon` → `label` → `tooltip` → `disabled` → `to` → `href` → `onClick`
+`vIf` → `actionType` → `color` → `icon` → `label` → `tooltip` → `warning` → `disabled` → `to` → `href` → `onClick` → `items`
 
 ```js
 const itemActions = computed(() => {
@@ -181,10 +191,29 @@ const itemActions = computed(() => {
       actionType: 'separator',
     },
     {
+      actionType: 'split',
+      icon: 'lucide:download',
+      tooltip: 'Download',
+      onClick: handleItemDownloadFile,
+      items: [
+        {
+          icon: 'lucide:file-text',
+          label: 'Download file',
+          onSelect: handleItemDownloadFile,
+        },
+        {
+          icon: 'lucide:file-archive',
+          label: 'Download archive',
+          onSelect: handleItemDownloadArchive,
+        },
+      ],
+    },
+    {
       vIf: it => it.status !== 'archived',
       color: 'error',
       icon: 'lucide:trash',
-      tooltip: 'Delete',
+      tooltip: it => it.role === 'admin' ? 'Admins cannot be deleted' : 'Delete',
+      warning: it => it.role === 'admin' ? 'Admins cannot be deleted' : undefined,
       disabled: it => it.role === 'admin',
       onClick: handleItemDelete,
     },
@@ -216,8 +245,9 @@ Rules:
 - Destructive: `color: 'error'` before `icon`.
 - Emphasized extra action: `color: 'primary'` before `icon`.
 - `{ actionType: 'separator' }` is a lone-key object between visual groups in `actions`.
+- `{ actionType: 'split', items, onClick }` is a default click plus overflow choices; item handlers are `onSelect`.
 - Omit `variant: 'subtle'` — that is the button default.
-- `vIf` / `disabled` / `to` / `href` take `(row) => …` when they depend on the row.
+- `vIf` / `disabled` / `to` / `href` / `label` / `tooltip` / `warning` take `(row) => …` when they depend on the row.
 - Do not put toolbar Create / Refresh on the row. Those belong on the parent `un-card` (`:actions` / `:append-actions`).
 
 Resource managers prepend custom row actions, then default Edit / Delete:

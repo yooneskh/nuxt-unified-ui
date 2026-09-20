@@ -74,6 +74,20 @@ const tableUi = computed(() => {
 
 /* actions */
 
+const actionButtonOmitKeys = [
+  'actionType',
+  'vIf',
+  'tooltip',
+  'warning',
+  'to',
+  'href',
+  'disabled',
+  'onClick',
+  'label',
+  'items',
+];
+
+
 function resolveActionValue(value, row) {
   if (typeof value === 'function') {
     return value(row.original);
@@ -81,6 +95,23 @@ function resolveActionValue(value, row) {
   else {
     return value;
   }
+}
+
+function getActionWarning(action, row) {
+  return resolveActionValue(action.warning, row);
+}
+
+function getSplitActionItems(action, row) {
+  return (resolveActionValue(action.items, row) || []).map(it => {
+    return {
+      ...radOmit(it, [
+        'onClick',
+        'onSelect',
+      ]),
+      label: resolveActionValue(it.label, row),
+      onSelect: () => it.onSelect?.(row.original),
+    };
+  });
 }
 
 function getExtraActionItems(row) {
@@ -92,6 +123,7 @@ function getExtraActionItems(row) {
           'vIf',
           'actionType',
           'tooltip',
+          'warning',
           'to',
           'href',
           'disabled',
@@ -145,17 +177,61 @@ const pageSizeItems = [
             <template v-if="!action.vIf || action.vIf(row.original)">
 
               <template v-if="!action.actionType || action.actionType === 'button'">
-                <u-tooltip :text="action.tooltip">
-                  <u-button
-                    variant="subtle"
-                    v-bind="radOmit(action, [ 'actionType', 'vIf', 'tooltip', 'to', 'href', 'disabled', 'onClick' ])"
-                    :to="resolveActionValue(action.to, row)"
-                    :href="resolveActionValue(action.href, row)"
-                    :disabled="resolveActionValue(action.disabled, row)"
-                    loading-auto
-                    @click="action.onClick?.(row.original)"
-                  />
-                </u-tooltip>
+                <div class="flex flex-col items-end gap-1.5">
+                  <u-tooltip :text="resolveActionValue(action.tooltip, row)">
+                    <span class="inline-flex">
+                      <u-button
+                        variant="subtle"
+                        v-bind="radOmit(action, actionButtonOmitKeys)"
+                        :label="resolveActionValue(action.label, row)"
+                        :to="resolveActionValue(action.to, row)"
+                        :href="resolveActionValue(action.href, row)"
+                        :disabled="resolveActionValue(action.disabled, row)"
+                        loading-auto
+                        @click.stop="action.onClick?.(row.original)"
+                      />
+                    </span>
+                  </u-tooltip>
+                  <template v-if="getActionWarning(action, row)">
+                    <span class="flex items-center gap-1.5 text-sm text-warning max-w-sm">
+                      <u-icon
+                        name="lucide:triangle-alert"
+                        class="shrink-0 size-4"
+                      />
+                      <span>
+                        {{ getActionWarning(action, row) }}
+                      </span>
+                    </span>
+                  </template>
+                </div>
+              </template>
+
+              <template v-else-if="action.actionType === 'split'">
+                <div class="flex">
+                  <u-tooltip :text="resolveActionValue(action.tooltip, row)">
+                    <span class="inline-flex">
+                      <u-button
+                        variant="subtle"
+                        v-bind="radOmit(action, actionButtonOmitKeys)"
+                        class="rounded-e-none"
+                        :label="resolveActionValue(action.label, row)"
+                        :disabled="resolveActionValue(action.disabled, row)"
+                        loading-auto
+                        @click.stop="action.onClick?.(row.original)"
+                      />
+                    </span>
+                  </u-tooltip>
+                  <u-dropdown-menu :items="getSplitActionItems(action, row)">
+                    <u-button
+                      variant="subtle"
+                      :color="action.color"
+                      icon="lucide:chevron-down"
+                      class="rounded-s-none"
+                      :disabled="resolveActionValue(action.disabled, row)"
+                      @click.stop
+                    />
+                  </u-dropdown-menu>
+                </div>
               </template>
 
               <template v-else-if="action.actionType === 'separator'">
@@ -181,6 +257,7 @@ const pageSizeItems = [
               <u-button
                 variant="subtle"
                 icon="lucide:ellipsis-vertical"
+                @click.stop
               />
             </u-dropdown-menu>
 
