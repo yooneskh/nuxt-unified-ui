@@ -4,14 +4,16 @@
 
 const props = defineProps({
   columns: Array,
+  ui: Object,
   loading: Boolean,
   data: Array,
   hidePagination: Boolean,
   totalItems: Number,
+  itemsPerPageItems: Array,
+  rowTo: Function,
+  stickyActions: Boolean,
   actions: Array,
   extraActions: Array,
-  stickyActions: Boolean,
-  ui: Object,
   meta: Object,
 });
 
@@ -66,8 +68,12 @@ const columnPinning = computed(() => {
 
 const tableUi = computed(() => {
   return {
-    tr: 'data-[expanded=true]:bg-elevated!',
-    ...(props.ui || {}),
+    ...(props.ui ?? {}),
+    tr: [
+      'data-[expanded=true]:bg-elevated!',
+      props.rowTo ? 'cursor-pointer' : '',
+      (props.ui ?? {}).tr,
+    ].filter(Boolean).join(' '),
   };
 });
 
@@ -140,13 +146,20 @@ function getExtraActionItems(row) {
 
 /* pagination */
 
-const pageSizeItems = [
-  5,
-  10,
-  25,
-  50,
-  100,
-];
+const pageSizeItems = computed(() => {
+  if (props.itemsPerPageItems?.length) {
+    return props.itemsPerPageItems;
+  }
+  else {
+    return [
+      5,
+      10,
+      25,
+      50,
+      100,
+    ];
+  }
+});
 
 </script>
 

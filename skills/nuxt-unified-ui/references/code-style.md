@@ -523,7 +523,7 @@ Practical shortcuts:
 - `u-button`: `variant` → `color` → `size` → `icon` → label/value → `block` → `disabled` → `loading-auto` → events
 - `u-input` / `u-select*`: user-facing props (`:placeholder`, `:label`) → transient state (`:loading`, `:disabled`) → data source (`:items`) → `class` → `v-model` → events
 - Action objects (`:actions`, `:append-actions`, table row actions): `vIf` → `actionType` → `color` → `icon` → `label` → `tooltip` → `warning` → `disabled` → `to` → `href` → `onClick` → `items`
-- `un-table`: `:columns` → `class` / `:ui` → `:loading` → `:data` → `hide-pagination` → `:total-items` → `v-model:items-per-page` → `v-model:current-page` → `sticky-actions` → `:actions` → `:extra-actions` → `:meta` (omit unused). Full table rules → [tables.md](tables.md)
+- `un-table`: `:columns` → `class` / `:ui` → `:loading` → `:data` → `hide-pagination` → `:total-items` → `:items-per-page-items` → `:row-to` → `v-model:items-per-page` → `v-model:current-page` → `sticky-actions` → `:actions` → `:extra-actions` → `:meta` (omit unused). Full table rules → [tables.md](tables.md)
 - Tab / select item objects: `value` → `icon` → `label`
 
 ### Default attribute values (omit noise)

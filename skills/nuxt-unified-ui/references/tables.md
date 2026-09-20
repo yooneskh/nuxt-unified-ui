@@ -27,9 +27,11 @@ Do **not** add sort, filter, or selection props to `un-table`. Resource dashboar
 | `actions` | Visible row buttons; adds the trailing `actions` column |
 | `extraActions` | Overflow `u-dropdown-menu` (ellipsis); also creates the column |
 | `stickyActions` | Pin the `actions` column to the right |
-| `ui` | Merged into `u-table` `:ui` after the expanded-row `tr` class |
+| `rowTo` | Adds `cursor-pointer` on rows; parent still owns navigation |
+| `ui` | Merged into `u-table` `:ui`. Default `tr` classes (`data-[expanded=true]:bg-elevated!`, plus `cursor-pointer` when `rowTo` is set) are prepended to `ui.tr` |
 | `meta` | Passed through to `u-table` |
 | `v-model:itemsPerPage` | Page size (default `'25'`; choices 5 / 10 / 25 / 50 / 100) |
+| `itemsPerPageItems` | Overrides the page-size select options |
 | `v-model:currentPage` | Page number (default `'1'`) |
 
 The actions column is added when **either** `actions` or `extraActions` has length. `#actions-cell` is then owned by the wrapper — do not override it.
@@ -46,12 +48,14 @@ Omit unused props. When present, write them in this order:
 4. `:data`
 5. `hide-pagination`
 6. `:total-items`
-7. `v-model:items-per-page`
-8. `v-model:current-page`
-9. `sticky-actions`
-10. `:actions`
-11. `:extra-actions`
-12. `:meta`
+7. `:items-per-page-items`
+8. `:row-to`
+9. `v-model:items-per-page`
+10. `v-model:current-page`
+11. `sticky-actions`
+12. `:actions`
+13. `:extra-actions`
+14. `:meta`
 
 Models are always **page size, then page**. Closing `>` sits on the same line as the last attribute.
 
@@ -281,6 +285,7 @@ const currentPage = ref(1);
 ```
 
 - Layer default page size is `25` if the parent does not bind the model. Host pages often use `10` or `20` — set the ref explicitly.
+- Page-size choices default to `5 / 10 / 25 / 50 / 100`. Pass `:items-per-page-items` to replace that list.
 - Server lists: `skip = (currentPage - 1) * itemsPerPage`, `limit = itemsPerPage`, `total-items` from the `/count` endpoint.
 - Client lists: pass `data` already sliced; `total-items` is the uncut length.
 - Reset `currentPage` to `1` when page size, filters, or the resource path change.
