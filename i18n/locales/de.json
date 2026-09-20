@@ -17,6 +17,10 @@
     },
     "media": {
       "uploadSuccess": "Datei erfolgreich hochgeladen."
+    },
+    "table": {
+      "actions": "Aktionen",
+      "itemsPerPage": "Einträge pro Seite"
     }
   }
 }

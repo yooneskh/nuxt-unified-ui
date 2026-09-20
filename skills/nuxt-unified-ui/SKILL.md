@@ -4,7 +4,8 @@ description: >-
   Single skill for the nuxt-unified-ui Nuxt layer and mandatory Nuxt code style:
   install/extend the layer, required CSS, modules/config, radashi radXxx
   auto-imports, un-form / useForm, launchFormPickerDialog /
-  launchChoicePickerDialog, toast helpers,   un-card / un-typography, pages /
+  launchChoicePickerDialog, toast helpers, un-card / un-typography / un-table
+  (attribute order, row actions, pagination), pages /
   definePageMeta, page /* params */ and /* seo */ blocks, ufetch / useUFetch wrapping, unified resources
   (server plugins, REST handleResource*, resource-manager dashboard /
   customization), attribute order/defaults, and whitespace/formatting
@@ -24,7 +25,7 @@ This is the **only** installable skill in this repo. Deep topics live under `ref
 ## When to use
 
 - Installing / extending `nuxt-unified-ui` as a Nuxt layer
-- Using `un-form`, dialogs, toasts, `un-card`, radashi `radXxx`, etc.
+- Using `un-form`, dialogs, toasts, `un-card`, `un-table`, radashi `radXxx`, etc.
 - Declaring or customizing **unified resources** (plugins, REST, dashboard)
 - **Whenever generating or editing Nuxt/Vue/server code** that must follow the unified look (whitespace, wrapping, template shape, sectioning)
 
@@ -44,6 +45,7 @@ This is the **only** installable skill in this repo. Deep topics live under `ref
 | Dialogs / toasts / UI | [references/dialogs.md](references/dialogs.md) |
 | Dialog implementation | [references/dialogs-impl.md](references/dialogs-impl.md) |
 | Toast + `un-*` details | [references/toast-and-ui.md](references/toast-and-ui.md) |
+| Tables (`un-table`) | [references/tables.md](references/tables.md) |
 | Radashi `radXxx` catalog | [references/radashi.md](references/radashi.md) |
 
 ---
@@ -122,7 +124,7 @@ Published: `nuxt.config.ts`, `index.d.ts`, `app/`, `i18n/`, `modules/`.
 
 | Path | Role |
 |------|------|
-| `app/components/` | `un-form`, `un-card`, `un-typography`, `un-spinner` |
+| `app/components/` | `un-form`, `un-card`, `un-typography`, `un-spinner`, `un-table` |
 | `app/composables/` | `useForm`, `useFormExtraElements` |
 | `app/elements/` | Built-in form field renderers |
 | `app/dialogs/` | Form / choice picker modal UIs |
@@ -144,6 +146,7 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 | Confirm / choice | `launchChoicePickerDialog` + button `onClick` (avoid `value`) |
 | Feedback | `toastSuccess` / `toastError` / `toastWarning` / `toastInfo` / `toast` |
 | Page chrome | `un-typography` + `un-card` |
+| Data table | `un-table` + parent-owned fetch / sort / filter → [tables.md](references/tables.md) |
 | Custom field | `registerFormExtraElement` in a plugin |
 | Utilities | `radXxx` → [radashi.md](references/radashi.md) |
 | New page / route | [pages.md](references/pages.md) |

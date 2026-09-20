@@ -64,3 +64,7 @@ Action buttons: `loading-auto`, props via `radOmit` excluding `actionType` / `to
 ```
 
 No props.
+
+## `un-table` — `app/components/un-table.vue`
+
+Full rules, attribute order, actions, slots, and pagination: [tables.md](tables.md).

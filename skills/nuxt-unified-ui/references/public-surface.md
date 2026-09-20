@@ -12,6 +12,7 @@ Reference components in **kebab-case** in templates.
 | `un-card` | `un-card.vue` | Card + typography + action rows |
 | `un-typography` | `un-typography.vue` | Icon / title / subtitle / text / append |
 | `un-spinner` | `un-spinner.vue` | Spinning Lucide loader icon |
+| `un-table` | `un-table.vue` | `u-table` + row actions + pagination footer → [tables.md](tables.md) |
 
 ## Composables
 

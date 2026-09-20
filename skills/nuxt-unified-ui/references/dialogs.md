@@ -5,6 +5,7 @@ Overlay dialogs (Nuxt UI `useOverlay`), toast helpers, and layout primitives.
 Deep refs:
 - [dialogs-impl.md](dialogs-impl.md)
 - [toast-and-ui.md](toast-and-ui.md)
+- [tables.md](tables.md)
 
 Follow [code-style.md](code-style.md) for all generated dialog/UI code.
 

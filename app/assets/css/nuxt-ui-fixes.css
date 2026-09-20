@@ -17,14 +17,3 @@
 @utility ltr {
   direction: ltr;
 }
-
-
-/* fixes */
-
-body {
-  @apply overflow-y-auto! px-0!;
-}
-
-table thead tr th {
-  @apply text-start whitespace-nowrap;
-}
