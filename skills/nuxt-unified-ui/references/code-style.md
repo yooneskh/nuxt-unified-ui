@@ -1,8 +1,8 @@
 # Nuxt unified code style
 
-**Mandatory** whenever generating or editing code in a Nuxt project that uses this stack. Applies to **all** Nuxt project files: Vue SFCs and `.ts`/`.js` under `app/`, `server/`, composables, utils, plugins, middleware, etc.
+**Mandatory** whenever generating or editing code in a Nuxt project that uses this stack. Applies to **all** Nuxt project files: Vue SFCs and `.ts`/`.js` under `app/` (including `atoms/` and `libs/`), `server/`, composables, utils, plugins, middleware, etc.
 
-This document is about the **look and shape** of code — whitespace, wrapping, braces, template structure, sectioning, and light naming that affects scanning — not business logic or architecture.
+This document is about the **look and shape** of code — whitespace, wrapping, braces, template structure, sectioning, file placement for layer-private vs public modules, and light naming that affects scanning — not business logic.
 
 ---
 
@@ -372,7 +372,7 @@ The comment names a logical domain, not a declaration kind. Follow it with a bla
 ```ts
 /* resource */
 
-import ResourceExplorerCell from '~/atoms/resource-explorer-cell.vue';
+import ResourceExplorerCell from '../atoms/resource-explorer-cell.vue';
 
 
 const itemsPerPage = ref(20);
@@ -429,6 +429,39 @@ Place non-auto-imported imports **inside the section that uses them**, not hoist
 /* charts */
 
 import { VisXYContainer, VisLine } from '@unovis/vue';
+```
+
+### Layer-private `atoms` / `libs` vs public `components` / `utils`
+
+Nuxt auto-imports `app/components/` and `app/utils/` across the **entire** app (every layer). Files that must stay inside one layer do not belong there.
+
+Any component or util in a layer which is not supposed to be used from another layer should be put in (`atoms` for components) and (`libs` for functions and ...), and if we notice that one of these is needed in another layer, we move it to `components` or `utils` folder. A generated component or util starts in these private folders, then moves into public ones if needed. These should be imported with relative path in their callsites.
+
+| Role | Directory | Visibility |
+|------|-----------|------------|
+| Private Vue component | `app/atoms/` | This layer only |
+| Private function / helper / similar | `app/libs/` | This layer only |
+| Public Vue component | `app/components/` | Whole app (auto-imported) |
+| Public util | `app/utils/` | Whole app (auto-imported) |
+
+`app/composables/` is public like `utils/`. Private composables and other non-component helpers go in `app/libs/`.
+
+**Generate private first.** New components go in `app/atoms/`. New functions and similar go in `app/libs/`. Promote (move the file, update call sites) to `app/components/` or `app/utils/` only when another layer needs them. After a promote, drop the relative import — public modules are auto-imported.
+
+**Import `atoms` / `libs` with relative paths only** (`../atoms/foo.vue`, `../libs/bar`). Never `~/`, `@/`, `#layers/`, or other aliases. Never import another layer's `atoms` or `libs`; promote first, then use the public auto-import.
+
+Do not register `atoms` or `libs` with Nuxt `components` / `imports` config.
+
+```ts
+// ✅ same layer
+import ResourceExplorerCell from '../atoms/resource-explorer-cell.vue';
+import { formatColumn } from '../libs/format-column';
+```
+
+```ts
+// ❌ aliases / other layers
+import ResourceExplorerCell from '~/atoms/resource-explorer-cell.vue';
+import { formatColumn } from '#layers/other-layer/libs/format-column';
 ```
 
 ### Watcher formatting
@@ -781,6 +814,10 @@ export default defineEventHandler(async event => {
 | `.ts`/`.js` with no leading blanks (and no imports) | two blank lines at file start |
 | Blank lines before first `import` | `import` on line 1 |
 | Blank lines around a function that is only one `for` / `if` / `try` chain | Function `{` / `}` flush against that block |
+| Layer-private component in `components/` | `app/atoms/` |
+| Layer-private util in `utils/` or `composables/` | `app/libs/` |
+| `~/atoms/...` / `#layers/.../atoms` / `#layers/.../libs` | Relative `../atoms/...` / `../libs/...` |
+| Import another layer's `atoms` or `libs` | Promote to `components/` / `utils/`, then auto-import |
 
 ---
 
@@ -808,3 +845,4 @@ export default defineEventHandler(async event => {
 - [ ] Computeds that return structures use block + `return`
 - [ ] Pages: explicit `definePageMeta.name`, `/* params */` + `/* seo */` placement, named navigation ([pages.md](pages.md))
 - [ ] Fetching: `ufetch` / `useUFetch` wrap styles and destructure names ([data-fetching.md](data-fetching.md))
+- [ ] New layer components/utils start in `app/atoms/` or `app/libs/`; `atoms`/`libs` imported with relative paths only; promote to `components/` / `utils/` only when another layer needs them

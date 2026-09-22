@@ -8,10 +8,11 @@ description: >-
   (attribute order, row actions, pagination), pages /
   definePageMeta, page /* params */ and /* seo */ blocks, ufetch / useUFetch wrapping, unified resources
   (server plugins, REST handleResource*, resource-manager dashboard /
-  customization), attribute order/defaults, and whitespace/formatting
-  conventions for all Nuxt-generated code. Use when working in or consuming
-  nuxt-unified-ui, declaring or customizing resources, or whenever generating
-  Vue/Nuxt code that must match unified code style.
+  customization), layer-private app/atoms and app/libs vs public
+  components/utils (relative imports), attribute order/defaults, and
+  whitespace/formatting conventions for all Nuxt-generated code. Use when
+  working in or consuming nuxt-unified-ui, declaring or customizing resources,
+  or whenever generating Vue/Nuxt code that must match unified code style.
 ---
 
 # nuxt-unified-ui
@@ -75,6 +76,7 @@ Absolute highlights:
 - Light naming: `handleXxx` handlers, `it` in short callbacks, descriptive `for...of`, computeds use block + `return`
 - Pages: explicit `definePageMeta.name`, `/* params */` for `route.params` / `route.query`, required `/* seo */` (`useHead` + `useSeoMeta`, `useJsonld` when installed) → [pages.md](references/pages.md)
 - Fetching: `ufetch(url, {` one line; `useUFetch` with URL on next line + `data*Data` / `is*Loading` / `refresh*` → [data-fetching.md](references/data-fetching.md)
+- Layer modules: generate private first (`app/atoms/` components, `app/libs/` functions and similar); promote to `app/components/` / `app/utils/` only when another layer needs them; import `atoms`/`libs` with relative paths → [code-style.md](references/code-style.md)
 
 ---
 
@@ -152,6 +154,7 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 | New page / route | [pages.md](references/pages.md) |
 | List/detail fetch or mutation | [data-fetching.md](references/data-fetching.md) |
 | New / custom resource | [resources.md](references/resources.md) |
+| New component / util in a layer | Start in `app/atoms/` or `app/libs/`; relative imports; promote to `components/` / `utils/` only if another layer needs it → [code-style.md](references/code-style.md) |
 | Formatting any of the above | [code-style.md](references/code-style.md) |
 
 ## Do / don’t
@@ -164,6 +167,7 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 - Handle dialog actions in `onClick`
 - Follow code style for every generated file
 - Resources: plugin → full REST set → dashboard nav / custom `<resource-manager>` page → [resources.md](references/resources.md)
+- Start generated layer components in `app/atoms/` and functions in `app/libs/`; import them with relative paths; move to `app/components/` / `app/utils/` only when another layer needs them
 
 **Don’t**
 
@@ -173,3 +177,5 @@ From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode
 - Set choice-button `value` unless the await result must distinguish buttons
 - Assume color mode is enabled (layer disables it)
 - Reimplement resource CRUD in route files (use `handleResource*`; customize via dedicated pages + domain APIs)
+- Put a layer-private component or util in `components/` or `utils/` (becomes app-global)
+- Import `atoms`/`libs` via `~/`, `#layers`, or from another layer — use relative paths; promote first if another layer needs them
