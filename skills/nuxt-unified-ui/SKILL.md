@@ -9,7 +9,9 @@ description: >-
   definePageMeta, page /* params */ and /* seo */ blocks, ufetch / useUFetch wrapping, unified resources
   (server plugins, REST handleResource*, resource-manager dashboard /
   customization), layer-private app/atoms and app/libs vs public
-  components/utils (relative imports), attribute order/defaults, and
+  components/utils (relative imports), attribute order/defaults, template child
+  spacing (single child flush, 2+ children blank-line separated), empty `{}` /
+  `[]` on one line, multiline assignment blank-line isolation, and
   whitespace/formatting conventions for all Nuxt-generated code. Use when
   working in or consuming nuxt-unified-ui, declaring or customizing resources,
   or whenever generating Vue/Nuxt code that must match unified code style.
@@ -61,14 +63,16 @@ Absolute highlights:
 - 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
 - **`.js` / `.ts` file start:** two leading blank lines, **except** when the file starts with imports — then **no** blank lines before the first `import`
 - Every `<script setup>` section starts with `/* section name */`, then a blank line
-- Within a section, group declarations by kind (imports, refs, computeds, watchers, functions, etc.): two blank lines between groups; no blanks between consecutive refs; one blank between consecutive members of other groups
+- Within a section, group declarations by kind (imports, refs, computeds, watchers, functions, etc.): two blank lines between groups; no blanks between consecutive single-line refs; one blank between consecutive members of other groups; multiline assignments get one blank line before and after
 - Non-trivial async/functions: blank line after `{`, double blank between major steps, blank before `}`
 - A function whose body is one `for` / `while` / `if` or one connected `if` / `else` / `else if` or `try` / `catch` / `finally` chain stays flush: no blank lines between the function `{` / `}` and that block
 - A function dedicated to choosing a return value from multiple criteria uses one exhaustive `if` / `else if` / `else` chain; broader functions may use guard clauses and early returns
 - `else` / `catch` on their own line after `}`
-- Script object literals always multi-line (even one property)
+- Script object/array literals always multi-line (even one property/element), **except** empty literals which stay `{}` / `[]` on one line
+- A multiline JS/TS assignment (`const x = { … }`, `useUFetch(`, `items.value = [ … ]`, …) gets **exactly one** blank line before it and **exactly one** after it; single-line assignments (including `const x = {}`) stay in the normal group rhythm
 - Kebab-case tags (`u-button`, `un-card`)
 - `v-if` / `v-for` on `<template>` wrappers — not on rendered nodes
+- **Template child spacing:** a tag with a single child has **no** blank lines inside it; a tag with 2+ children gets **exactly one** blank line after the opening tag, between each pair of children, and before the closing tag — each `v-if` / `v-else-if` / `v-else` branch counts as a child, and each tag is judged only by its own direct children
 - If a condition changes several component attributes, prefer explicit `<template v-if>` / `v-else` component variants over nested ternaries and overly dynamic bindings
 - Tags with children keep all attributes on one line with the opening tag unless a multiline attribute (multi-line array/object/function binding) forces a split — then the opening tag goes on its own line, one attribute per line, value styled like JS; childless tags are self-closing — one single-line attribute stays inline, otherwise tag and attributes each go on their own line with `/>` on its own line; attribute order + default omissions (`variant="subtle"`, **Cancel only → `ghost`**, omit neutral `color`, `loading-auto`); split non-self-closing `>` on same line as last attr; split self-closing `/>` on its own line
 - `{{ ... }}` on its own line (static + dynamic text may mix)

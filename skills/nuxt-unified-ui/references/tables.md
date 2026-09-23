@@ -71,8 +71,26 @@ Models are always **page size, then page**. Attributes stay on one line with the
   v-model:current-page="currentPage"
   :actions="itemActions"
   :extra-actions="itemExtraActions">
+  <template #status-cell="{ row }">
+    ...
+  </template>
+</un-table>
+```
+
+One slot child stays flush against `<un-table>`; two or more slot children get a blank line after the opening tag, between each slot, and before `</un-table>` — child spacing rules in [code-style.md](code-style.md).
+
+```vue
+<un-table
+  :columns="columns"
+  :loading="isItemsLoading"
+  :data="itemsData"
+  :actions="itemActions">
 
   <template #status-cell="{ row }">
+    ...
+  </template>
+
+  <template #createdAt-cell="{ row }">
     ...
   </template>
 

@@ -17,18 +17,21 @@ Write code so a reader can **scan vertically** and see structure before details.
    A non-trivial workflow function is a mini-document: blank line after `{`, full-block guards, double blanks between major steps, and a blank before `}`. A function whose body is one control block — or one connected `if` / `else` / `else if` or `try` / `catch` / `finally` chain — stays flush: no blanks between the function braces and that block. Small helpers and functions whose whole job is choosing a return value stay compact.
 
 3. **One idea per line in structured data.**
-   Object/array literals in script are multi-line with trailing commas — even single-property objects passed to helpers (`toastSuccess`, `ufetch` options, etc.). Compact one-liners hide diffs and force horizontal reading.
+   Object/array literals in script are multi-line with trailing commas — even single-property objects passed to helpers (`toastSuccess`, `ufetch` options, etc.). The exception is an **empty** literal, which stays compact on one line (`{}`, `[]`). A multiline assignment (the usual home of those literals) is isolated with one blank line before and after so the block scans as its own unit.
 
 4. **Templates stay single-line unless a multiline attribute — or a childless multi-attribute tag — forces a split.**
    A tag with children keeps all attributes on the same single line as the opening tag — no wrapping for length or attribute count. Only a multiline attribute (an array, object, or function literal bound to an attribute that spans multiple lines) forces such a tag to split: then the opening tag goes on its own line, every other attribute gets its own line, and the multiline value is formatted like a JS literal. Childless tags follow their own exception (self-closing; split when they carry more than one attribute or a multiline attribute). Closing `>` / `/>` placement is consistent; interpolations sit on their own line (static + dynamic text may share one `{{ ... }}` or surrounding text).
 
-5. **Section comments are the map.**
+5. **Blank lines in templates count children, not size.**
+   A tag with exactly one child hugs it: no blank lines inside the tag. A tag with two or more children breathes: one blank line after the opening tag, between each pair of children, and before the closing tag. Branching (`v-if` / `v-else-if` / `v-else`) counts per branch. This makes sibling count — the thing that decides whether you must read further — visible at a glance, and it is never a judgement call about how "big" the children look.
+
+6. **Section comments are the map.**
    `/* section */` labels define logical domains, while declaration-kind spacing exposes the structure inside each domain. Imports sit in the section that needs them, not in a hoisted pile at the top.
 
-6. **Names that match role.**
+7. **Names that match role.**
    Handlers read as actions (`handleLogin`), short callbacks use `it`, loops use real nouns. Shape and naming reinforce each other so you rarely need narrating comments.
 
-7. **Vue scripts stay runtime-shaped.**
+8. **Vue scripts stay runtime-shaped.**
    `<script setup>` without `lang="ts"` and without type annotations keeps SFC style uniform and matches the dominant Nuxt UI / unified-ui codebase. Server/util `.ts` files may use TypeScript where the file already does; still follow the same whitespace and literal formatting.
 
 When editing an existing file, **absolute rules below always win**. For choices not covered here (rare quote/semicolon drift), match the nearest sibling file.
@@ -50,6 +53,9 @@ When editing an existing file, **absolute rules below always win**. For choices 
 | `else` / `catch` | on their **own line** after `}` |
 | `.js` / `.ts` file start | **two** blank lines at the top, **unless** the file starts with imports — then **no** blank lines before the first `import` |
 | **Single-line principle (JS/TS only)** | **Do not wrap JS/TS code solely because it has grown long**; keep every statement on a single line unless the explicit JS/TS wrapping rules below dictate otherwise. The default is single-statement-per-line; only break across lines when a specific rule permits or requires it. Template sections have their own rule (single-line attributes unless a multiline attribute forces a split) — see Template rules. |
+| **Empty object / array literals** | `{}` and `[]` — always a single line, never split across lines — see [Empty literals](#empty-literals). |
+| **Multiline assignment isolation** | A JS/TS assignment that spans more than one line gets **exactly one** blank line before it and **exactly one** after it — see [Multiline assignment isolation](#multiline-assignment-isolation). |
+| **Template child spacing** | Single child → no blank lines inside the tag. Two or more children → exactly one blank line after the opening tag, between each pair of children, and before the closing tag — see [Child spacing](#child-spacing-hard-rule). |
 
 ---
 
@@ -97,8 +103,9 @@ Vue SFCs are unchanged: `<script setup>` begins immediately inside the script bl
 - Start every logical `<script setup>` domain with `/* section name */`, followed by a blank line.
 - Within each section, group declarations by kind: imports, props/models, refs, computeds, watchers/lifecycle, functions, and outlets.
 - Use **two blank lines between different declaration groups** within a section.
-- Keep consecutive refs together with **no blank lines**.
+- Keep consecutive **single-line** refs together with **no blank lines**.
 - Use **one blank line between consecutive declarations** in other same-kind groups, including computeds, watchers, and functions.
+- A **multiline assignment** is isolated with one blank line before and after it, even among refs — see [Multiline assignment isolation](#multiline-assignment-isolation).
 - Keep a blank line before each section comment; the preceding group's double-boundary spacing still applies.
 - Blank line before `</script>`.
 - **Two** blank lines between `</script>` and `<template>`.
@@ -206,7 +213,7 @@ function fireBumps(bumps) {
 }
 ```
 
-If the function has **any other statement** besides that one block (a guard plus a loop, setup then a `for`, two separate `if`s, …), use the non-trivial workflow spacing instead. Interior spacing *inside* the block still follows the other rules.
+If the function has **any other statement** besides that one block (a guard plus a loop, setup then a `for`, two separate `if`s, …), use the non-trivial workflow spacing instead. Interior spacing *inside* the block still follows the other rules, including [multiline assignment isolation](#multiline-assignment-isolation).
 
 ### Return-only decision functions
 
@@ -227,6 +234,95 @@ function getSortLabel(column) {
 ```
 
 Use this pattern only when value selection is essentially the function's entire body. Keep the chain flush with the function braces (single-block rule). Functions that perform broader work may use guard clauses and early returns when those make the workflow clearer; do not force their logic into an exhaustive chain.
+
+### Multiline assignment isolation
+
+A **multiline assignment** is any `const` / `let` / `var` / `export const` declaration, or any `=` reassignment, whose **statement spans more than one line**. That almost always means the RHS is a multi-line object, array, call, or destructure (`useUFetch`, `computed(() => { … })`, `defineProps({ … })`, …).
+
+Isolate it with **exactly one** blank line immediately before the statement and **exactly one** blank line immediately after it.
+
+This is about the **statement**, not about calls or returns. `await navigateTo({ … })`, `toastSuccess({ … })`, and `return { … }` are not assignments — they do not get this padding from this rule (function-body / group spacing still applies to them).
+
+```ts
+const itemsPerPage = ref(20);
+const currentPage = ref(1);
+
+const columns = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+  },
+];
+
+const sortDirection = ref('desc');
+```
+
+```ts
+async function handleLogin() {
+
+  if (!loginForm.value.username) {
+    return;
+  }
+
+
+  const response = await ufetch('/api/authentication/login', {
+    method: 'post',
+    body: {
+      username: loginForm.value.username,
+      password: loginForm.value.password,
+    },
+  });
+
+
+  useToken().value = response.token;
+
+  await navigateTo({
+    name: 'authentication.account',
+  });
+
+}
+```
+
+```ts
+// ❌ flush against neighbors
+const itemsPerPage = ref(20);
+const columns = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+  },
+];
+const sortDirection = ref('desc');
+
+// ❌ two blank lines just because the assignment is multiline
+const columns = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+  },
+];
+
+
+const sortDirection = ref('desc');
+```
+
+How this combines with other spacing rules:
+
+| Situation | What to keep |
+|-----------|----------------|
+| Two multiline assignments in a row | **One** blank line between them (the after of the first *is* the before of the second) |
+| Next to a single-line statement (including consecutive refs) | Isolation **wins**: one blank before and after the multiline assignment |
+| First statement after a function `{` that already wants a blank, or last statement before a `}` that already wants a blank | **Share** that one blank — do not add a second |
+| Declaration-group boundary or major-step boundary (already **two** blanks) | Keep the **two** — do not squeeze them down to one |
+| Blank line already required after `/* section */` | That blank **is** the before-blank — do not add another |
+| Single-line assignment, including empty `{}` / `[]` | Not multiline — no isolation from this rule |
+| Tiny / single-block function whose **only** statement is the assignment | Stay **flush** with the function braces (those functions never pad around their one statement) |
+
+Do not put extra blank lines **inside** the assigned literal; one entry per line, no blanks between properties / elements.
 
 ### `else` / `catch`
 
@@ -252,9 +348,9 @@ catch {
 
 ## Object / array / call formatting
 
-### Script literals — always multi-line
+### Script literals — multi-line unless empty
 
-In script and `.ts` files, object literals use one property per line and a trailing comma — **including single-property objects** in call args:
+In script and `.ts` files, object and array literals use one property / element per line and a trailing comma — **including single-property / single-element literals** in call args:
 
 ```ts
 toastSuccess({
@@ -273,6 +369,44 @@ await ufetch('/api/authentication/login', {
   },
 });
 ```
+
+A multiline assignment of one of these literals is isolated with a blank line before and after — see [Multiline assignment isolation](#multiline-assignment-isolation).
+
+### Empty literals
+
+An object or array with **no** properties / elements is always written on **one line**: `{}` or `[]`. No newline inside, no trailing comma, no spaces between the brackets.
+
+This is the only exception to “literals are multi-line”. A single key or a single element is **not** empty and still splits.
+
+```ts
+const form = {};
+const selectedIds = [];
+
+await ufetch('/api/items', {
+  method: 'post',
+  query: {},
+  body: {
+    ids: [],
+  },
+});
+```
+
+```ts
+// ❌ empty literal split across lines
+const form = {
+};
+
+const selectedIds = [
+];
+
+await ufetch('/api/items', {
+  method: 'post',
+  body: {
+  },
+});
+```
+
+`defineEmits([])` and similar empty-array / empty-object arguments stay `[]` / `{}` on one line. One or more entries still use the multi-line form.
 
 ### Call wrapping
 
@@ -300,32 +434,40 @@ const response = await ufetch(
 - A bound array, object, or function literal that spans multiple lines is a **multiline attribute** and forces the tag to split (see Attribute wrapping). A single-pair object with scalar values stays inline and does **not** trigger a split: `:ui="{ content: 'max-w-7xl' }"`
 - Multi-key or nested template object/array bindings are multiline attributes: split the tag and format the value like a JS literal
 - Simple scalars and simple ternaries stay inline; break only when a branch becomes a multiline object/array or nested structure
-- When one condition changes several attributes, labels/icons, or an object-shaped binding such as `to`, use adjacent `<template v-if>` / `v-else-if` / `v-else` branches with explicit component variants. Prefer small markup duplication over nested ternaries and overly dynamic attributes.
+- When one condition changes several attributes, labels/icons, or an object-shaped binding such as `to`, use sibling `<template v-if>` / `v-else-if` / `v-else` branches with explicit component variants. Prefer small markup duplication over nested ternaries and overly dynamic attributes.
+
+Each branch is a child of the surrounding tag, so the branches are separated by blank lines ([Child spacing](#child-spacing-hard-rule)):
 
 ```vue
-<template v-if="state === 'complete'">
-  <u-badge
-    variant="subtle"
-    color="success"
-    icon="lucide:circle-check"
-    label="Completed"
-  />
-</template>
-<template v-else-if="state === 'in-progress'">
-  <u-badge
-    variant="subtle"
-    color="warning"
-    icon="lucide:clock"
-    label="In Progress"
-  />
-</template>
-<template v-else>
-  <u-badge
-    variant="subtle"
-    icon="lucide:circle"
-    label="Not Started"
-  />
-</template>
+<div class="flex items-center gap-1">
+
+  <template v-if="state === 'complete'">
+    <u-badge
+      variant="subtle"
+      color="success"
+      icon="lucide:circle-check"
+      label="Completed"
+    />
+  </template>
+
+  <template v-else-if="state === 'in-progress'">
+    <u-badge
+      variant="subtle"
+      color="warning"
+      icon="lucide:clock"
+      label="In Progress"
+    />
+  </template>
+
+  <template v-else>
+    <u-badge
+      variant="subtle"
+      icon="lucide:circle"
+      label="Not Started"
+    />
+  </template>
+
+</div>
 ```
 
 ---
@@ -352,7 +494,7 @@ const captchaId = defineModel('id', {
 
 - Always assign `defineProps` / `defineEmits` / `defineModel` to a variable
 - `defineProps`: shorthand `name: Type` only — never `{ type: Type, required: true }`
-- `defineEmits`: array of strings, **always multi-line** (even one event)
+- `defineEmits`: array of strings, **always multi-line** (even one event); empty stays `defineEmits([])`
 - `defineModel` uses `{ type, default? }` (required by Vue) — that object still follows multi-line literal rules
 
 ### Section comments
@@ -505,7 +647,193 @@ Always put `v-if` / `v-else-if` / `v-else` / `v-for` on `<template>` wrappers �
 </template>
 ```
 
-Keep tight `v-if` / `v-else` chains adjacent (no blank line between matching branches inside small slots). Blank lines are OK between large top-level page/card state branches.
+Each branch of a `v-if` / `v-else-if` / `v-else` chain is a separate child of the surrounding tag, so branches are separated by blank lines like any other siblings — see [Child spacing](#child-spacing-hard-rule).
+
+### Child spacing (hard rule)
+
+Blank lines **inside** a tag are decided by **how many direct children it has** — never by how tall, dense, or important the children look.
+
+- **Exactly one child:** no blank lines. The child begins on the line directly after the opening tag, and the closing tag comes directly after the child.
+- **Two or more children:** **exactly one** blank line after the opening tag, **exactly one** blank line between each pair of consecutive children, and **exactly one** blank line before the closing tag. Never two, never zero.
+- **No children:** nothing to space — the tag is self-closing (see Attribute wrapping).
+
+This rule governs blank lines only. Indentation and the shape of the tags themselves (single-line attributes, multiline-attribute splits, `>` / `/>` placement, attribute order) follow their own rules and are unaffected. When a multiline attribute split puts `>` at the end of the last attribute line, that line **is** the opening tag for spacing purposes — the blank line goes right below it.
+
+```vue
+<!-- ✅ single child — parent hugs it -->
+<u-tooltip :text="action.tooltip">
+  <u-button
+    loading-auto
+    v-bind="radOmit(action, [ 'tooltip' ])"
+  />
+</u-tooltip>
+
+<!-- ✅ single text / interpolation child — same thing -->
+<span class="text-sm">
+  {{ $t('un.table.itemsPerPage') }}
+</span>
+
+<!-- ✅ multiple children — one blank after the opener, between children, before the closer -->
+<div class="flex items-center gap-2 p-3 border-t border-default">
+
+  <u-pagination
+    active-color="neutral"
+    :total="props.totalItems"
+    @update:page="currentPage = $event"
+  />
+
+  <div class="grow" />
+
+  <u-select
+    :items="pageSizeItems"
+    v-model="itemsPerPage"
+  />
+
+</div>
+```
+
+```vue
+<!-- ❌ decorative blanks around a lone child -->
+<u-tooltip :text="action.tooltip">
+
+  <u-button
+    loading-auto
+    v-bind="radOmit(action, [ 'tooltip' ])"
+  />
+
+</u-tooltip>
+
+<!-- ❌ siblings packed together -->
+<div class="flex items-center gap-2 p-3">
+  <u-pagination :total="props.totalItems" />
+  <div class="grow" />
+</div>
+
+<!-- ❌ double blank lines between siblings -->
+<div class="space-y-3">
+
+  <un-card :title="title">
+    ...
+  </un-card>
+
+
+  <un-card :title="otherTitle">
+    ...
+  </un-card>
+
+</div>
+```
+
+#### What counts as a child
+
+Every direct child **node** counts, whatever its kind:
+
+| Child node | Counts as |
+|------------|-----------|
+| Element / component tag (`<div>…</div>`, `<u-button />`) | one child |
+| `<template>` wrapper (`v-if`, `v-for`, named slot, scoped slot) | one child |
+| `<slot />` or `<slot>…</slot>` | one child |
+| A run of text / interpolation (`Login`, `Welcome, {{ user.name }}!`) | one child |
+| Each branch of a `v-if` / `v-else-if` / `v-else` chain | **one child per branch** |
+| An HTML comment (`<!-- … -->`) | part of the child below it — no blank line between the comment and that child; the blank line goes above the comment |
+
+A `v-if` / `v-else-if` / `v-else` chain is **not** a single unit: two branches mean two children, so the parent breathes and the branches are separated by a blank line. A lone `v-if` with no `v-else` is a single child and stays flush.
+
+```vue
+<!-- ✅ two branches = two children -->
+<template v-for="(action, index) of props.actions" :key="index">
+
+  <template v-if="!action.actionType || action.actionType === 'button'">
+    <u-tooltip :text="action.tooltip">
+      <u-button
+        loading-auto
+        v-bind="radOmit(action, [ 'actionType', 'tooltip' ])"
+      />
+    </u-tooltip>
+  </template>
+
+  <template v-else-if="action.actionType === 'spacer'">
+    <div class="grow" />
+  </template>
+
+</template>
+
+<!-- ✅ lone v-if = single child -->
+<un-card :icon="icon" :title="title">
+  <template v-if="isResourceLoading">
+    <un-spinner />
+  </template>
+</un-card>
+
+<!-- ✅ a text run next to an element child is itself a child -->
+<p class="text-sm">
+
+  Signed in as {{ userData.name }}
+
+  <u-button
+    variant="subtle"
+    icon="lucide:log-out"
+    @click="handleLogout"
+  />
+
+</p>
+
+<!-- ❌ branches glued together -->
+<div class="flex flex-col">
+  <template v-if="state === 'complete'">
+    ...
+  </template>
+  <template v-else>
+    ...
+  </template>
+</div>
+```
+
+#### Applied per tag, at every depth
+
+Each tag looks **only at its own direct children**. Nesting never propagates spacing: a single-child parent stays flush even when that child is a multi-child tag, and a multi-child parent breathes even when every child is a one-liner.
+
+```vue
+<template>
+  <u-card :ui="{ body: 'p-0 sm:p-0 divide-y divide-default' }">
+
+    <un-typography :title="props.title" class="p-3">
+
+      <template v-if="isSlotFilled(slots.title)" #title>
+        <slot name="title" />
+      </template>
+
+      <template v-if="props.closable" #append>
+        <u-button
+          variant="ghost"
+          icon="lucide:x"
+          @click="emit('close')"
+        />
+      </template>
+
+    </un-typography>
+
+    <div
+      v-if="props.text || isSlotFilled(slots.default)"
+      :class="{
+        'p-3': !props.fluidBody,
+      }">
+
+      <template v-if="props.text">
+        <p :class="props.textClasses">
+          {{ props.text }}
+        </p>
+      </template>
+
+      <slot />
+
+    </div>
+
+  </u-card>
+</template>
+```
+
+Reading that from the outside in: `u-card` has two children (spaced), `un-typography` has two slot children (spaced), each slot `<template>` has one child (flush), the split `div` has two children (spaced), and the inner `<p>` has one text child (flush). The SFC root `<template>` has one root node, so it is flush too.
 
 ### Attribute wrapping (hard rule)
 
@@ -691,7 +1019,7 @@ Put `{{ ... }}` on its own line (not glued onto the opening/closing tag). **Stat
 - One root node when possible
 - If multiple sibling sections are needed, wrap in a single root (`div` etc.)
 - Sibling cards/sections often use `class="space-y-3"` on the root wrapper
-- Prefer a blank line after the root opener and before the root closer when the body is multi-block
+- The root wrapper follows [Child spacing](#child-spacing-hard-rule) like any other tag: blank lines after the opener / between sections / before the closer when it holds several sections, flush when it holds exactly one
 
 ```vue
 <template>
@@ -832,10 +1160,17 @@ export default defineEventHandler(async event => {
 | `if (!x) return;` | braced block |
 | `} else {` | `}\nelse {` |
 | `toastSuccess({ title: 'x' })` one-liner object | multi-line object + trailing comma |
+| Empty object/array split (`{\n}`, `[\n]`) | `{}` / `[]` on one line |
+| Multiline assignment flush against neighbors | one blank line before and after |
+| Two blank lines around a multiline assignment (when not a group/major-step boundary) | exactly one |
 | Splitting a tag with children that has no multiline attribute (wrapping for count/length) | keep all attributes on one line with the opening tag |
 | Childless multi-attribute tag on one line | split: opening tag on its own line, one attribute per line, `/>` on its own line |
 | Empty open/close pair (`<div ...></div>`) | self-close (`<div ... />`) |
 | Keeping a tag single-line when it has a multiline attribute | split: opening tag on its own line, one attribute per line, value like JS |
+| Blank lines around a tag's only child | Single child hugs the parent — no blank lines inside the tag |
+| Children of a multi-child tag packed with no blank lines | One blank line after the opener, between each pair of children, and before the closer |
+| Two blank lines between children | Exactly one |
+| Gluing `v-if` / `v-else-if` / `v-else` branches together | Each branch is its own child — blank line between branches |
 | `>` on its own line after attrs | `>` after last attr |
 | `{{ x }}` glued to tags | interpolation on its own line (static + dynamic mix OK) |
 | `ghost` on non-Cancel buttons | `ghost` only for Cancel |
@@ -862,14 +1197,15 @@ export default defineEventHandler(async event => {
 - [ ] 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
 - [ ] `.js`/`.ts`: two leading blank lines, or imports flush at line 1 (no blanks before first import)
 - [ ] Every `<script setup>` section starts with `/* section name */`, followed by a blank line
-- [ ] Declarations are grouped by kind inside each section: two blanks between groups; no blanks between refs; one blank between other same-kind declarations
+- [ ] Declarations are grouped by kind inside each section: two blanks between groups; no blanks between consecutive single-line refs; one blank between other same-kind declarations; multiline assignments isolated with one blank before and after
 - [ ] Non-trivial workflow functions: blank after `{`, double blanks between major steps, blank before `}`
 - [ ] Single-block functions (one `for` / `while` / `if`, or one connected `if` / `else` / `try` / `catch` chain) stay flush with the function braces
 - [ ] Tiny helpers stay tight
 - [ ] Return-only multi-criteria functions use a compact exhaustive `if` / `else if` / `else`; broader functions may use early returns
 - [ ] `else` / `catch` on new line
-- [ ] Script objects multi-line (the JS/TS single-line principle does not cover templates); template tags stay single-line unless a multiline attribute (multi-line array/object/function binding) forces a split; single-pair scalar objects (e.g. `:ui="{ content: '...' }"`) stay inline
+- [ ] Script objects/arrays multi-line with trailing commas, **except** empty `{}` / `[]` which stay one line; multiline assignments have one blank line before and after (the JS/TS single-line principle does not cover templates); template tags stay single-line unless a multiline attribute (multi-line array/object/function binding) forces a split; single-pair scalar objects (e.g. `:ui="{ content: '...' }"`) stay inline
 - [ ] Kebab-case component tags
+- [ ] Child spacing: every tag with one child is flush; every tag with 2+ children has exactly one blank line after the opener, between each pair of children, and before the closer (each `v-if` / `v-else-if` / `v-else` branch counts as a child)
 - [ ] `v-if` / `v-for` on `<template>` wrappers
 - [ ] Conditional states that change several attributes use explicit `<template v-if>` component variants, not nested ternaries
 - [ ] Tags with children keep all attributes on one line with the opening tag unless a multiline attribute forces a split (opening tag on its own line, one attribute per line, value like JS); childless tags are self-closing — single single-line attribute stays inline, otherwise tag and attributes each go on their own line with `/>` on its own line; closing `>` / `/>` placement is correct
