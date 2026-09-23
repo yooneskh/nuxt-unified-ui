@@ -156,7 +156,7 @@ Action entries support `actionType: 'spacer'` (flex grow) and optional `tooltip`
 
 Cancel / dismiss actions use `variant: 'ghost'` (or `variant="ghost"`). Do **not** use `ghost` on primary/submit/other actions — prefer omit / `subtle`.
 
-Hand-rolled dialog shells keep **`u-modal` attributes on one line** (see [code-style.md](code-style.md)):
+Hand-rolled dialog shells follow the template single-line rule — this shell has no multiline attribute, so it stays on one line (see [code-style.md](code-style.md)):
 
 ```vue
 <u-modal :ui="{ content: 'max-w-5xl' }" scrollable @update:open="!$event && emit('close')">
@@ -169,7 +169,7 @@ Hand-rolled dialog shells keep **`u-modal` attributes on one line** (see [code-s
 - Prefer `launchFormPickerDialog` / `launchChoicePickerDialog` over hand-rolled `u-modal` for these flows
 - Handle actions in button / submit `onClick`
 - Keep field lists consistent with `un-form` (`identifier`, not `type`, for element kind)
-- Mark Cancel with `variant: 'ghost'`; keep `u-modal` attrs on one line
+- Mark Cancel with `variant: 'ghost'`; keep dialog shells single-line unless a multiline attribute forces a split
 
 **Don’t**
 

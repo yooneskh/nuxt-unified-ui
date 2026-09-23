@@ -60,7 +60,10 @@ Action buttons: `loading-auto`, props via `radOmit` excluding `actionType` / `to
 ## `un-spinner` — `app/components/un-spinner.vue`
 
 ```vue
-<u-icon name="lucide:loader-circle" class="animate-spin" />
+<u-icon
+  name="lucide:loader-circle"
+  class="animate-spin"
+/>
 ```
 
 No props.

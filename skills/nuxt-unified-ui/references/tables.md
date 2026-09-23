@@ -57,7 +57,7 @@ Omit unused props. When present, write them in this order:
 13. `:extra-actions`
 14. `:meta`
 
-Models are always **page size, then page**. Closing `>` sits on the same line as the last attribute.
+Models are always **page size, then page**. Attributes stay on one line with the opening tag (a multiline attribute is the only split trigger — see [code-style.md](code-style.md)).
 
 ### Paged table
 
@@ -84,10 +84,7 @@ Models are always **page size, then page**. Closing `>` sits on the same line as
 No footer, no page models, no `total-items`:
 
 ```vue
-<un-card
-  :icon="icon"
-  :title="title"
-  fluid-body>
+<un-card :icon="icon" :title="title" fluid-body>
   <un-table
     :columns="columns"
     :data="rows"
@@ -298,10 +295,7 @@ const currentPage = ref(1);
 Prefer an `un-card` with `fluid-body` so the table and footer are edge-to-edge:
 
 ```vue
-<un-card
-  :title="`Manage ${titlePlural}`"
-  fluid-body
-  :append-actions="toolbarActions">
+<un-card :title="`Manage ${titlePlural}`" fluid-body :append-actions="toolbarActions">
   <un-table
     :columns="columns"
     :loading="isItemsLoading"

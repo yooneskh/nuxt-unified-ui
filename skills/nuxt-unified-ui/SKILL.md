@@ -70,7 +70,7 @@ Absolute highlights:
 - Kebab-case tags (`u-button`, `un-card`)
 - `v-if` / `v-for` on `<template>` wrappers — not on rendered nodes
 - If a condition changes several component attributes, prefer explicit `<template v-if>` / `v-else` component variants over nested ternaries and overly dynamic bindings
-- **2+ attributes → one per line** except structural **`template` wrappers** and **`u-modal`** (keep either on one line); attribute order + default omissions (`variant="subtle"`, **Cancel only → `ghost`**, omit neutral `color`, `loading-auto`); non-self-closing `>` on same line as last attr; multi-line self-closing `/>` on its own line
+- Tags with children keep all attributes on one line with the opening tag unless a multiline attribute (multi-line array/object/function binding) forces a split — then the opening tag goes on its own line, one attribute per line, value styled like JS; childless tags are self-closing — one single-line attribute stays inline, otherwise tag and attributes each go on their own line with `/>` on its own line; attribute order + default omissions (`variant="subtle"`, **Cancel only → `ghost`**, omit neutral `color`, `loading-auto`); split non-self-closing `>` on same line as last attr; split self-closing `/>` on its own line
 - `{{ ... }}` on its own line (static + dynamic text may mix)
 - `/* section */` comments; imports co-located under the section that uses them
 - Light naming: `handleXxx` handlers, `it` in short callbacks, descriptive `for...of`, computeds use block + `return`

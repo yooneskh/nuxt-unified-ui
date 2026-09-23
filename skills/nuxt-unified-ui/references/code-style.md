@@ -19,8 +19,8 @@ Write code so a reader can **scan vertically** and see structure before details.
 3. **One idea per line in structured data.**
    Object/array literals in script are multi-line with trailing commas — even single-property objects passed to helpers (`toastSuccess`, `ufetch` options, etc.). Compact one-liners hide diffs and force horizontal reading.
 
-4. **Templates are layout, not mini-scripts.**
-   Structural directives live on one-line `<template>` wrappers so the rendered node stays a clean component/element. Rendered component attributes wrap predictably (`u-modal` stays one line); closing `>` / `/>` placement is consistent; interpolations sit on their own line (static + dynamic text may share one `{{ ... }}` or surrounding text).
+4. **Templates stay single-line unless a multiline attribute — or a childless multi-attribute tag — forces a split.**
+   A tag with children keeps all attributes on the same single line as the opening tag — no wrapping for length or attribute count. Only a multiline attribute (an array, object, or function literal bound to an attribute that spans multiple lines) forces such a tag to split: then the opening tag goes on its own line, every other attribute gets its own line, and the multiline value is formatted like a JS literal. Childless tags follow their own exception (self-closing; split when they carry more than one attribute or a multiline attribute). Closing `>` / `/>` placement is consistent; interpolations sit on their own line (static + dynamic text may share one `{{ ... }}` or surrounding text).
 
 5. **Section comments are the map.**
    `/* section */` labels define logical domains, while declaration-kind spacing exposes the structure inside each domain. Imports sit in the section that needs them, not in a hoisted pile at the top.
@@ -49,6 +49,7 @@ When editing an existing file, **absolute rules below always win**. For choices 
 | Braces | always for `if` / `else` / `for` / `while` — no brace-less single-liners |
 | `else` / `catch` | on their **own line** after `}` |
 | `.js` / `.ts` file start | **two** blank lines at the top, **unless** the file starts with imports — then **no** blank lines before the first `import` |
+| **Single-line principle (JS/TS only)** | **Do not wrap JS/TS code solely because it has grown long**; keep every statement on a single line unless the explicit JS/TS wrapping rules below dictate otherwise. The default is single-statement-per-line; only break across lines when a specific rule permits or requires it. Template sections have their own rule (single-line attributes unless a multiline attribute forces a split) — see Template rules. |
 
 ---
 
@@ -296,9 +297,9 @@ const response = await ufetch(
 
 ### Template bindings — compactness
 
-- Single-key object binding may stay inline: `:ui="{ content: 'max-w-7xl' }"`
-- Multi-key template object/array bindings are multi-line
-- Simple scalars and simple ternaries stay inline; break only when branches become objects/arrays or nested structure
+- A bound array, object, or function literal that spans multiple lines is a **multiline attribute** and forces the tag to split (see Attribute wrapping). A single-pair object with scalar values stays inline and does **not** trigger a split: `:ui="{ content: 'max-w-7xl' }"`
+- Multi-key or nested template object/array bindings are multiline attributes: split the tag and format the value like a JS literal
+- Simple scalars and simple ternaries stay inline; break only when a branch becomes a multiline object/array or nested structure
 - When one condition changes several attributes, labels/icons, or an object-shaped binding such as `to`, use adjacent `<template v-if>` / `v-else-if` / `v-else` branches with explicit component variants. Prefer small markup duplication over nested ternaries and overly dynamic attributes.
 
 ```vue
@@ -508,40 +509,69 @@ Keep tight `v-if` / `v-else` chains adjacent (no blank line between matching bra
 
 ### Attribute wrapping (hard rule)
 
-- **0–1 attributes:** may stay on one line with the tag
-- **Structural `<template>` wrappers:** keep the opening tag on one line, even with several directives, keys, or dynamic slot bindings
-- **2+ attributes on rendered elements/components:** one attribute per line — **except `u-modal`**
-- **`u-modal` only:** keep **all** attributes on the **same single line** as the tag (do not wrap), even when there are many
+- **Childless tags must be self-closing:** a tag with no children is written `<tag ... />` — never an empty open/close pair (`<tag ...></tag>`).
+- **Tags with children — single line unless multiline:** all attributes stay on the **same single line** as the opening tag, regardless of attribute count or line length. Never wrap only because the line got long or because there are 2+ attributes. This applies equally to rendered elements, components, `u-modal`, and structural `<template>` wrappers.
+- **Only trigger for tags with children — multiline attribute:** such a tag splits only when one of its attributes is a **multiline attribute**: an array, object, or function literal bound to the attribute that spans multiple lines (e.g. `:class="{\n … \n}"`, `:items="[\n … \n]"`). References, calls, and scalar expressions (`:field="field"`, `v-bind="radOmit(action, [...])"`, `:is="elementsMap[x]"`, `@click="handleSave"`) are **not** multiline attributes, even when their runtime value is an object. A single-pair object with scalar values (`:ui="{ content: 'max-w-5xl' }"`) stays inline and does **not** trigger a split.
+- **Childless exception:** a childless (self-closing) tag with a single single-line attribute stays on one line with the tag (`<u-icon name="lucide:check" />`). When it has more than one attribute **or** at least one multiline attribute, the tag and its attributes each go on their own line: the opening tag on its own line (`<tag`), one attribute per line in attribute order, and `/>` on its own line.
+- **Split shape (tags with children):** when a multiline attribute triggers the split, the opening tag goes on its **own line** (`<tag`), every other attribute gets **its own line** in attribute order, and the multiline attribute's value is formatted **like a JS value** (one entry per line, trailing commas). Closing `>` / `/>` placement follows [`>` and `/>` placement](#-and--placement).
 
 ```vue
-<!-- ✅ 0–1 attributes — inline OK -->
-<div class="space-y-3">
-<u-form-field label="Captcha">
-  ...
-</u-form-field>
-<u-icon name="lucide:check" />
-
-<!-- ✅ structural template wrappers stay on one line -->
-<template v-for="column in columns" :key="column.accessorKey" #[column.accessorKey+'-cell']="{ row }">
-  ...
-</template>
-
-<!-- ✅ u-modal — always one line (exception) -->
+<!-- ✅ tag with children, no multiline attribute — one line, however many attributes -->
 <u-modal :ui="{ content: 'max-w-5xl' }" scrollable @update:open="!$event && emit('close')">
   ...
 </u-modal>
 
-<!-- ✅ other components — 2+ attributes, one per line -->
+<!-- ✅ structural template wrappers follow the same rule -->
+<template v-for="column in columns" :key="column.accessorKey" #[column.accessorKey+'-cell']="{ row }">
+  ...
+</template>
+
+<!-- ✅ tag with children + multiline attribute — splits, value styled like JS -->
+<div
+  v-if="show"
+  :class="{
+    'p-3': !fluidBody,
+  }">
+  ...
+</div>
+
+<!-- ✅ childless, single single-line attribute — one line -->
+<u-icon name="lucide:check" />
+
+<!-- ✅ childless, more than one attribute — tag and attributes each on their own line -->
 <u-button
   variant="subtle"
   icon="lucide:refresh-ccw"
   @click="refresh"
 />
+
+<!-- ✅ childless with a multiline attribute — same split shape -->
+<component
+  :is="elementsMap[field.identifier]"
+  :field="field"
+  :class="{
+    'p-2': true,
+  }"
+/>
+
+<!-- ❌ childless multi-attribute tag on one line -->
+<u-button variant="subtle" icon="lucide:refresh-ccw" @click="refresh" />
+
+<!-- ❌ empty open/close pair — self-close instead -->
+<div class="grow"></div>
+
+<!-- ❌ splitting a tag with children that has no multiline attribute -->
+<un-card
+  icon="lucide:key"
+  :title="title"
+  fluid-body>
+  ...
+</un-card>
 ```
 
 ### Attribute order
 
-When wrapping, order attributes as:
+When a multiline attribute forces a split, order attributes as:
 
 1. Refs / identity: `ref`, `id`, `name`
 2. Component visual props: `variant`, `color`, `size`, `icon`, static `label`
@@ -606,27 +636,30 @@ Prefer defaults by **omitting** props rather than restating them:
 ```
 ### `>` and `/>` placement
 
-**Non-self-closing**, multi-attribute: `>` on the **same line** as the last attribute:
+Single-line tags keep their closer on the same line (`<u-icon name="lucide:check" />`, `<div class="space-y-3">`).
+
+**Split (multiline-attribute) non-self-closing:** `>` on the **same line** as the last attribute:
 
 ```vue
-<un-card
-  icon="lucide:key"
-  :title="title"
-  fluid-body>
+<div
+  v-if="show"
+  :class="{
+    'p-3': !fluidBody,
+  }">
   ...
-</un-card>
+</div>
 ```
 
-**Self-closing**, multi-attribute: `/>` on its **own line**; always a space before `/>`:
+**Split self-closing (childless multi-attribute or multiline attribute):** `/>` on its **own line**; always a space before `/>`:
 
 ```vue
-<u-button
-  variant="subtle"
-  icon="lucide:refresh-ccw"
-  @click="refresh"
+<component
+  :is="elementsMap[field.identifier]"
+  :field="field"
+  :class="{
+    'p-2': true,
+  }"
 />
-
-<u-icon name="lucide:check" />
 ```
 
 Closing tags for block components (`</un-card>`, `</u-modal>`, …) always on their own line.
@@ -799,8 +832,10 @@ export default defineEventHandler(async event => {
 | `if (!x) return;` | braced block |
 | `} else {` | `}\nelse {` |
 | `toastSuccess({ title: 'x' })` one-liner object | multi-line object + trailing comma |
-| 3 attrs on one line (rendered element/component other than `u-modal`) | one attr per line |
-| Multi-line `u-modal` attrs | keep `u-modal` attrs on one line |
+| Splitting a tag with children that has no multiline attribute (wrapping for count/length) | keep all attributes on one line with the opening tag |
+| Childless multi-attribute tag on one line | split: opening tag on its own line, one attribute per line, `/>` on its own line |
+| Empty open/close pair (`<div ...></div>`) | self-close (`<div ... />`) |
+| Keeping a tag single-line when it has a multiline attribute | split: opening tag on its own line, one attribute per line, value like JS |
 | `>` on its own line after attrs | `>` after last attr |
 | `{{ x }}` glued to tags | interpolation on its own line (static + dynamic mix OK) |
 | `ghost` on non-Cancel buttons | `ghost` only for Cancel |
@@ -833,11 +868,11 @@ export default defineEventHandler(async event => {
 - [ ] Tiny helpers stay tight
 - [ ] Return-only multi-criteria functions use a compact exhaustive `if` / `else if` / `else`; broader functions may use early returns
 - [ ] `else` / `catch` on new line
-- [ ] Script objects multi-line; template single-key objects may be inline
+- [ ] Script objects multi-line (the JS/TS single-line principle does not cover templates); template tags stay single-line unless a multiline attribute (multi-line array/object/function binding) forces a split; single-pair scalar objects (e.g. `:ui="{ content: '...' }"`) stay inline
 - [ ] Kebab-case component tags
 - [ ] `v-if` / `v-for` on `<template>` wrappers
 - [ ] Conditional states that change several attributes use explicit `<template v-if>` component variants, not nested ternaries
-- [ ] Structural `<template>` wrappers stay on one line; rendered elements/components with 2+ attributes wrap one per line (**`u-modal` stays on one line**); closing `>` / `/>` placement is correct
+- [ ] Tags with children keep all attributes on one line with the opening tag unless a multiline attribute forces a split (opening tag on its own line, one attribute per line, value like JS); childless tags are self-closing — single single-line attribute stays inline, otherwise tag and attributes each go on their own line with `/>` on its own line; closing `>` / `/>` placement is correct
 - [ ] Attribute order + default-value omissions respected (`subtle`, **Cancel → `ghost` only**, no neutral color noise, `loading-auto`)
 - [ ] `{{ }}` on own line (static + dynamic mix OK)
 - [ ] Every section is named; imports are co-located with the section that uses them
