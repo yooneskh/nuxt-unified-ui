@@ -51,7 +51,7 @@ Audit the public surface of `nuxt-unified-ui` against the current source, then u
      ```
 5. **Radashi catalog:** Keep/regenerate `references/radashi.md` with every runtime export as `radXxx`, short description, and typing from installed radashi types.
 6. **Dialogs:** actions in button / `submitButton` `onClick`; avoid choice-button `value` unless needed for the await result.
-7. **Code style:** Keep `references/code-style.md` complete and mandatory for all Nuxt-generated code. Preserve higher-level reasoning first, then absolute rules covering:
+7. **Code style:** Keep `references/code-style.md` complete and mandatory for formatting. Keep these rules in `SKILL.md` so the main agent loads them: one responsibility per `.vue` / `.js` / `.ts` file; private components in `app/atoms/`; private helpers in `app/libs/`; public files in `app/components/` / `app/utils/`; relative imports for `atoms` / `libs`; promotion only when another layer needs the file; read the matching domain reference before writing; do not invent APIs; a resource includes its plugin, full REST set, and dashboard surface; choose `ufetch` vs `useUFetch`; every page has `definePageMeta.name` and `/* seo */`; update callers when splitting or promoting; layer install includes the required host CSS. The main agent must not load the formatting guide. After it adds or edits each `.vue`, `.ts`, or `.js` file, it launches one subagent for that file. The subagent reads all of `references/style-todos.md` and `references/code-style.md`, edits only its target, preserves behavior, and does not move the file. Every `.vue`, `.js`, and `.ts` file has one responsibility, written at the top as one blank line, `/* responsibility */`, one blank line, short `//` comments, then one blank line. In a `.vue` file that header is the first thing inside `<script setup>`. Preserve higher-level reasoning first, then absolute rules covering:
    - whitespace / blank-line rhythm (including non-trivial function breathing room vs tiny tight helpers vs single-block flush: a function that is only one `for`/`while`/`if` or one connected `if`/`else`/`try`/`catch` chain has no blanks between the function braces and that block)
    - indentation, quotes, semicolons, trailing commas
    - object/array/call wrapping
@@ -73,6 +73,7 @@ skills/nuxt-unified-ui/
   SKILL.md
   references/
     code-style.md
+    style-todos.md
     pages.md
     data-fetching.md
     layer-setup.md

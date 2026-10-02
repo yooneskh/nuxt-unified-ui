@@ -7,6 +7,11 @@ Page shape conventions for Nuxt apps using this stack. Always combine with [code
 ```vue
 <script setup>
 
+/* responsibility */
+
+// Shows one patient
+// and the actions for that record.
+
 /* page */
 
 definePageMeta({
@@ -70,13 +75,14 @@ A page with no dynamic params and no fetched SEO fields puts `/* seo */` directl
 
 ## Script ordering (pages)
 
-1. `/* page */` — only `definePageMeta`
-2. `/* params */` — only when the page reads `route.params` or `route.query` (see Page params)
-3. Domain sections the SEO block needs (`useUFetch`, derived data, …)
-4. `/* seo */` — required on every page (see Page SEO)
-5. Remaining domain sections (forms, sessions, UI state, …)
-6. Watchers / lifecycle
-7. Handlers (`handleXxx`)
+1. `/* responsibility */` header — one job, short `//` lines ([code-style.md](code-style.md#one-responsibility))
+2. `/* page */` — only `definePageMeta`
+3. `/* params */` — only when the page reads `route.params` or `route.query` (see Page params)
+4. Domain sections the SEO block needs (`useUFetch`, derived data, …)
+5. `/* seo */` — required on every page (see Page SEO)
+6. Remaining domain sections (forms, sessions, UI state, …)
+7. Watchers / lifecycle
+8. Handlers (`handleXxx`)
 
 Do **not** put `useHead` / `useSeoMeta` / `useJsonld` inside `/* page */`. Those belong in `/* seo */`.
 

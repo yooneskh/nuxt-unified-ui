@@ -1,185 +1,95 @@
 ---
 name: nuxt-unified-ui
 description: >-
-  Single skill for the nuxt-unified-ui Nuxt layer and mandatory Nuxt code style:
-  install/extend the layer, required CSS, modules/config, radashi radXxx
-  auto-imports, un-form / useForm, launchFormPickerDialog /
-  launchChoicePickerDialog, toast helpers, un-card / un-typography / un-table
-  (attribute order, row actions, pagination), pages /
-  definePageMeta, page /* params */ and /* seo */ blocks, ufetch / useUFetch wrapping, unified resources
-  (server plugins, REST handleResource*, resource-manager dashboard /
-  customization), layer-private app/atoms and app/libs vs public
-  components/utils (relative imports), attribute order/defaults, template child
-  spacing (single child flush, 2+ children blank-line separated), empty `{}` /
-  `[]` on one line, multiline assignment blank-line isolation, and
-  whitespace/formatting conventions for all Nuxt-generated code. Use when
-  working in or consuming nuxt-unified-ui, declaring or customizing resources,
-  or whenever generating Vue/Nuxt code that must match unified code style.
+  Guides work with the nuxt-unified-ui Nuxt layer, including installation,
+  forms, dialogs, tables, resources, data fetching, and where files live
+  (app/atoms, app/libs, layer-private vs public components and utils). Use
+  when working in or consuming nuxt-unified-ui. After editing each .vue, .js,
+  or .ts file, the main agent must launch one style subagent for that file.
+  Formatting stays in that subagent.
 ---
 
 # nuxt-unified-ui
 
-Reusable **Nuxt layer** (Nuxt UI + helpers) **plus** the mandatory **code style** for Nuxt projects using this stack.
+The main agent places files and uses the layer. A style subagent formats each file afterward. Do not load `references/code-style.md` or `references/style-todos.md` in the main agent.
 
-Peer dependency: **Nuxt `>=4.5.2`**.
+## File structure
 
-This is the **only** installable skill in this repo. Deep topics live under `references/`.
+The main agent decides where a file lives and which one job it has. Do this before the style handoff. The style subagent cannot move a file or update its callers.
 
-## When to use
+Each `.vue`, `.js`, and `.ts` file has one responsibility. When a file would have two independent jobs, create two files.
 
-- Installing / extending `nuxt-unified-ui` as a Nuxt layer
-- Using `un-form`, dialogs, toasts, `un-card`, `un-table`, radashi `radXxx`, etc.
-- Declaring or customizing **unified resources** (plugins, REST, dashboard)
-- **Whenever generating or editing Nuxt/Vue/server code** that must follow the unified look (whitespace, wrapping, template shape, sectioning)
+Nuxt auto-imports `app/components/` and `app/utils/` across every layer. `app/composables/` is public in the same way. A file that must stay inside one layer does not go in those directories.
 
-## References (read as needed)
+| Role | Directory | Visibility |
+|---|---|---|
+| Private Vue component | `app/atoms/` | This layer only |
+| Private function, composable, or helper | `app/libs/` | This layer only |
+| Public Vue component | `app/components/` | Whole app, auto-imported |
+| Public util | `app/utils/` | Whole app, auto-imported |
 
-| Topic | File |
-|-------|------|
-| **Code style (mandatory)** | [references/code-style.md](references/code-style.md) |
-| Unified resources (plugins → REST → dashboard) | [references/resources.md](references/resources.md) |
-| Pages / routing | [references/pages.md](references/pages.md) |
-| Data fetching (`ufetch` / `useUFetch`) | [references/data-fetching.md](references/data-fetching.md) |
-| Layer install + required CSS | [references/layer-setup.md](references/layer-setup.md) |
-| Public surface inventory | [references/public-surface.md](references/public-surface.md) |
-| Forms (`useForm` / `un-form`) | [references/forms.md](references/forms.md) |
-| Form field schema | [references/form-field-schema.md](references/form-field-schema.md) |
-| Form elements | [references/form-elements.md](references/form-elements.md) |
-| Dialogs / toasts / UI | [references/dialogs.md](references/dialogs.md) |
+Generate private first. New components start in `app/atoms/`. New functions and similar helpers start in `app/libs/`. Promote a file to `app/components/` or `app/utils/` only when another layer needs it. After a promote, update every caller and remove the relative import; public modules are auto-imported.
+
+Import `atoms` and `libs` with relative paths only (`../atoms/foo.vue`, `../libs/bar`). Never use `~/`, `@/`, `#layers/`, or another alias. Never import another layer's `atoms` or `libs`; promote that file first, then use the public auto-import.
+
+Do not register `atoms` or `libs` with Nuxt `components` or `imports` config.
+
+## Before writing
+
+Read the reference that matches the task before creating or editing files. The details stay in that reference. Do not load `references/code-style.md` or `references/style-todos.md`.
+
+| Task | Read first |
+|---|---|
+| Layer installation and required CSS | [references/layer-setup.md](references/layer-setup.md) |
+| Whether an API exists | [references/public-surface.md](references/public-surface.md), or the source |
+| Forms / `useForm` / `un-form` | [references/forms.md](references/forms.md) |
+| Form schema and elements | [references/form-field-schema.md](references/form-field-schema.md), [references/form-elements.md](references/form-elements.md) |
+| Dialogs | [references/dialogs.md](references/dialogs.md) |
 | Dialog implementation | [references/dialogs-impl.md](references/dialogs-impl.md) |
-| Toast + `un-*` details | [references/toast-and-ui.md](references/toast-and-ui.md) |
-| Tables (`un-table`) | [references/tables.md](references/tables.md) |
-| Radashi `radXxx` catalog | [references/radashi.md](references/radashi.md) |
+| Toasts and `un-*` UI | [references/toast-and-ui.md](references/toast-and-ui.md) |
+| Tables | [references/tables.md](references/tables.md) |
+| Pages and routing | [references/pages.md](references/pages.md) |
+| `ufetch` / `useUFetch` | [references/data-fetching.md](references/data-fetching.md) |
+| Unified resources | [references/resources.md](references/resources.md) |
+| Radashi `radXxx` exports | [references/radashi.md](references/radashi.md) |
 
----
+## Decisions the main agent owns
 
-## Code style (read [code-style.md](references/code-style.md) before writing code)
+These choices change which files exist and what they call. The style subagent does not make them.
 
-**Always apply** to Vue SFCs and app/server `.ts` files. Higher-level idea: code should **scan vertically** — named sections, declaration-kind groups, multi-line literals, and predictable template wrapping.
+- Use only APIs listed in [references/public-surface.md](references/public-surface.md) or present in the source. Do not invent helpers.
+- A new resource includes its server plugin, the full REST route set, and a dashboard nav entry or a custom `<resource-manager>` page.
+- Use `ufetch` for a one-off request. Use `useUFetch` for reactive page data.
+- Every page has an explicit `definePageMeta.name` and a `/* seo */` block with `useHead` and `useSeoMeta`.
+- When splitting or promoting a file, update its callers in the same task. Then run the style handoff for every `.vue`, `.js`, or `.ts` file that changed.
+- Installing the layer includes the required host `assets/css/main.css` and the `pathRelativeToBase` CSS entry in `nuxt.config`.
 
-Absolute highlights:
+## Mandatory handoff
 
-- `<script setup>` only — **never** `lang="ts"`; no TS annotations in Vue (runtime prop types)
-- 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
-- **`.js` / `.ts` file start:** two leading blank lines, **except** when the file starts with imports — then **no** blank lines before the first `import`
-- Every `<script setup>` section starts with `/* section name */`, then a blank line
-- Within a section, group declarations by kind (imports, refs, computeds, watchers, functions, etc.): two blank lines between groups; no blanks between consecutive single-line refs; one blank between consecutive members of other groups; multiline assignments get one blank line before and after
-- Non-trivial async/functions: blank line after `{`, double blank between major steps, blank before `}`
-- A function whose body is one `for` / `while` / `if` or one connected `if` / `else` / `else if` or `try` / `catch` / `finally` chain stays flush: no blank lines between the function `{` / `}` and that block
-- A function dedicated to choosing a return value from multiple criteria uses one exhaustive `if` / `else if` / `else` chain; broader functions may use guard clauses and early returns
-- `else` / `catch` on their own line after `}`
-- Script object/array literals always multi-line (even one property/element), **except** empty literals which stay `{}` / `[]` on one line
-- A multiline JS/TS assignment (`const x = { … }`, `useUFetch(`, `items.value = [ … ]`, …) gets **exactly one** blank line before it and **exactly one** after it; single-line assignments (including `const x = {}`) stay in the normal group rhythm
-- Kebab-case tags (`u-button`, `un-card`)
-- `v-if` / `v-for` on `<template>` wrappers — not on rendered nodes
-- **Template child spacing:** a tag with a single child has **no** blank lines inside it; a tag with 2+ children gets **exactly one** blank line after the opening tag, between each pair of children, and before the closing tag — each `v-if` / `v-else-if` / `v-else` branch counts as a child, and each tag is judged only by its own direct children
-- If a condition changes several component attributes, prefer explicit `<template v-if>` / `v-else` component variants over nested ternaries and overly dynamic bindings
-- Tags with children keep all attributes on one line with the opening tag unless a multiline attribute (multi-line array/object/function binding) forces a split — then the opening tag goes on its own line, one attribute per line, value styled like JS; childless tags are self-closing — one single-line attribute stays inline, otherwise tag and attributes each go on their own line with `/>` on its own line; attribute order + default omissions (`variant="subtle"`, **Cancel only → `ghost`**, omit neutral `color`, `loading-auto`); split non-self-closing `>` on same line as last attr; split self-closing `/>` on its own line
-- `{{ ... }}` on its own line (static + dynamic text may mix)
-- `/* section */` comments; imports co-located under the section that uses them
-- Light naming: `handleXxx` handlers, `it` in short callbacks, descriptive `for...of`, computeds use block + `return`
-- Pages: explicit `definePageMeta.name`, `/* params */` for `route.params` / `route.query`, required `/* seo */` (`useHead` + `useSeoMeta`, `useJsonld` when installed) → [pages.md](references/pages.md)
-- Fetching: `ufetch(url, {` one line; `useUFetch` with URL on next line + `data*Data` / `is*Loading` / `refresh*` → [data-fetching.md](references/data-fetching.md)
-- Layer modules: generate private first (`app/atoms/` components, `app/libs/` functions and similar); promote to `app/components/` / `app/utils/` only when another layer needs them; import `atoms`/`libs` with relative paths → [code-style.md](references/code-style.md)
+The main agent owns implementation and file placement. A style subagent owns formatting.
 
----
+After implementation settles:
 
-## Quick start (host app)
+1. Track only `.vue`, `.js`, and `.ts` files the main agent added or edited during this task. Do not include unrelated pre-existing working-tree changes.
+2. Launch exactly one subagent per tracked file. Files may be processed in parallel; never give one subagent multiple files.
+3. Give each subagent the absolute target path and absolute paths to `references/style-todos.md` and `references/code-style.md`.
+4. If the main agent edits a processed file again, rerun its style subagent.
+5. If a subagent reports `split required`, split the file in the main agent, place each result with the file-structure rules, update its callers, then launch one new style subagent for each resulting file and each caller this task edited.
+6. Do not finish until every tracked file has a successful style result.
 
-1. Install the package.
-2. Create host `assets/css/main.css`:
+Use this prompt:
 
-```css
-@import 'tailwindcss';
-@import '@nuxt/ui';
-@import 'nuxt-unified-ui/nuxt-ui-fixes.css';
+```text
+Apply nuxt-unified-ui style to this file only:
+<absolute target path>
+
+Read and follow the complete files:
+<absolute skill path>/references/style-todos.md
+<absolute skill path>/references/code-style.md
+
+Edit only the target file. Preserve behavior. Return either:
+- styled: <path>
+- split required: <responsibilities and suggested paths>
 ```
 
-3. Extend the layer (CSS wiring is **required**):
-
-```js
-import { pathRelativeToBase } from 'nuxt-unified-ui';
-
-export default defineNuxtConfig({
-  css: [
-    pathRelativeToBase(import.meta.url, './assets/css/main.css'),
-  ],
-  extends: [
-    'nuxt-unified-ui',
-  ],
-});
-```
-
-4. Wrap the app with `u-app`.
-5. Prefer layer helpers (`useForm`, `launchFormPickerDialog`, `toastSuccess`) over reinventing them.
-6. Generate all new code using [code-style.md](references/code-style.md).
-
-Details: [layer-setup.md](references/layer-setup.md).
-
-## Package surface
-
-| Export | Path |
-|--------|------|
-| `nuxt-unified-ui` | `./nuxt.config.ts` (also re-exports `pathRelativeToBase`) |
-| `nuxt-unified-ui/app` | `./app` |
-| `nuxt-unified-ui/nuxt-ui-fixes.css` | `./app/assets/css/nuxt-ui-fixes.css` |
-
-Published: `nuxt.config.ts`, `index.d.ts`, `app/`, `i18n/`, `modules/`.
-
-## Mental model (`app/`)
-
-| Path | Role |
-|------|------|
-| `app/components/` | `un-form`, `un-card`, `un-typography`, `un-spinner`, `un-table` |
-| `app/composables/` | `useForm`, `useFormExtraElements` |
-| `app/elements/` | Built-in form field renderers |
-| `app/dialogs/` | Form / choice picker modal UIs |
-| `app/utils/` | `launchDialog*`, `toast*`, `smartMatch`, `unSet`, dates, … |
-| `app/plugins/` | `$toaster` via `useToast()` |
-| `modules/radashi.ts` | Auto-imports radashi as `rad*` |
-| `i18n/locales/` | `en.json`, `de.json` |
-
-## Layer config (inherited)
-
-From `nuxt.config.ts`: `@vueuse/nuxt`, `@nuxt/ui`, `@nuxtjs/i18n`; `ui.colorMode: false`; default variant `neutral`; i18n `no_prefix` with `en`/`de`; `experimental.typedPages: true`.
-
-## Common tasks
-
-| Task | Prefer |
-|------|--------|
-| Schema form | `useForm` + `<form-tag />` / `<un-form>` → [forms.md](references/forms.md) |
-| Modal form | `launchFormPickerDialog` + `submitButton.onClick` → [dialogs.md](references/dialogs.md) |
-| Confirm / choice | `launchChoicePickerDialog` + button `onClick` (avoid `value`) |
-| Feedback | `toastSuccess` / `toastError` / `toastWarning` / `toastInfo` / `toast` |
-| Page chrome | `un-typography` + `un-card` |
-| Data table | `un-table` + parent-owned fetch / sort / filter → [tables.md](references/tables.md) |
-| Custom field | `registerFormExtraElement` in a plugin |
-| Utilities | `radXxx` → [radashi.md](references/radashi.md) |
-| New page / route | [pages.md](references/pages.md) |
-| List/detail fetch or mutation | [data-fetching.md](references/data-fetching.md) |
-| New / custom resource | [resources.md](references/resources.md) |
-| New component / util in a layer | Start in `app/atoms/` or `app/libs/`; relative imports; promote to `components/` / `utils/` only if another layer needs it → [code-style.md](references/code-style.md) |
-| Formatting any of the above | [code-style.md](references/code-style.md) |
-
-## Do / don’t
-
-**Do**
-
-- Extend via `extends: ['nuxt-unified-ui']`
-- Keep required host `main.css` + `pathRelativeToBase` CSS entry + `nuxt-ui-fixes.css`
-- Use field `identifier` for element kind; `type` only for HTML input types
-- Handle dialog actions in `onClick`
-- Follow code style for every generated file
-- Resources: plugin → full REST set → dashboard nav / custom `<resource-manager>` page → [resources.md](references/resources.md)
-- Start generated layer components in `app/atoms/` and functions in `app/libs/`; import them with relative paths; move to `app/components/` / `app/utils/` only when another layer needs them
-
-**Don’t**
-
-- Invent APIs not in source
-- Reference any local playground as consumer docs
-- Use PascalCase component tags in templates
-- Set choice-button `value` unless the await result must distinguish buttons
-- Assume color mode is enabled (layer disables it)
-- Reimplement resource CRUD in route files (use `handleResource*`; customize via dedicated pages + domain APIs)
-- Put a layer-private component or util in `components/` or `utils/` (becomes app-global)
-- Import `atoms`/`libs` via `~/`, `#layers`, or from another layer — use relative paths; promote first if another layer needs them
+The file-structure rules and the decisions above stay in the main agent. Formatting rules do not: the style subagent loads their full text.

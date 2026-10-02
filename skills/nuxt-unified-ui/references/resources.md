@@ -37,7 +37,7 @@ File: `server/plugins/{name}-resource.ts`
 
 Pattern:
 
-1. Two leading blank lines (no imports) **or** imports flush at line 1 — see [code-style.md](code-style.md).
+1. [One responsibility](code-style.md#one-responsibility) header, then the plugin body.
 2. `parseSchema({ ... })` → `{ schema, type, inferred }`.
 3. `declare global { interface UnifiedAppRegistry { ... } }` so `app.resourceName` is typed.
 4. `defineNitroPlugin` assigns `app.resourceName = { dbo: createUnifiedResourceController({ resource, schema, type, meta? }) }`.
@@ -46,6 +46,10 @@ Minimal example:
 
 ```ts
 
+/* responsibility */
+
+// Registers the users resource
+// on the unified app registry.
 
 const { schema, type, inferred } = parseSchema({
   'name': 'string',
@@ -282,4 +286,4 @@ Keep the standard REST resource routes even when the UI is customized — other 
 - [ ] `server/plugins/{name}-resource.ts` — schema, registry, `createUnifiedResourceController`, meta for relations/UI
 - [ ] Full `server/api/{kebab-plural}/` route set with camelCase `resource` (+ permissions if admin)
 - [ ] Dashboard: nav → `dashboard.resources.single` + kebab `resourceName`, **or** dedicated page + `actions` / `resource-actions`
-- [ ] Follow [code-style.md](code-style.md) (including file-start blank lines)
+- [ ] Follow [code-style.md](code-style.md) (including the responsibility header). Style each file with [style-todos.md](style-todos.md)

@@ -2,7 +2,9 @@
 
 **Mandatory** whenever generating or editing code in a Nuxt project that uses this stack. Applies to **all** Nuxt project files: Vue SFCs and `.ts`/`.js` under `app/` (including `atoms/` and `libs/`), `server/`, composables, utils, plugins, middleware, etc.
 
-This document is about the **look and shape** of code — whitespace, wrapping, braces, template structure, sectioning, file placement for layer-private vs public modules, and light naming that affects scanning — not business logic.
+This document is about the **look and shape** of code — whitespace, wrapping, braces, template structure, sectioning, and light naming that affects scanning — not business logic.
+
+Where a file lives is decided by the main agent from the file-structure rules in `SKILL.md` (`app/atoms/`, `app/libs/`, and public `app/components/` / `app/utils/`). The main agent does not load this document. After it adds or edits a `.vue`, `.ts`, or `.js` file, it launches one subagent for that file. That subagent reads this complete document and follows [style-todos.md](style-todos.md). It may correct relative `atoms` / `libs` imports in that file. It does not move the file.
 
 ---
 
@@ -34,6 +36,9 @@ Write code so a reader can **scan vertically** and see structure before details.
 8. **Vue scripts stay runtime-shaped.**
    `<script setup>` without `lang="ts"` and without type annotations keeps SFC style uniform and matches the dominant Nuxt UI / unified-ui codebase. Server/util `.ts` files may use TypeScript where the file already does; still follow the same whitespace and literal formatting.
 
+9. **One file, one responsibility.**
+   Each `.vue`, `.js`, and `.ts` file exists for one job. That job is the first thing in the file: a `/* responsibility */` header and a few short `//` lines. See [One responsibility](#one-responsibility).
+
 When editing an existing file, **absolute rules below always win**. For choices not covered here (rare quote/semicolon drift), match the nearest sibling file.
 
 ---
@@ -51,7 +56,7 @@ When editing an existing file, **absolute rules below always win**. For choices 
 | Component tags | lowercase kebab-case (`u-button`, `un-card`) — never PascalCase |
 | Braces | always for `if` / `else` / `for` / `while` — no brace-less single-liners |
 | `else` / `catch` | on their **own line** after `}` |
-| `.js` / `.ts` file start | **two** blank lines at the top, **unless** the file starts with imports — then **no** blank lines before the first `import` |
+| File start | [One responsibility](#one-responsibility) header on every `.vue`, `.js`, and `.ts` file |
 | **Single-line principle (JS/TS only)** | **Do not wrap JS/TS code solely because it has grown long**; keep every statement on a single line unless the explicit JS/TS wrapping rules below dictate otherwise. The default is single-statement-per-line; only break across lines when a specific rule permits or requires it. Template sections have their own rule (single-line attributes unless a multiline attribute forces a split) — see Template rules. |
 | **Empty object / array literals** | `{}` and `[]` — always a single line, never split across lines — see [Empty literals](#empty-literals). |
 | **Multiline assignment isolation** | A JS/TS assignment that spans more than one line gets **exactly one** blank line before it and **exactly one** after it — see [Multiline assignment isolation](#multiline-assignment-isolation). |
@@ -59,44 +64,82 @@ When editing an existing file, **absolute rules below always win**. For choices 
 
 ---
 
+## One responsibility
+
+Every `.vue`, `.js`, and `.ts` file does **one** job. Write that job at the top, before imports and before every other section.
+
+The job is the one reason the file exists. If saying it takes two independent jobs, the file is two files. The style subagent does not split files. It stops and tells the parent the split. The parent splits, then launches a new style subagent per resulting file.
+
+Shape, in this order:
+
+1. One blank line
+2. The line `/* responsibility */`
+3. One blank line
+4. The job, as short `//` comments. Use several short lines. Do not write one long line, and do not put the job in a second `/* */` block
+5. One blank line
+6. The rest of the file
+
+That last blank line is the blank line the next section or the first statement already requires. Do not add a second one.
+
+`.js` / `.ts`: this block is the start of the file. Nothing comes before the leading blank line. Imports, when the file has them, start after step 5.
+
+`.vue`: line 1 is `<script setup>`. The same block is the first thing inside the script. Do not put `/* */` or `//` above `<script setup>`.
+
+```ts
+
+/* responsibility */
+
+// Issues a session token
+// after checking the login payload.
+
+import { join } from 'node:path';
+```
+
+```ts
+
+/* responsibility */
+
+// Creates the users resource
+// controller for the registry.
+
+export default defineEventHandler(async event => {
+  ...
+});
+```
+
+```vue
+<script setup>
+
+/* responsibility */
+
+// Renders the login form
+// and submits credentials.
+
+/* login */
+```
+
+```ts
+// ❌ imports above the header, or no header
+import { join } from 'node:path';
+```
+
+```vue
+<!-- ❌ comments above the script tag -->
+
+/* responsibility */
+
+<script setup>
+```
+
+The `//` lines name the job. They do not narrate steps, list options, or repeat the file name.
+
+---
+
 ## Vertical whitespace (script / TS)
 
-### File start (`.js` / `.ts` only)
+### File start
 
-Start of every `.js` and `.ts` file must have **two blank lines**, except if it has imports at the start of the file — then put **no** blank lines before the first import.
-
-```ts
-// ✅ no imports — exactly two blank lines, then code
-
-
-export default defineEventHandler(async event => {
-  ...
-});
-```
-
-```ts
-// ✅ imports at start — import on line 1, no leading blanks
-import { join } from 'node:path';
-
-
-const { schema, type, inferred } = parseSchema({
-  ...
-});
-```
-
-```ts
-// ❌ missing leading blanks when there are no imports
-export default defineEventHandler(async event => {
-  ...
-});
-```
-
-```ts
-// ❌ blank lines before the first import
-import { join } from 'node:path';
-```
-
-Vue SFCs are unchanged: `<script setup>` begins immediately inside the script block (no artificial leading blanks at the top of the `.vue` file).
+The start of a `.vue`, `.js`, or `.ts` file is the [one responsibility](#one-responsibility) header. Do not add a separate pair of leading blank lines, and do not put imports above that header.
 
 ### Section rhythm
 
@@ -547,22 +590,26 @@ function refreshAll() {
 
 ### Script ordering
 
+The `/* responsibility */` header comes before either list. It is not a domain section.
+
 **Components / dialogs**
 
-1. `/* interface */` section
-2. Domain sections in reading order
-3. Within each section: imports, refs, computeds, watchers/lifecycle, functions
-4. `/* outlets */` / `defineExpose` section if needed
+1. `/* responsibility */` header
+2. `/* interface */` section
+3. Domain sections in reading order
+4. Within each section: imports, refs, computeds, watchers/lifecycle, functions
+5. `/* outlets */` / `defineExpose` section if needed
 
 **Pages**
 
-1. `/* page */` — `definePageMeta` only
-2. `/* params */` — only when the page reads `route.params` or `route.query`
-3. Domain sections SEO needs (fetches / derived data)
-4. `/* seo */` — required; under the last block it reads
-5. Remaining domain sections
-6. Watchers / lifecycle
-7. Handlers
+1. `/* responsibility */` header
+2. `/* page */` — `definePageMeta` only
+3. `/* params */` — only when the page reads `route.params` or `route.query`
+4. Domain sections SEO needs (fetches / derived data)
+5. `/* seo */` — required; under the last block it reads
+6. Remaining domain sections
+7. Watchers / lifecycle
+8. Handlers
 
 ### Import co-location
 
@@ -575,6 +622,8 @@ import { VisXYContainer, VisLine } from '@unovis/vue';
 ```
 
 ### Layer-private `atoms` / `libs` vs public `components` / `utils`
+
+The main agent applies this placement when it creates or moves files. In a style pass, only rewrite `atoms` / `libs` imports in the current file to relative paths. Do not move the file.
 
 Nuxt auto-imports `app/components/` and `app/utils/` across the **entire** app (every layer). Files that must stay inside one layer do not belong there.
 
@@ -1110,10 +1159,14 @@ Pass handler **references** into action objects / watchers when possible (`onCli
 
 ## Server / plain TS files
 
-Same whitespace, brace, literal, and call-formatting rules as script blocks. Honor the **file-start** rule (two leading blanks, or imports flush at line 1). Prefer `async event =>` style consistent with siblings:
+Same whitespace, brace, literal, and call-formatting rules as script blocks. Start with the [one responsibility](#one-responsibility) header. Prefer `async event =>` style consistent with siblings:
 
 ```ts
 
+/* responsibility */
+
+// Creates an authentication token
+// after checking the login body.
 
 export default defineEventHandler(async event => {
 
@@ -1181,8 +1234,10 @@ export default defineEventHandler(async event => {
 | `color="neutral"` on badge | omit `color` / use `undefined` |
 | `ufetch(\n  url,\n  {` | `ufetch(url, {` on one line |
 | One-line `useUFetch(...)` | URL on next line; options multi-line |
-| `.ts`/`.js` with no leading blanks (and no imports) | two blank lines at file start |
-| Blank lines before first `import` | `import` on line 1 |
+| Missing `/* responsibility */` header | Blank line, `/* responsibility */`, blank line, short `//` lines, blank line |
+| Two jobs in one file | One responsibility; the parent splits, then restyles each file |
+| Responsibility as a paragraph, or above `<script setup>` | Short `//` lines; in Vue, inside `<script setup>` |
+| Imports above the responsibility header | Header first; imports after its closing blank line |
 | Blank lines around a function that is only one `for` / `if` / `try` chain | Function `{` / `}` flush against that block |
 | Layer-private component in `components/` | `app/atoms/` |
 | Layer-private util in `utils/` or `composables/` | `app/libs/` |
@@ -1193,10 +1248,12 @@ export default defineEventHandler(async event => {
 
 ## Checklist before finishing an edit
 
+The file subagent reaches this list from [style-todos.md](style-todos.md) after applying the complete guide. Use it as the final verification pass.
+
+- [ ] One responsibility, written as the [header](#one-responsibility): blank line, `/* responsibility */`, blank line, short `//` lines, blank line
 - [ ] `<script setup>` without `lang="ts"`; no TS annotations in Vue
 - [ ] 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
-- [ ] `.js`/`.ts`: two leading blank lines, or imports flush at line 1 (no blanks before first import)
-- [ ] Every `<script setup>` section starts with `/* section name */`, followed by a blank line
+- [ ] Every domain section starts with `/* section name */`, followed by a blank line
 - [ ] Declarations are grouped by kind inside each section: two blanks between groups; no blanks between consecutive single-line refs; one blank between other same-kind declarations; multiline assignments isolated with one blank before and after
 - [ ] Non-trivial workflow functions: blank after `{`, double blanks between major steps, blank before `}`
 - [ ] Single-block functions (one `for` / `while` / `if`, or one connected `if` / `else` / `try` / `catch` chain) stay flush with the function braces
@@ -1216,4 +1273,4 @@ export default defineEventHandler(async event => {
 - [ ] Computeds that return structures use block + `return`
 - [ ] Pages: explicit `definePageMeta.name`, `/* params */` + `/* seo */` placement, named navigation ([pages.md](pages.md))
 - [ ] Fetching: `ufetch` / `useUFetch` wrap styles and destructure names ([data-fetching.md](data-fetching.md))
-- [ ] New layer components/utils start in `app/atoms/` or `app/libs/`; `atoms`/`libs` imported with relative paths only; promote to `components/` / `utils/` only when another layer needs them
+- [ ] `atoms` / `libs` imports in this file are relative. Do not move the file; the main agent places it in `app/atoms/` or `app/libs/` and promotes it only when another layer needs it
