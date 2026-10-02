@@ -1,8 +1,8 @@
 # Pages and routing
 
-Page shape conventions for Nuxt apps using this stack. Always combine with [code-style.md](code-style.md).
+What every page in this stack contains and how it navigates.
 
-## Page script skeleton
+## Page skeleton
 
 ```vue
 <script setup>
@@ -71,136 +71,6 @@ async function handleAction() {
 </template>
 ```
 
-A page with no dynamic params and no fetched SEO fields puts `/* seo */` directly under `/* page */`.
-
-## Script ordering (pages)
-
-1. `/* responsibility */` header — one job, short `//` lines ([code-style.md](code-style.md#one-responsibility))
-2. `/* page */` — only `definePageMeta`
-3. `/* params */` — only when the page reads `route.params` or `route.query` (see Page params)
-4. Domain sections the SEO block needs (`useUFetch`, derived data, …)
-5. `/* seo */` — required on every page (see Page SEO)
-6. Remaining domain sections (forms, sessions, UI state, …)
-7. Watchers / lifecycle
-8. Handlers (`handleXxx`)
-
-Do **not** put `useHead` / `useSeoMeta` / `useJsonld` inside `/* page */`. Those belong in `/* seo */`.
-
-## Page params
-
-If a page reads `route.params` or `route.query`, add a `/* params */` block **immediately under** `/* page */`.
-
-1. Declare `const route = useRoute();`
-2. Two blank lines
-3. One `computed` per value — `route.params` first, then `route.query` — keep each reactive; do not snapshot into a bare `const`
-
-Consecutive computeds: **one** blank line between them.
-
-```ts
-/* params */
-
-const route = useRoute();
-
-
-const flashCardSlug = computed(() => {
-  return route.params.flashCardSlug;
-});
-```
-
-```ts
-/* params */
-
-const route = useRoute();
-
-
-const returnUrl = computed(() => {
-  return route.query.returnUrl;
-});
-```
-
-```ts
-/* params */
-
-const route = useRoute();
-
-
-const flashCardSlug = computed(() => {
-  return route.params.flashCardSlug;
-});
-
-const journeySlug = computed(() => {
-  return route.query.journey;
-});
-```
-
-- Files: `[patientUid].vue`, `[flashCardSlug]/index.vue`
-- Params: **camelCase** in brackets and when reading `route.params`
-- Query keys stay as they appear on the URL; the computed name is camelCase (`returnUrl` for `returnUrl`)
-- Omit `/* params */` entirely on pages that read neither `route.params` nor `route.query` — do not create an empty block. If something else needs `route` (for example `route.fullPath`), call `useRoute()` in that domain section instead.
-
-## Page SEO
-
-Every page **must** have a `/* seo */` block.
-
-**Placement**
-
-1. Default: directly under `/* page */`
-2. If the page has `/* params */`: under `/* params */`
-3. If `/* seo */` needs data from any other block: under **that** block (after the fetch / derived computeds), not above it
-
-Blocks that SEO does not read (sessions, local UI state, handlers) stay **below** `/* seo */`.
-
-**Contents (in this order, one blank line between calls)**
-
-1. `useHead({ title })` — required
-2. `useSeoMeta({ description })` — required
-3. `useJsonld(() => …)` — only when the project has `nuxt-jsonld` set up (`package.json` / `nuxt.config` modules), and only on public indexable pages. Skip it on `noindex` / dashboard / auth pages.
-
-Static strings when the copy is fixed; getters when the value comes from fetched data (`() => flashCardData.value?.name`). Optional chaining is fine on title/description getters.
-
-```ts
-/* seo */
-
-useHead({
-  title: 'Flash Cards',
-});
-
-useSeoMeta({
-  description: 'Browse free flash card decks for practice and study.',
-});
-```
-
-```ts
-/* seo */
-
-useHead({
-  title: () => flashCardData.value?.name,
-});
-
-useSeoMeta({
-  description: () => flashCardData.value?.description,
-});
-```
-
-**`useJsonld` data guard**
-
-When JSON-LD is included, inline the schema in the page (no shared `makeXxxJsonld` helpers). Guard absent data with a ternary — return `null` so no tag is emitted; do **not** replace this guard with optional chaining inside the object:
-
-```ts
-useJsonld(() => !flashCardData.value ? null : {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'LearningResource',
-      'name': flashCardData.value.name,
-      'url': `https://khoshghadam.com/flash-cards/${flashCardData.value.slug}`,
-    },
-  ],
-});
-```
-
-Keep `useJsonld(() => !data ? null : {` on **one line**. Object properties follow the usual multi-line literal rules. `data` is the fetched document or list the schema reads.
-
 ## `definePageMeta`
 
 - **Always** set an explicit `name`
@@ -212,6 +82,50 @@ Keep `useJsonld(() => !data ? null : {` on **one line**. Object properties follo
 definePageMeta({
   name: 'authentication.login',
   layout: 'empty',
+});
+```
+
+## Page params
+
+- Files: `[patientUid].vue`, `[flashCardSlug]/index.vue`
+- Params: **camelCase** in brackets and when reading `route.params`
+- Query keys stay as they appear on the URL; the variable name is camelCase (`returnUrl` for `returnUrl`)
+- Read every param and query value through its own `computed` so it stays reactive; do not snapshot `route.params.x` into a bare `const`
+
+## Page SEO
+
+Every page **must** set SEO:
+
+1. `useHead({ title })` — required
+2. `useSeoMeta({ description })` — required
+3. `useJsonld(() => …)` — only when the project has `nuxt-jsonld` set up (`package.json` / `nuxt.config` modules), and only on public indexable pages. Skip it on `noindex` / dashboard / auth pages.
+
+Use static strings when the copy is fixed and getters when the value comes from fetched data (`() => flashCardData.value?.name`). Optional chaining is fine on title/description getters.
+
+```ts
+useHead({
+  title: 'Flash Cards',
+});
+
+useSeoMeta({
+  description: 'Browse free flash card decks for practice and study.',
+});
+```
+
+**`useJsonld` data guard**
+
+When JSON-LD is included, inline the schema in the page (no shared `makeXxxJsonld` helpers). Guard absent data with a ternary that returns `null` so no tag is emitted; do **not** replace this guard with optional chaining inside the object:
+
+```ts
+useJsonld(() => !flashCardData.value ? null : {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'LearningResource',
+      'name': flashCardData.value.name,
+      'url': `https://khoshghadam.com/flash-cards/${flashCardData.value.slug}`,
+    },
+  ],
 });
 ```
 
@@ -243,6 +157,7 @@ When an action only navigates, use `to` — not `onClick: () => navigateTo(...)`
 
 ```ts
 {
+  variant: 'subtle',
   icon: 'lucide:arrow-left',
   label: 'Back',
   to: {
@@ -257,18 +172,4 @@ When an action only navigates, use `to` — not `onClick: () => navigateTo(...)`
 ## Page headings
 
 - Primary title: `h1` with `class="text-2xl font-semibold"` (match local siblings if they consistently differ)
-- Subtitle / secondary line: size-based hierarchy (`text-sm` / `text-xs`) — see text-hierarchy rules in [code-style.md](code-style.md)
-
-## Item / tab object property order
-
-For objects in `:items` arrays (tabs, selects, menus):
-
-`value` → `icon` → `label` → other props
-
-```ts
-{
-  value: 'preview',
-  icon: 'lucide:eye',
-  label: $t('section.preview'),
-}
-```
+- Subtitle / secondary line: a smaller size, `text-sm` or `text-xs`, rather than another heading weight

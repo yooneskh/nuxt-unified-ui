@@ -1,8 +1,6 @@
 # Data fetching (`ufetch` / `useUFetch`)
 
-Prefer host-app unified API helpers (`ufetch`, `useUFetch`) over raw `useFetch` / `useAsyncData` / `$fetch` for app API calls. Formatting rules below are mandatory; wire paths to whatever your app’s API plugin expects (relative paths — do not manually prepend `baseApiUrl`).
-
-Combine with [code-style.md](code-style.md).
+`ufetch` and `useUFetch` come from the companion unified layers. Use them instead of raw `useFetch` / `useAsyncData` / `$fetch` for app API calls. Pass relative paths (`/api/...`) — the API plugin adds the base URL; do not prepend `baseApiUrl` yourself.
 
 ## `ufetch` (imperative)
 
@@ -18,38 +16,14 @@ const response = await ufetch(`/api/resources/${id}`, {
 });
 ```
 
-Rules:
+Options beyond the usual `method` / `body` / `query`:
 
-- Name the result `response` (not `result`), unless a more specific name is clearer (`loginResponse`)
-- Inline `body` / `query` objects in the options — extract only when large/reused
-- `silent: true` — suppress automatic error toast when handling errors locally
+- `silent: true` — suppress the automatic error toast when you handle errors locally
 - `responseType: 'blob'` — file downloads
 
-### Options order
+Inline `body` / `query` objects in the options; extract them only when large or reused.
 
-- Mutations: behavior flags (`silent`, `responseType`) → `method` → `body` → `query` / other
-- Reads without `method`/`body`: behavior flags before `query`
-
-### Call wrapping (critical)
-
-Keep `ufetch(url, {` on **one line**. Do not break the URL onto its own line above `{`:
-
-```ts
-// ✅
-const response = await ufetch(`/api/items/${item.uid}/documents`, {
-  silent: true,
-});
-
-// ❌
-const response = await ufetch(
-  `/api/items/${item.uid}/documents`,
-  {
-    silent: true,
-  },
-);
-```
-
-### After mutation
+### After a mutation
 
 ```ts
 const response = await ufetch(url, {
@@ -73,7 +47,7 @@ Call `refresh()` **before** resetting local form UI state. Put side effects in d
 
 ### Response guards
 
-Fail-fast after `ufetch`:
+Fail fast after `ufetch`:
 
 1. Special non-success statuses first when relevant
 2. Invalid success → early `return toastError({ ... })`
@@ -85,7 +59,7 @@ Prefer direct access on `response` (`response.status`) over optional chaining wh
 
 ## `useUFetch` (reactive)
 
-For route/param/reactive-driven lists and detail loads:
+For route/param/reactive-driven lists and detail loads. Returns `data`, `pending`, and `refresh`:
 
 ```ts
 const { data: ordersData, pending: isOrdersPending, refresh: refreshOrders } = useUFetch(
@@ -100,63 +74,9 @@ const { data: ordersData, pending: isOrdersPending, refresh: refreshOrders } = u
 );
 ```
 
-### Wrapping style (critical)
-
-Always format as:
-
-1. `const { ... } = useUFetch(` on the first line
-2. URL argument on the next line (string **or** `computed(() => ...)`)
-3. Optional options object as a multi-line second argument
-4. Closing `);` on its own line
-
-```ts
-// ✅ string URL + options
-const { data: mediaData, pending: isMediaPending, refresh: refreshMedia } = useUFetch(
-  '/api/media',
-  {
-    query: {
-      'sort': '_id:-1',
-      'limit': itemsPerPage,
-    },
-  },
-);
-
-// ✅ computed URL only
-const { data: patientData, pending: isPatientPending, refresh: refreshPatient } = useUFetch(
-  computed(() => `/api/patients/${patientUid.value}`),
-);
-
-// ❌ crammed one-liner or URL broken like ufetch's wrong form without the useUFetch indent pattern
-```
-
-### Destructuring names
-
-| Key | Convention | Example |
-|-----|------------|---------|
-| `data` | suffix `Data` | `ordersData`, `flashCardsData` |
-| `pending` | `is` + name + `Pending` | `isOrdersPending` |
-| `refresh` | prefix `refresh` | `refreshOrders` |
-
-### Spacing between consecutive calls
-
-When several `useUFetch` calls sit in the same section, use **one** blank line between them (not two):
-
-```ts
-const { data: mediaData, pending: isMediaPending, refresh: refreshMedia } = useUFetch(
-  '/api/media',
-  {
-    query: {
-      'limit': itemsPerPage,
-    },
-  },
-);
-
-const { data: mediaCountData, refresh: refreshMediaCount } = useUFetch(
-  '/api/media/count',
-);
-```
-
-Major section boundaries elsewhere still use double blanks.
+- The URL may be a string or a `computed`; a computed URL refetches when it changes.
+- Refs and computeds are fine inside `query`; changes refetch.
+- A list page usually pairs the list call with a `/count` call for pagination (see [tables.md](tables.md)).
 
 ### Conditional fetching
 
@@ -173,12 +93,6 @@ const { data: itemsData, pending: isItemsPending, refresh: refreshItems } = useU
 
 Do **not** use `{ immediate: !!props.groupUid }` when the dependency can appear later.
 
-### Query values
-
-- Refs and computeds are fine inside `query`
-- Keep query object multi-line with trailing commas
-- Quoted keys are fine when matching API conventions (`'filter'`, `'sort'`)
-
 ---
 
 ## Do / don’t
@@ -186,11 +100,9 @@ Do **not** use `{ immediate: !!props.groupUid }` when the dependency can appear 
 **Do**
 
 - Use `ufetch` / `useUFetch` for app API traffic
-- Keep `ufetch(url, {` on one line; wrap `useUFetch` with URL on the next line
 - Refresh lists before clearing local form state after mutations
 
 **Don’t**
 
 - Reach for raw `$fetch` / `useFetch` for the same app API
 - Manually prepend `baseApiUrl`
-- Break `useUFetch` destructuring into ad-hoc formatting that hides the URL argument

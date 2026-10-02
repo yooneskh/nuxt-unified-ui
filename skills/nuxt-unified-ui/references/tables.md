@@ -2,7 +2,7 @@
 
 `app/components/un-table.vue` wraps Nuxt UI `u-table` with an optional actions column and a pagination footer. It is a **presentational page of rows**. The parent owns fetching, sorting, filtering, and which slice of data is passed in.
 
-Follow [code-style.md](code-style.md) for all generated table code. i18n: `$t` in both script and template (do not call `useI18n()`). Keys: `un.table.actions`, `un.table.itemsPerPage`.
+i18n keys used by the table: `un.table.actions`, `un.table.itemsPerPage`.
 
 ## Mental model
 
@@ -38,62 +38,13 @@ The actions column is added when **either** `actions` or `extraActions` has leng
 
 `to` / `href` / `disabled` / `label` / `tooltip` / `warning` on an action may be a value or `(row) => …`. `vIf(row)` hides the item. `onClick(row)` receives the original row. Action clicks use `@click.stop` so they do not select the row. Buttons use `loading-auto`.
 
-## Attribute order on `<un-table>`
-
-Omit unused props. When present, write them in this order:
-
-1. `:columns`
-2. `class` / `:ui` (presentation only)
-3. `:loading`
-4. `:data`
-5. `hide-pagination`
-6. `:total-items`
-7. `:items-per-page-items`
-8. `:row-to`
-9. `v-model:items-per-page`
-10. `v-model:current-page`
-11. `sticky-actions`
-12. `:actions`
-13. `:extra-actions`
-14. `:meta`
-
-Models are always **page size, then page**. Attributes stay on one line with the opening tag (a multiline attribute is the only split trigger — see [code-style.md](code-style.md)).
-
 ### Paged table
 
 ```vue
-<un-table
-  :columns="columns"
-  :loading="isItemsLoading || isItemsCountLoading"
-  :data="itemsData"
-  :total-items="itemsCountData"
-  v-model:items-per-page="itemsPerPage"
-  v-model:current-page="currentPage"
-  :actions="itemActions"
-  :extra-actions="itemExtraActions">
+<un-table :columns="columns" :loading="isItemsPending || isItemsCountPending" :data="itemsData" :total-items="itemsCountData" v-model:items-per-page="itemsPerPage" v-model:current-page="currentPage" :actions="itemActions" :extra-actions="itemExtraActions">
   <template #status-cell="{ row }">
     ...
   </template>
-</un-table>
-```
-
-One slot child stays flush against `<un-table>`; two or more slot children get a blank line after the opening tag, between each slot, and before `</un-table>` — child spacing rules in [code-style.md](code-style.md).
-
-```vue
-<un-table
-  :columns="columns"
-  :loading="isItemsLoading"
-  :data="itemsData"
-  :actions="itemActions">
-
-  <template #status-cell="{ row }">
-    ...
-  </template>
-
-  <template #createdAt-cell="{ row }">
-    ...
-  </template>
-
 </un-table>
 ```
 
@@ -112,11 +63,11 @@ No footer, no page models, no `total-items`:
 </un-card>
 ```
 
-`class` / `:ui` stay immediately after `:columns` when a product theme overrides the table chrome. Do not invent extra layout props on `un-table` — put search / filter toolbars in the parent, above the table.
+Do not invent extra layout props on `un-table` — put search / filter toolbars in the parent, above the table. Use `class` / `:ui` only when a product theme overrides the table chrome.
 
 ## Column defs
 
-One object per column, **`accessorKey` then `header`**. Use `id` instead of `accessorKey` only when the cell is computed and there is no row field (duration, size, …).
+One object per column. Use `id` instead of `accessorKey` only when the cell is computed and there is no row field (duration, size, …).
 
 ```js
 const columns = [
@@ -166,7 +117,7 @@ All `u-table` slots are forwarded.
 </template>
 ```
 
-Status / role / type cells use `u-badge` (`variant="subtle"`, omit neutral `color`). Dates use `formatDate`. Several visual states → explicit `<template v-if>` / `v-else` badge variants, not nested ternaries.
+Status / role / type cells use `u-badge`. Dates use `formatDate`. Several visual states → explicit `<template v-if>` / `v-else` badge variants, not nested ternaries.
 
 ## Row actions
 
@@ -188,10 +139,6 @@ Use `actions` for the one or two primary row operations (view, edit, delete). Us
 | `'separator'` | Vertical rule between button groups |
 
 `warning` is a string or `(row) => string | undefined` rendered under the button (triangle + text). Split `items` may be an array or `(row) => array`. Each item uses `label` (value or `(row) => …`) and `onSelect(row)` — do not put `onClick` on split items.
-
-Field order on **every** action object (omit unused):
-
-`vIf` → `actionType` → `color` → `icon` → `label` → `tooltip` → `warning` → `disabled` → `to` → `href` → `onClick` → `items`
 
 ```js
 const itemActions = computed(() => {
@@ -258,14 +205,12 @@ const itemExtraActions = computed(() => {
 
 Rules:
 
-- Pass **handler references** (`onClick: handleItemUpdate`) unless the row must be adapted.
 - Icon-only buttons: `icon` + `tooltip`, no `label`.
 - Menu / text buttons: `label` (and `icon` when it helps).
-- Destructive: `color: 'error'` before `icon`.
-- Emphasized extra action: `color: 'primary'` before `icon`.
+- Destructive: `color: 'error'`.
+- Emphasized extra action: `color: 'primary'`.
 - `{ actionType: 'separator' }` is a lone-key object between visual groups in `actions`.
 - `{ actionType: 'split', items, onClick }` is a default click plus overflow choices; item handlers are `onSelect`.
-- Omit `variant: 'subtle'` — that is the button default.
 - `vIf` / `disabled` / `to` / `href` / `label` / `tooltip` / `warning` take `(row) => …` when they depend on the row.
 - Do not put toolbar Create / Refresh on the row. Those belong on the parent `un-card` (`:actions` / `:append-actions`).
 
@@ -295,11 +240,11 @@ const resourceActions = computed(() => {
 Parent state:
 
 ```js
-const itemsPerPage = ref(20);
+const itemsPerPage = ref(25);
 const currentPage = ref(1);
 ```
 
-- Layer default page size is `25` if the parent does not bind the model. Host pages often use `10` or `20` — set the ref explicitly.
+- Layer default page size is `25` if the parent does not bind the model. Set the ref explicitly; its value must be one of the page-size choices.
 - Page-size choices default to `5 / 10 / 25 / 50 / 100`. Pass `:items-per-page-items` to replace that list.
 - Server lists: `skip = (currentPage - 1) * itemsPerPage`, `limit = itemsPerPage`, `total-items` from the `/count` endpoint.
 - Client lists: pass `data` already sliced; `total-items` is the uncut length.
@@ -316,7 +261,7 @@ Prefer an `un-card` with `fluid-body` so the table and footer are edge-to-edge:
 <un-card :title="`Manage ${titlePlural}`" fluid-body :append-actions="toolbarActions">
   <un-table
     :columns="columns"
-    :loading="isItemsLoading"
+    :loading="isItemsPending"
     :data="itemsData"
     :total-items="itemsCountData"
     v-model:items-per-page="itemsPerPage"
@@ -335,8 +280,6 @@ Search / filter chrome sits **inside** the card, **above** `<un-table>`, not on 
 **Do**
 
 - Keep `<un-table>` dumb: current page of rows in, actions and slots out
-- Follow the attribute order and action-field order above
-- Use `$t` for user-facing strings; `$t` is legal in script computeds
 - Forward cell work through `{key}-cell` and `row.original`
 - Put Create / Refresh on the card, Edit / Delete on the row
 
@@ -345,6 +288,3 @@ Search / filter chrome sits **inside** the card, **above** `<un-table>`, not on 
 - Pass the full unpaged array while the footer is visible
 - Override `#actions-cell`
 - Implement sort / filter as `un-table` props
-- Call `useI18n()` for `$t`
-- Restate `variant: 'subtle'` on row actions
-- Use `ghost` on row actions (Cancel-only rule still applies)

@@ -15,7 +15,14 @@ Consumers must:
 2. Extend the layer and register that CSS file:
 
 ```js
-import { pathRelativeToBase } from 'nuxt-unified-ui'
+
+/* responsibility */
+
+// Configures the host app
+// on top of nuxt-unified-ui.
+
+import { pathRelativeToBase } from 'nuxt-unified-ui';
+
 
 export default defineNuxtConfig({
   css: [
@@ -24,7 +31,7 @@ export default defineNuxtConfig({
   extends: [
     'nuxt-unified-ui',
   ],
-})
+});
 ```
 
 Both are required:

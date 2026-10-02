@@ -20,7 +20,7 @@ vpr serve
 
 ## Agent Skills
 
-One installable Agent Skill lives under `skills/nuxt-unified-ui/` (`npx skills` compatible). It covers the layer API **and** mandatory Nuxt code style (forms, dialogs, radashi, formatting). After the main agent adds or edits a `.vue`, `.ts`, or `.js` file, it launches one subagent to apply that style to that file only.
+One installable Agent Skill lives under `skills/nuxt-unified-ui/` (`npx skills` compatible). It covers the layer API **and** mandatory Nuxt code style (forms, dialogs, radashi, formatting). When an agent finishes implementing work, it runs `/nuxt-unified-ui apply`: one subagent per `.vue`, `.ts`, or `.js` file applies the skill's logical, structural, and code-style rules — to every file on `dev` / `main` / `master`, or to the current branch's changed files elsewhere. You can also invoke `/nuxt-unified-ui apply` directly.
 
 ```bash
 npx skills add . --list

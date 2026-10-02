@@ -37,10 +37,9 @@ File: `server/plugins/{name}-resource.ts`
 
 Pattern:
 
-1. [One responsibility](code-style.md#one-responsibility) header, then the plugin body.
-2. `parseSchema({ ... })` → `{ schema, type, inferred }`.
-3. `declare global { interface UnifiedAppRegistry { ... } }` so `app.resourceName` is typed.
-4. `defineNitroPlugin` assigns `app.resourceName = { dbo: createUnifiedResourceController({ resource, schema, type, meta? }) }`.
+1. `parseSchema({ ... })` → `{ schema, type, inferred }`.
+2. `declare global { interface UnifiedAppRegistry { ... } }` so `app.resourceName` is typed.
+3. `defineNitroPlugin` assigns `app.resourceName = { dbo: createUnifiedResourceController({ resource, schema, type, meta? }) }`.
 
 Minimal example:
 
@@ -157,6 +156,10 @@ Every file is a thin wrapper:
 
 ```ts
 
+/* responsibility */
+
+// Lists flash cards
+// for admins.
 
 export default defineEventHandler(async event => {
   return handleResourceList({
@@ -179,18 +182,53 @@ List query helpers (handled inside `handleResourceList` / siblings): `filter`, `
 
 ## 3. Dashboard: standard declaration
 
-Generic page (one page for all standard resources):
+Generic page (one page for all standard resources), `pages/dashboard/resources/[resourceName].vue`:
 
 ```vue
-<!-- pages/dashboard/resources/[resourceName].vue -->
+<script setup>
+
+/* responsibility */
+
+// Manages any standard resource
+// named by the route.
+
+/* page */
+
 definePageMeta({
   name: 'dashboard.resources.single',
   layout: 'dashboard',
-  middleware: ['is-authenticated'],
+  middleware: [
+    'is-authenticated',
+  ],
 });
 
-// template
-<resource-manager :resource="resourceName" />
+
+/* params */
+
+const route = useRoute();
+
+
+const resourceName = computed(() => {
+  return route.params.resourceName;
+});
+
+
+/* seo */
+
+useHead({
+  title: () => radTitle(resourceName.value),
+});
+
+useSeoMeta({
+  description: 'Manage resources.',
+});
+
+</script>
+
+
+<template>
+  <resource-manager :resource="resourceName" />
+</template>
 ```
 
 Nav links pass the **kebab API segment**:
@@ -218,17 +256,106 @@ When default Create/Edit is wrong for the domain, **do not** overload the generi
 Example: `pages/resources/users.vue` (named route, not necessarily under `dashboard/resources/`):
 
 ```vue
+<script setup>
+
+/* responsibility */
+
+// Manages users with onboarding
+// and password reset actions.
+
+/* page */
+
 definePageMeta({
   name: 'dashboard.resources.users',
   layout: 'dashboard',
-  middleware: ['is-authenticated'],
+  middleware: [
+    'is-authenticated',
+  ],
 });
 
+
+/* seo */
+
+useHead({
+  title: 'Users',
+});
+
+useSeoMeta({
+  description: 'Manage users.',
+});
+
+
+/* users */
 
 const resourceManagerEl = useTemplateRef('resourceManager');
 
 
-// custom handlers → domain APIs (onboard, reset-password, …)
+async function handleOnboardUser() {
+  await launchFormPickerDialog({
+    icon: 'lucide:user-plus',
+    title: 'Onboard User',
+    fields: [
+      {
+        key: 'name',
+        identifier: 'input',
+        label: 'Name',
+      },
+      {
+        key: 'username',
+        identifier: 'input',
+        label: 'Username',
+      },
+    ],
+    submitButton: {
+      variant: 'subtle',
+      label: 'Onboard',
+      onClick: async form => {
+
+        await ufetch('/api/authentication/onboard-user', {
+          method: 'post',
+          body: form,
+        });
+
+
+        await resourceManagerEl.value?.refreshResources();
+
+        toastSuccess({
+          title: 'User onboarded',
+        });
+
+      },
+    },
+  });
+}
+
+async function handleResetPassword(user) {
+  await launchChoicePickerDialog({
+    icon: 'lucide:key-round',
+    title: 'Reset Password',
+    text: `Send a password reset to ${user.name}?`,
+    startButtons: [
+      {
+        variant: 'subtle',
+        icon: 'lucide:check',
+        label: 'Reset',
+        onClick: async () => {
+
+          await ufetch(`/api/users/${user._id}/reset-password`, {
+            method: 'post',
+          });
+
+
+          toastSuccess({
+            title: 'Password reset sent',
+          });
+
+        },
+      },
+    ],
+  });
+}
+
+</script>
 
 
 <template>
@@ -286,4 +413,3 @@ Keep the standard REST resource routes even when the UI is customized — other 
 - [ ] `server/plugins/{name}-resource.ts` — schema, registry, `createUnifiedResourceController`, meta for relations/UI
 - [ ] Full `server/api/{kebab-plural}/` route set with camelCase `resource` (+ permissions if admin)
 - [ ] Dashboard: nav → `dashboard.resources.single` + kebab `resourceName`, **or** dedicated page + `actions` / `resource-actions`
-- [ ] Follow [code-style.md](code-style.md) (including the responsibility header). Style each file with [style-todos.md](style-todos.md)

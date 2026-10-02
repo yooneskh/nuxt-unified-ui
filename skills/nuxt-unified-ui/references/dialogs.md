@@ -1,17 +1,12 @@
-# Dialogs, toasts, and UI helpers
+# Dialogs
 
-Overlay dialogs (Nuxt UI `useOverlay`), toast helpers, and layout primitives.
-
-Deep refs:
-- [dialogs-impl.md](dialogs-impl.md)
-- [toast-and-ui.md](toast-and-ui.md)
-- [tables.md](tables.md)
-
-Follow [code-style.md](code-style.md) for all generated dialog/UI code.
+Overlay dialogs built on Nuxt UI `useOverlay`. Button variants follow [toast-and-ui.md](toast-and-ui.md#component-conventions).
 
 ## Action handling rule
 
 For launched dialogs, put business logic in the button **`onClick`** handlers (choice buttons or form `submitButton.onClick`). That is the standard pattern — not post-processing the resolved promise for the primary action.
+
+The launcher awaits `onClick` before closing, so the dialog stays open (with a loading button) until the work finishes.
 
 `value` on choice-picker buttons is **optional**. Prefer omitting it; rely on `onClick` for side effects. Only set `value` when a caller truly needs the promise result to distinguish buttons.
 
@@ -27,6 +22,7 @@ await launchChoicePickerDialog({
   text: 'Are you sure you want to submit your application?',
   startButtons: [
     {
+      variant: 'subtle',
       icon: 'lucide:check',
       label: 'Submit',
       onClick: async () => {
@@ -67,6 +63,7 @@ await launchFormPickerDialog({
     firstName: 'John',
   },
   submitButton: {
+    variant: 'subtle',
     icon: 'lucide:send',
     label: 'Submit',
     onClick: async form => {
@@ -82,85 +79,49 @@ await launchFormPickerDialog({
 });
 ```
 
-### Toasts
+### Any dialog component
 
 ```ts
-toastSuccess({
-  title: 'Saved',
-  description: 'Profile updated.',
-});
-
-toastError({
-  title: 'Failed',
-  description: 'Try again.',
-});
-
-toast({
-  title: 'Custom',
-  icon: 'lucide:info',
-  color: 'neutral',
-});
-```
-
-Requires app tree under `u-app` (toaster from Nuxt UI + layer plugin `plugins/use-toaster.ts`).
-
-## API map
-
-| Helper | Resolves to | Source |
-|--------|-------------|--------|
-| `launchDialog({ component, props })` | `modal.open(props).result` | `app/utils/launch-dialog.ts` |
-| `launchFormPickerDialog(options)` | submitted form object (or dismiss) | `app/utils/launch-form-picker-dialog.ts` |
-| `launchChoicePickerDialog(options)` | button `value` if set (or dismiss) | `app/utils/launch-choice-picker-dialog.ts` |
-| `toast` / `toastSuccess` / `toastError` / `toastWarning` / `toastInfo` | void | `app/utils/launch-toast.ts` |
-
-```ts
-await launchDialog({
-  component: MyDialog,
+const result = await launchDialog({
+  component: ConfirmDeleteDialog,
   props: {
-    /* passed to component; emit close with payload */
+    itemName: item.name,
   },
 });
 ```
 
-`launchDialog` uses `useOverlay().create(component, { destroyOnClose: true })`.
+The component receives `props` and emits `close` with an optional payload; that payload is the resolved `result`. Write the component with `u-modal` and emit `close` from its `@update:open` when it is dismissed, as the built-in pickers do.
+
+## API map
+
+| Helper | Resolves to |
+|--------|-------------|
+| `launchDialog({ component, props })` | the component's `close` payload |
+| `launchFormPickerDialog(options)` | submitted form object, or `undefined` on dismiss |
+| `launchChoicePickerDialog(options)` | clicked button's `value`, or `undefined` on dismiss / no `value` |
+
+`launchDialog` uses `useOverlay().create(component, { destroyOnClose: true })`. Both pickers render `u-modal` → `un-card`, so their buttons are `un-card` actions (`actionType: 'spacer'` and `tooltip` work).
 
 ## Form picker options
 
 - `icon`, `title`, `subtitle`, `text`
 - `modalOptions?: ModalProps`
-- `fields: any[]` (`un-form` schema — see [forms.md](forms.md))
-- `initialForm?` — deep-cloned into `useForm` target
+- `fields: any[]` — `un-form` schema (see [forms.md](forms.md))
+- `initialForm?` — deep-cloned with `JSON.parse(JSON.stringify(...))` before editing, so `Date`, `File`, and other non-JSON values do not survive; otherwise the form starts from `{}`
 - `submitButton?` — Nuxt UI `ButtonProps` plus:
-  - **`onClick?.(form)`** — standard place for submit logic (runs before close)
+  - **`onClick?.(form)`** — standard place for submit logic; awaited, then the dialog closes with the form
   - `disabled` may be boolean | `(form) => boolean` | mongo-style object (`smartMatch`)
-- `cancelButton?` — closes without payload
+  - label defaults to `$t('common.submit')`
+- `cancelButton?` — merged into the default Cancel (`variant: 'ghost'`, `$t('common.cancel')`); always closes without payload, and its own `onClick` is ignored
+
+Action row: Submit, spacer, Cancel.
 
 ## Choice picker options
 
 - `icon`, `title`, `subtitle`, `text`, `modalOptions`
-- `startButtons?` — default one Submit (`value: true` only on the built-in default)
-- `endButtons?` — default Cancel (`value: false` only on the built-in default); `??` so `[]` hides defaults
-- Each button: `ButtonProps & { value?: string }` plus **`onClick?.(value)`**
-
-Avoid setting `value` on custom buttons unless the await result must distinguish which button was pressed.
-
-## UI primitives
-
-| Component | Use for |
-|-----------|---------|
-| `un-typography` | Icon + title + subtitle + text + `#append` |
-| `un-card` | Typography header, body slot/`text`, `actions` / `subtitleActions` / `appendActions` |
-| `un-spinner` | `lucide:loader-circle` spinning icon |
-
-Action entries support `actionType: 'spacer'` (flex grow) and optional `tooltip`. Buttons use `loading-auto`.
-
-Cancel / dismiss actions use `variant: 'ghost'` (or `variant="ghost"`). Do **not** use `ghost` on primary/submit/other actions — prefer omit / `subtle`.
-
-Hand-rolled dialog shells follow the template single-line rule — this shell has no multiline attribute, so it stays on one line (see [code-style.md](code-style.md)):
-
-```vue
-<u-modal :ui="{ content: 'max-w-5xl' }" scrollable @update:open="!$event && emit('close')">
-```
+- `startButtons?` — falls back with `||` to one Submit button (`$t('common.submit')`, `value: true`)
+- `endButtons?` — falls back with `??` to one ghost Cancel (`$t('common.cancel')`, `value: false`); pass `[]` to hide it
+- Each button: `ButtonProps & { value?: string }` plus **`onClick?.(value)`** — awaited, then the dialog closes with `value`
 
 ## Do / don’t
 
@@ -169,12 +130,8 @@ Hand-rolled dialog shells follow the template single-line rule — this shell ha
 - Prefer `launchFormPickerDialog` / `launchChoicePickerDialog` over hand-rolled `u-modal` for these flows
 - Handle actions in button / submit `onClick`
 - Keep field lists consistent with `un-form` (`identifier`, not `type`, for element kind)
-- Mark Cancel with `variant: 'ghost'`; keep dialog shells single-line unless a multiline attribute forces a split
 
 **Don’t**
 
-- Call `toast*` without `u-app` / toaster setup
 - Set `value` on choice buttons by default — omit it unless needed
 - Put primary dialog logic only after `await` when `onClick` should own it
-- Use `ghost` on non-Cancel buttons
-- Wrap `u-modal` attributes across multiple lines
