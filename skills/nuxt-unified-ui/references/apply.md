@@ -59,6 +59,8 @@ Deleted files are excluded. Tell the user the branch, the base (when there is on
 
 Launch exactly one subagent per selected file — never several files in one subagent. Run them in parallel batches. Each subagent edits only its own file, so parallel runs do not conflict.
 
+**Model:** this skill requests a fast, inexpensive model for every per-file subagent — the fastest low-cost model your agent can launch (for example Claude Code's `haiku`, or a fast / flash variant in Cursor). Name it explicitly when launching each subagent. If your agent cannot choose a subagent model, or no such model is available, inherit the current one. The main agent keeps its own model for steps 1, 3, and 5.
+
 Use this prompt:
 
 ```text
@@ -75,13 +77,13 @@ Return the report described there.
 
 When every subagent has reported, collect their follow-ups, remove duplicates, and apply them **one at a time** in the main agent:
 
-- **`i18n`** — add each key to every locale file the project has. Use the reported English text for English; translate for other locales when confident, otherwise use the English text and list those keys in the summary.
+- **`i18n`** — add each key to the locale files of the layer that owns the reporting file, following the i18n rules in `SKILL.md` (that layer's `i18n/locales/`, under its single top-level key, in every locale it declares). Create the layer's locale files and its `i18n.locales` entry when missing. Use the reported English text for English; translate for other locales when confident, otherwise use the English text and list those keys in the summary.
 - **`split`** / **`move`** / **`promote`** — apply the file-structure rules from `SKILL.md`: create or move the files, then update every caller and import.
 - **`other`** — apply cross-file changes that follow directly from the skill (for example a missing REST route of a resource). List anything that needs a product decision in the summary instead of guessing.
 
 ### 4. Second round for what step 3 touched
 
-Launch the same per-file subagent (step 2) for every `.vue`, `.js`, or `.ts` file created or edited in step 3, then apply their `i18n` follow-ups. Do not start a third round: list any other follow-ups from this round in the summary.
+Launch the same per-file subagent (step 2, same fast model) for every `.vue`, `.js`, or `.ts` file created or edited in step 3, then apply their `i18n` follow-ups. Do not start a third round: list any other follow-ups from this round in the summary.
 
 ### 5. Verify and summarize
 
@@ -106,7 +108,7 @@ You bring one `.vue`, `.js`, or `.ts` file in line with the nuxt-unified-ui skil
 3. **Logical pass** — fix in place:
    - Replace hand-rolled code with the APIs in `SKILL.md`: raw `$fetch` / `useFetch` → `ufetch` / `useUFetch`; hand-built modals → dialog launchers; direct `radashi` imports → `radXxx`; and so on.
    - Apply the decisions in `SKILL.md` and the rules of the references you read: page `definePageMeta.name` and SEO, dialog logic in `onClick`, named routes, `to` for navigation-only actions, a dumb `un-table`, reactive fetch gates, component conventions.
-   - Move user-facing literals to `$t('...')` keys. Record each new key as an `i18n` follow-up.
+   - Move user-facing literals to `$t('...')` keys under the owning layer's top-level key (`SKILL.md` i18n rules). Reuse existing keys, including this layer's `common.*` labels. Record each new key as an `i18n` follow-up with its full path.
    - Make `atoms` / `libs` imports relative.
 4. **Structural pass** — decide, do not execute:
    - Two or more independent responsibilities → `split` follow-up with each responsibility and its suggested path.

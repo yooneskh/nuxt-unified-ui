@@ -117,6 +117,22 @@ Make these choices while implementing. The apply pipeline checks them again afte
 ## i18n
 
 - Every user-facing string goes through `$t`, in templates and in script. `$t` is available in both without calling `useI18n()`.
-- Add each new key to every locale file the project has (the layer ships `en.json` and `de.json` in `i18n/locales/`).
-- `un.*` keys belong to this layer. `common.*` holds shared labels such as submit and cancel. App keys go under a feature namespace (`patients.single.title`).
 - Examples in the references often use English literals for brevity. In real code those strings are `$t('...')` keys.
+
+**Where keys live**
+
+- Every layer (feature) keeps its own locale files in its own `i18n/locales/<code>.json` and declares them in its own `nuxt.config` under `i18n.locales` (`{ code, file }`). Nuxt i18n merges the same locale from every layer and the host app into one message tree.
+- The layer that owns a file is the nearest directory above it with a `nuxt.config`. Its strings go in that layer's locale files only — never in another layer's or the host's.
+- Each layer's locale file has **exactly one top-level key**: the layer's namespace, such as `patients` or `billing`. Every key nests under it (`$t('patients.single.title')`), so merged trees never clash.
+- Add every new key to each locale that layer declares.
+- This layer owns two top-level keys: `un` for its components and `common` for shared labels (`common.submit`, `common.cancel`, `common.close`, …). Reuse `common.*` instead of duplicating those labels, but never add keys to `un` or `common` from another layer.
+
+```json
+{
+  "patients": {
+    "single": {
+      "title": "Patient"
+    }
+  }
+}
+```
