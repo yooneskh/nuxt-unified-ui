@@ -22,7 +22,7 @@ The main agent decides what code exists, where it lives, and which APIs it calls
 
 Whenever you finish implementing work that added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-unified-ui apply` before your final reply: follow [references/apply.md](references/apply.md). Do the same when the skill is invoked with the argument `apply`, or the user asks to apply nuxt-unified-ui across the project or the current branch. Invoked without an argument, the skill only loads its guidance for the task at hand.
 
-On `dev`, `main`, or `master` it processes uncommitted `.vue`, `.js`, and `.ts` files; when that branch is clean, or the project is not a Git worktree, it processes every eligible file. On any other branch, it processes only the files that branch added or changed relative to its base branch. One inexpensive Composer or Grok subagent per file applies the logical, structural, and code-style rules, then the main agent carries out the cross-file follow-ups.
+On `dev`, `main`, or `master` it processes uncommitted `.vue`, `.js`, and `.ts` files; when that branch is clean, or the project is not a Git worktree, it processes every eligible file. On any other branch, it processes only the files that branch added or changed relative to its base branch. One subagent per file, launched using a cheap fast model, applies the logical, structural, and code-style rules, then the main agent carries out the cross-file follow-ups.
 
 ## APIs
 

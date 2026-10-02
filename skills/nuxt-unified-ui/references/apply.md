@@ -82,7 +82,7 @@ Deleted files are excluded. Tell the user whether the project is outside Git or 
 
 Launch exactly one subagent per selected file — never several files in one subagent. Run them in parallel batches. Each subagent edits only its own file, so parallel runs do not conflict.
 
-**Model:** explicitly launch every per-file subagent with the inexpensive Composer fast model (`composer-2.5-fast`). If it is unavailable, use the inexpensive Grok fast model (`cursor-grok-4.6-high-fast`). Only inherit the current model when neither model can be selected. The main agent keeps its own model for steps 1, 3, and 5.
+**Model:** launch every per-file subagent using a cheap fast model. The main agent keeps its own model for steps 1, 3, and 5.
 
 Use this prompt:
 
@@ -106,7 +106,7 @@ When every subagent has reported, collect their follow-ups, remove duplicates, a
 
 ### 4. Second round for what step 3 touched
 
-Launch the same per-file subagent (step 2, same fast model) for every `.vue`, `.js`, or `.ts` file created or edited in step 3, then apply their `i18n` follow-ups. Do not start a third round: list any other follow-ups from this round in the summary.
+Launch the same per-file subagent (step 2, using a cheap fast model) for every `.vue`, `.js`, or `.ts` file created or edited in step 3, then apply their `i18n` follow-ups. Do not start a third round: list any other follow-ups from this round in the summary.
 
 ### 5. Verify and summarize
 
