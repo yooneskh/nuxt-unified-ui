@@ -53,10 +53,10 @@ Shape, in this order:
 2. The line `/* responsibility */`
 3. One blank line
 4. The job, as short `//` comments. Use several short lines. Do not write one long line, and do not put the job in a second `/* */` block
-5. One blank line
+5. **Two** blank lines
 6. The rest of the file
 
-That last blank line is the blank line the next section or the first statement already requires. Do not add a second one.
+Those two blank lines are the whole gap between the header and what follows — whether that is a section comment, an import, or the first statement. Never one, never three.
 
 `.js` / `.ts`: this block is the start of the file. Nothing comes before the leading blank line. Imports, when the file has them, start after step 5.
 
@@ -69,6 +69,7 @@ That last blank line is the blank line the next section or the first statement a
 // Issues a session token
 // after checking the login payload.
 
+
 import { join } from 'node:path';
 ```
 
@@ -79,6 +80,7 @@ import { join } from 'node:path';
 
 // Renders the login form
 // and submits credentials.
+
 
 /* login */
 ```
@@ -94,6 +96,17 @@ import { join } from 'node:path';
 /* responsibility */
 
 <script setup>
+```
+
+```ts
+// ❌ only one blank line under the // lines
+
+/* responsibility */
+
+// Issues a session token
+// after checking the login payload.
+
+import { join } from 'node:path';
 ```
 
 The `//` lines name the job. They do not narrate steps, list options, or repeat the file name.
@@ -484,6 +497,7 @@ How this combines with other spacing:
 | Next to a single-line statement (including consecutive refs) | Isolation **wins**: one blank before and after |
 | First statement after a function `{` that already wants a blank, or last before a `}` that wants one | **Share** that blank — do not add a second |
 | Declaration-group or major-step boundary (already **two** blanks) | Keep the **two** |
+| First statement right after the responsibility header | Keep the header's **two** |
 | Blank already required after `/* section */` | That blank **is** the before-blank |
 | Single-line assignment, including `{}` / `[]` | Not multiline — no isolation |
 | Tiny / single-block function whose only statement is the assignment | Stay **flush** with the braces |
@@ -869,6 +883,7 @@ Same whitespace, brace, literal, and call rules as script blocks, starting with 
 // Creates an authentication token
 // after checking the login body.
 
+
 export default defineEventHandler(async event => {
 
   await assertRateLimit({
@@ -906,7 +921,7 @@ export default defineEventHandler(async event => {
 
 ## Checklist before finishing an edit
 
-- [ ] Responsibility header: blank line, `/* responsibility */`, blank line, short `//` lines, blank line; in Vue inside `<script setup>`; nothing above it
+- [ ] Responsibility header: blank line, `/* responsibility */`, blank line, short `//` lines, two blank lines; in Vue inside `<script setup>`; nothing above it
 - [ ] `<script setup>` without `lang="ts"`; no TS annotations in Vue
 - [ ] 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
 - [ ] Every domain section starts with `/* section name */` + blank line; sections separated by two blank lines; imports co-located

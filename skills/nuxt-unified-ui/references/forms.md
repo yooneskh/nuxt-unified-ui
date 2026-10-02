@@ -12,6 +12,7 @@ Schema-driven forms via `useForm` / `un-form`. Field type is selected with **`id
 // Collects the applicant's
 // personal details.
 
+
 /* form */
 
 const { form, formTag } = useForm({
@@ -178,6 +179,7 @@ A custom element is a layer-private component in `app/atoms/`. It receives the `
 // Renders a text input
 // for a custom form field.
 
+
 /* interface */
 
 const props = defineProps({
@@ -205,6 +207,7 @@ Register it once from a Nuxt plugin. The identifier must be unique among built-i
 
 // Registers the custom text
 // form element.
+
 
 export default defineNuxtPlugin(() => {
   registerFormExtraElement({

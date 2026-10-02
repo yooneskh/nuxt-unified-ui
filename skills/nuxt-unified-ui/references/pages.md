@@ -12,6 +12,7 @@ What every page in this stack contains and how it navigates.
 // Shows one patient
 // and the actions for that record.
 
+
 /* page */
 
 definePageMeta({

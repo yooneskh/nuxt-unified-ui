@@ -50,6 +50,7 @@ Minimal example:
 // Registers the users resource
 // on the unified app registry.
 
+
 const { schema, type, inferred } = parseSchema({
   'name': 'string',
   'username': 'string',
@@ -161,6 +162,7 @@ Every file is a thin wrapper:
 // Lists flash cards
 // for admins.
 
+
 export default defineEventHandler(async event => {
   return handleResourceList({
     resource: 'flashCards',
@@ -191,6 +193,7 @@ Generic page (one page for all standard resources), `pages/dashboard/resources/[
 
 // Manages any standard resource
 // named by the route.
+
 
 /* page */
 
@@ -262,6 +265,7 @@ Example: `pages/resources/users.vue` (named route, not necessarily under `dashbo
 
 // Manages users with onboarding
 // and password reset actions.
+
 
 /* page */
 
