@@ -22,7 +22,6 @@ await launchChoicePickerDialog({
   text: 'Are you sure you want to submit your application?',
   startButtons: [
     {
-      variant: 'subtle',
       icon: 'lucide:check',
       label: 'Submit',
       onClick: async () => {
@@ -63,7 +62,6 @@ await launchFormPickerDialog({
     firstName: 'John',
   },
   submitButton: {
-    variant: 'subtle',
     icon: 'lucide:send',
     label: 'Submit',
     onClick: async form => {

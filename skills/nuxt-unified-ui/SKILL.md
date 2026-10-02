@@ -116,16 +116,60 @@ Make these choices while implementing. The apply pipeline checks them again afte
 
 ## i18n
 
+**i18n is optional. Conform to the project's current state.**
+
+- If the project does not translate its own strings (literal text, no `$t`, no locale files of its own), keep writing literal strings. Do not introduce `$t`, locale files, or i18n config unless the user decides to integrate i18n.
+- If the project already uses i18n in another layout, follow that layout.
+- The rules below apply once the project has decided to integrate i18n, or already follows them. This layer's own `$t` usage does not count as a decision for the project.
+- Examples in the references often use English literals for brevity. In an i18n project those strings are `$t('...')` keys.
+
+**When i18n is integrated**
+
 - Every user-facing string goes through `$t`, in templates and in script. `$t` is available in both without calling `useI18n()`.
-- Examples in the references often use English literals for brevity. In real code those strings are `$t('...')` keys.
-
-**Where keys live**
-
-- Every layer (feature) keeps its own locale files in its own `i18n/locales/<code>.json` and declares them in its own `nuxt.config` under `i18n.locales` (`{ code, file }`). Nuxt i18n merges the same locale from every layer and the host app into one message tree.
+- Global i18n settings — `strategy`, `defaultLocale`, and the full `locales` list (codes, names, languages) — go in the `nuxt.config.ts` of the **aarde layer**: the project's base app layer that extends `nuxt-unified-ui` (for example `layers/100-aarde/`). If the project has no aarde layer, use the layer that extends `nuxt-unified-ui`.
+- Every other layer (feature) keeps its own locale files in its own `i18n/locales/<code>.json`. In its own `nuxt.config.ts` it declares only those files — `i18n: { locales: [{ code, file }] }` — and no other i18n settings. `@nuxtjs/i18n` loads a layer's locale files only when that layer lists them, then merges the same locale from every layer into one message tree.
 - The layer that owns a file is the nearest directory above it with a `nuxt.config`. Its strings go in that layer's locale files only — never in another layer's or the host's.
 - Each layer's locale file has **exactly one top-level key**: the layer's namespace, such as `patients` or `billing`. Every key nests under it (`$t('patients.single.title')`), so merged trees never clash.
 - Add every new key to each locale that layer declares.
 - This layer owns two top-level keys: `un` for its components and `common` for shared labels (`common.submit`, `common.cancel`, `common.close`, …). Reuse `common.*` instead of duplicating those labels, but never add keys to `un` or `common` from another layer.
+
+Aarde layer `nuxt.config.ts` (fragment):
+
+```ts
+i18n: {
+  strategy: 'no_prefix',
+  defaultLocale: 'en',
+  locales: [
+    {
+      code: 'en',
+      name: 'English',
+      file: 'en.json',
+    },
+    {
+      code: 'de',
+      name: 'Deutsch',
+      file: 'de.json',
+    },
+  ],
+},
+```
+
+Feature layer `nuxt.config.ts` (fragment) and its `i18n/locales/en.json`:
+
+```ts
+i18n: {
+  locales: [
+    {
+      code: 'en',
+      file: 'en.json',
+    },
+    {
+      code: 'de',
+      file: 'de.json',
+    },
+  ],
+},
+```
 
 ```json
 {

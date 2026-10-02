@@ -311,7 +311,6 @@ async function handleOnboardUser() {
       },
     ],
     submitButton: {
-      variant: 'subtle',
       label: 'Onboard',
       onClick: async form => {
 
@@ -339,7 +338,6 @@ async function handleResetPassword(user) {
     text: `Send a password reset to ${user.name}?`,
     startButtons: [
       {
-        variant: 'subtle',
         icon: 'lucide:check',
         label: 'Reset',
         onClick: async () => {

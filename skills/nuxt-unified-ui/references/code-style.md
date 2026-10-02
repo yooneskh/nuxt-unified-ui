@@ -814,6 +814,7 @@ Applies whenever attributes are on separate lines:
 
 Shortcuts:
 
+- `img`: `src` / `:src` is always the **first** attribute, before everything else (including `ref` and `id`); the rest follow the order above
 - `u-button`: `variant` → `color` → `size` → `icon` → label/value → `block` → `disabled` → `loading-auto` → events
 - `u-input` / `u-select*`: `:placeholder`, `:label` → `:loading`, `:disabled` → `:items` → `class` → `v-model` → events
 - `un-table`: `:columns` → `class` / `:ui` → `:loading` → `:data` → `hide-pagination` → `:total-items` → `:items-per-page-items` → `:row-to` → `v-model:items-per-page` → `v-model:current-page` → `sticky-actions` → `:actions` → `:extra-actions` → `:meta` (page size model always before page model)
@@ -829,7 +830,7 @@ Omit props that restate a default:
 
 | Component / context | Convention |
 |---------------------|------------|
-| `un-table` `actions` / `extraActions` objects | omit `variant: 'subtle'` — `un-table` already sets it. Keep `variant` on every other button and action object; it is not a default there |
+| `un-table` `actions` / `extraActions` objects | omit `variant: 'subtle'` — `un-table` already sets it. Do not add or remove `variant` on any other button or action object; which variant it uses is a design choice, not formatting |
 | `u-badge` | omit `color` for neutral (`undefined` in ternaries, never `color="neutral"`); no `size` |
 | `u-tooltip` | do not set `:delay-duration` |
 

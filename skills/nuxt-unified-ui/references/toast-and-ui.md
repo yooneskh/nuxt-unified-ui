@@ -7,9 +7,10 @@ Toast helpers, the `un-*` layout components, and the button / badge / icon conve
 This is the only place these rules are stated.
 
 - **Icons** are always Lucide: `lucide:*`.
-- **Buttons** set `variant: 'subtle'` (`variant="subtle"`) explicitly: every `u-button` and every action object — `un-card` `actions` / `subtitleActions` / `appendActions`, dialog `submitButton` / `startButtons` / `endButtons`, `<resource-manager>` `actions`. Nuxt UI's default variant is `solid`, so leaving `variant` out is not the same.
-- **`un-table` row actions are the one exception**: `actions` / `extraActions` (and `<resource-manager>` `resource-actions`, which feed them) omit `variant`, because `un-table` already renders them subtle.
-- **Cancel / dismiss** actions use `variant: 'ghost'` instead. Never use `ghost` on primary, submit, row, or any other non-Cancel action.
+- **Bottom-of-card action buttons use the default variant — set no `variant`**: `un-card` `actions` (also with `verticalActions`), form picker `submitButton`, and choice picker `startButtons` / `endButtons`.
+- **All other buttons set `variant: 'subtle'` (`variant="subtle"`) explicitly**: top-of-card buttons — `un-card` `appendActions` / `subtitleActions`, `<resource-manager>` `actions` (rendered as its card's `appendActions`) — and standalone `u-button`s. Nuxt UI's default variant is `solid`, so leaving `variant` out is not the same.
+- **`un-table` row actions** (`actions` / `extraActions`, and `<resource-manager>` `resource-actions`, which feed them) omit `variant`, because `un-table` already renders them subtle.
+- **Cancel / dismiss** actions use `variant: 'ghost'`, including in a bottom action row. Never use `ghost` on primary, submit, row, or any other non-Cancel action.
 - **Async buttons** use `loading-auto` instead of a hand-rolled `isLoading` flag, unless something else depends on that flag.
 - **Badges** (`u-badge`) are always `variant="subtle"` with `icon` + `:label` (no default-slot text), no `size`, and no `color` for neutral states.
 
