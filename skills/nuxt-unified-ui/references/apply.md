@@ -17,13 +17,36 @@ Do not edit files while subagents are running.
 
 Run from the repository root.
 
+First check whether the project is a Git worktree:
+
+```bash
+git rev-parse --is-inside-work-tree >/dev/null 2>&1
+```
+
+If it is not, select every eligible file in the project:
+
+```bash
+rg --files --hidden -g '*.vue' -g '*.js' -g '*.ts' -g '!*.d.ts'
+```
+
+Otherwise, get the branch:
+
 ```bash
 branch=$(git branch --show-current)
 ```
 
 If `branch` is empty (detached HEAD), stop and ask the user which files to process.
 
-**On `dev`, `main`, or `master`** — every tracked or new, non-ignored file:
+**On `dev`, `main`, or `master`** — select only added or changed, uncommitted files (staged, unstaged, or untracked):
+
+```bash
+{
+  git diff --name-only --diff-filter=AMR HEAD -- '*.vue' '*.js' '*.ts' ':!*.d.ts'
+  git ls-files --others --exclude-standard -- '*.vue' '*.js' '*.ts' ':!*.d.ts'
+} | sort -u
+```
+
+If this selects no files because all work has been committed, select every tracked or new, non-ignored eligible file instead:
 
 ```bash
 git ls-files --cached --others --exclude-standard -- '*.vue' '*.js' '*.ts' ':!*.d.ts'
@@ -53,13 +76,13 @@ The first line is the base: `<commits> <ref> <merge-base sha>`. If there is no o
 } | sort -u
 ```
 
-Deleted files are excluded. Tell the user the branch, the base (when there is one), and how many files were selected. If none were selected, stop.
+Deleted files are excluded. Tell the user whether the project is outside Git or on a branch, the base (when there is one), whether the clean default-branch fallback was used, and how many files were selected. If none were selected, stop.
 
 ### 2. Launch one subagent per file
 
 Launch exactly one subagent per selected file — never several files in one subagent. Run them in parallel batches. Each subagent edits only its own file, so parallel runs do not conflict.
 
-**Model:** this skill requests a fast, inexpensive model for every per-file subagent — the fastest low-cost model your agent can launch (for example Claude Code's `haiku`, or a fast / flash variant in Cursor). Name it explicitly when launching each subagent. If your agent cannot choose a subagent model, or no such model is available, inherit the current one. The main agent keeps its own model for steps 1, 3, and 5.
+**Model:** explicitly launch every per-file subagent with the inexpensive Composer fast model (`composer-2.5-fast`). If it is unavailable, use the inexpensive Grok fast model (`cursor-grok-4.6-high-fast`). Only inherit the current model when neither model can be selected. The main agent keeps its own model for steps 1, 3, and 5.
 
 Use this prompt:
 
