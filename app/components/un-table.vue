@@ -163,6 +163,16 @@ function handleRowSelect(_event, row) {
 }
 
 
+const rowSelectHandler = computed(() => {
+  if (!props.rowTo) {
+    return undefined;
+  }
+  else {
+    return handleRowSelect;
+  }
+});
+
+
 /* pagination */
 
 const pageSizeItems = computed(() => {
@@ -194,7 +204,7 @@ const pageSizeItems = computed(() => {
       :column-pinning="columnPinning"
       :ui="tableUi"
       :meta="props.meta"
-      @select="props.rowTo ? handleRowSelect : undefined">
+      :on-select="rowSelectHandler">
 
       <template v-for="(_, name) in $slots" #[name]="slotData">
         <slot
