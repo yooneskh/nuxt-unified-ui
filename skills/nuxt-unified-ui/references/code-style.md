@@ -446,6 +446,24 @@ const form = {
 };
 ```
 
+### Parameter type literals
+
+The multi-line rule covers object **values**, not types. An object type written inline as the type of a function parameter stays on **one line**, however many members it has:
+
+```ts
+export async function launchDialog(options: { component: any, props: any }) {
+  ...
+}
+
+// ❌
+export async function launchDialog(options: {
+  component: any,
+  props: any,
+}) {
+  ...
+}
+```
+
 ### Multiline assignment isolation
 
 A **multiline assignment** is any `const` / `let` / `var` / `export const` declaration, or any `=` reassignment, whose statement spans more than one line (usually a multi-line object, array, call, or destructure: `useUFetch`, `computed(() => { … })`, `defineProps({ … })`, …).
@@ -598,7 +616,7 @@ Omit unused properties; keep the rest in this order:
 
 | Object | Order |
 |--------|-------|
-| Action objects (`:actions`, `:append-actions`, table row actions) | `vIf` → `actionType` → `variant` → `color` → `icon` → `label` → `tooltip` → `warning` → `disabled` → `to` → `href` → `onClick` → `items` |
+| Action objects (`:actions`, `:append-actions`, table row actions) | `vIf` → `actionType` → `variant` → `color` → `icon` → `label` → `trailingIcon` → `tooltip` → `warning` → `disabled` → `to` → `href` → `onClick` → `items` |
 | Table column defs | `accessorKey` (or `id`) → `header` → others |
 | Tab / select / menu item objects | `value` → `icon` → `label` → others |
 | `ufetch` options | see [Fetch calls](#fetch-calls) |
@@ -695,7 +713,7 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
   <u-button
     variant="subtle"
     icon="lucide:log-out"
-    @click="handleLogout"
+    @click="handleLogout()"
   />
 
 </p>
@@ -737,7 +755,7 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
 - **Childless, more than one attribute or any multiline attribute:** opening `<tag` on its own line, one attribute per line, `/>` on its own line.
 - **Tags with children:** all attributes stay on the **same line** as the opening tag, regardless of count or length. This applies to every tag, including `u-modal` and structural `<template>` wrappers.
 - **The only split trigger for tags with children is a multiline attribute**: an array, object, or function literal bound to an attribute that spans multiple lines. Then the opening `<tag` goes on its own line, every attribute gets its own line, and the multiline value is formatted like a JS literal.
-- References, calls, and scalar expressions (`:field="field"`, `v-bind="radOmit(action, [...])"`, `@click="handleSave"`) are **not** multiline attributes. A single-pair object with scalar values (`:ui="{ content: 'max-w-5xl' }"`) stays inline. Multi-key or nested object / array bindings are multiline attributes.
+- References, calls, and scalar expressions (`:field="field"`, `v-bind="radOmit(action, [...])"`, `@click="handleSave()"`) are **not** multiline attributes. A single-pair object with scalar values (`:ui="{ content: 'max-w-5xl' }"`) stays inline. Multi-key or nested object / array bindings are multiline attributes.
 
 ```vue
 <!-- ✅ children, no multiline attribute — one line -->
@@ -758,13 +776,13 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
 <u-button
   variant="subtle"
   icon="lucide:refresh-ccw"
-  @click="refresh"
+  @click="refresh()"
 />
 ```
 
 ```vue
 <!-- ❌ childless multi-attribute tag on one line -->
-<u-button variant="subtle" icon="lucide:refresh-ccw" @click="refresh" />
+<u-button variant="subtle" icon="lucide:refresh-ccw" @click="refresh()" />
 
 <!-- ❌ empty open/close pair -->
 <div class="grow"></div>
@@ -815,7 +833,7 @@ Applies whenever attributes are on separate lines:
 Shortcuts:
 
 - `img`: `src` / `:src` is always the **first** attribute, before everything else (including `ref` and `id`); the rest follow the order above
-- `u-button`: `variant` → `color` → `size` → `icon` → label/value → `block` → `disabled` → `loading-auto` → events
+- `u-button`: `variant` → `color` → `size` → `icon` → label/value → `trailing-icon` → `block` → `disabled` → `loading-auto` → events
 - `u-input` / `u-select*`: `:placeholder`, `:label` → `:loading`, `:disabled` → `:items` → `class` → `v-model` → events
 - `un-table`: `:columns` → `class` / `:ui` → `:loading` → `:data` → `hide-pagination` → `:total-items` → `:items-per-page-items` → `:row-to` → `v-model:items-per-page` → `v-model:current-page` → `sticky-actions` → `:actions` → `:extra-actions` → `:meta` (page size model always before page model)
 
@@ -823,6 +841,48 @@ Shortcuts:
 
 - Simple scalars and simple ternaries stay inline.
 - When one condition changes several attributes, labels / icons, or an object binding such as `to`, use sibling `<template v-if>` / `v-else-if` / `v-else` branches with explicit component variants instead of nested ternaries.
+
+### Event handlers
+
+A function bound with `@event` is always called explicitly, with its arguments written out — never passed as a bare reference:
+
+| The function receives | Write |
+|-----------------------|-------|
+| No argument | `@event="handleSave()"` |
+| The event's one argument | `@event="handleSelect($event)"` |
+| Several event arguments | `@event="(value, index) => handleMove(value, index)"` |
+
+Name arrow parameters after what the event passes.
+
+When converting a bare reference (`@click="handleSave"`), keep what Vue passed it: if the function declares parameters, pass the event's arguments explicitly (`$event` for one, an arrow for several); if it declares none, call it with `()`. If a component event's argument count is unclear, check its `emits` / docs; if still unclear, pass `$event`.
+
+Inline statements that are not a single function call (`@update:page="currentPage = $event"`, `@update:open="!$event && emit('close')"`) stay as they are. This rule covers `@` bindings only — `onClick` in action objects and watcher callbacks still take references (see [Naming](#naming)).
+
+```vue
+<!-- ✅ -->
+<u-button
+  variant="subtle"
+  icon="lucide:save"
+  @click="handleSave()"
+/>
+
+<u-select
+  :items="statusItems"
+  @update:model-value="handleStatusChange($event)"
+/>
+
+<draggable-list
+  :items="items"
+  @move="(item, index) => handleMove(item, index)"
+/>
+
+<!-- ❌ bare references -->
+<u-button
+  variant="subtle"
+  icon="lucide:save"
+  @click="handleSave"
+/>
+```
 
 ### Default attribute values
 
@@ -930,7 +990,7 @@ export default defineEventHandler(async event => {
 - [ ] Multiline assignments have exactly one blank line before and after (shared with required blanks; group boundaries keep two)
 - [ ] Workflow functions: blank after `{`, double blanks between major steps, blank before `}`; tiny helpers tight; single-block functions flush; return-only decisions as one `if` / `else if` / `else` chain
 - [ ] Braces everywhere; `else` / `catch` on their own line
-- [ ] Script literals multi-line, except `{}` / `[]`; no statement wrapped only for length; `fn(arg, {` on one line
+- [ ] Script literals multi-line, except `{}` / `[]`; inline object types of function parameters on one line; no statement wrapped only for length; `fn(arg, {` on one line
 - [ ] Page scripts: section order, `/* params */` shape, `/* seo */` placement and call order
 - [ ] `useUFetch` shape; `ufetch` options order; destructure names `xxxData` / `isXxxPending` / `refreshXxx`; `response` for `ufetch` results
 - [ ] `handleXxx` handlers; `it` for short callbacks; descriptive loop names; structure-returning computeds use block + `return`; handler references, not wrappers
@@ -939,6 +999,7 @@ export default defineEventHandler(async event => {
 - [ ] Child spacing: one child flush; 2+ children with exactly one blank after the opener, between children, and before the closer (each branch counts)
 - [ ] Attribute wrapping: tags with children single-line unless a multiline attribute forces a split; childless tags self-closing, split when more than one attribute; `>` / `/>` placement
 - [ ] Attribute order; redundant defaults omitted
+- [ ] `@event` bindings call their function explicitly: `fn()`, `fn($event)`, or `(a, b) => fn(a, b)`; no bare references
 - [ ] Text / `{{ }}` on its own line
 - [ ] `atoms` / `libs` imports relative; file not moved
 - [ ] No behavior change
