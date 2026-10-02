@@ -27,7 +27,7 @@ Do **not** add sort, filter, or selection props to `un-table`. Resource dashboar
 | `actions` | Visible row buttons; adds the trailing `actions` column |
 | `extraActions` | Overflow `u-dropdown-menu` (ellipsis); also creates the column |
 | `stickyActions` | Pin the `actions` column to the right |
-| `rowTo` | Adds `cursor-pointer` on rows; parent still owns navigation |
+| `rowTo` | `(row) => location`. Selecting a row calls `navigateTo` with that location and adds `cursor-pointer`. Return a falsy value to skip. Clicks on buttons and links stay on the action |
 | `ui` | Merged into `u-table` `:ui`. Default `tr` classes (`data-[expanded=true]:bg-elevated!`, plus `cursor-pointer` when `rowTo` is set) are prepended to `ui.tr` |
 | `meta` | Passed through to `u-table` |
 | `v-model:itemsPerPage` | Page size (default `'25'`; choices 5 / 10 / 25 / 50 / 100) |

@@ -134,13 +134,32 @@ function getExtraActionItems(row) {
           'href',
           'disabled',
           'onClick',
+          'onSelect',
         ]),
         href: resolveActionValue(it.href, row),
         to: resolveActionValue(it.to, row),
         disabled: resolveActionValue(it.disabled, row),
-        onClick: () => it.onClick?.(row.original),
+        onSelect: () => it.onClick?.(row.original),
       };
     });
+}
+
+function handleRowSelect(_event, row) {
+
+  if (!props.rowTo) {
+    return;
+  }
+
+
+  const destination = props.rowTo(row.original);
+
+  if (!destination) {
+    return;
+  }
+
+
+  return navigateTo(destination);
+
 }
 
 
@@ -174,7 +193,8 @@ const pageSizeItems = computed(() => {
       :data="props.data || []"
       :column-pinning="columnPinning"
       :ui="tableUi"
-      :meta="props.meta">
+      :meta="props.meta"
+      @select="props.rowTo ? handleRowSelect : undefined">
 
       <template v-for="(_, name) in $slots" #[name]="slotData">
         <slot

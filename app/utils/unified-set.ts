@@ -11,7 +11,14 @@
  * @example
  * unSet({}, 'cards[0].value', 2)
  * // => { cards: [{ value: 2 }] }
+ *
+ * Paths that contain `__proto__`, `prototype`, or `constructor` are ignored.
  */
+
+function isUnsafePathSegment(segment: string) {
+  return segment === '__proto__' || segment === 'prototype' || segment === 'constructor';
+}
+
 
 export function unSet(target: any, key: string, value: any) {
 
@@ -22,7 +29,7 @@ export function unSet(target: any, key: string, value: any) {
       .filter(Boolean)
   );
 
-  if (segments.length === 0) {
+  if (segments.length === 0 || segments.some(isUnsafePathSegment)) {
     return target;
   }
 

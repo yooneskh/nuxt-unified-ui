@@ -20,9 +20,9 @@
   ],
   "dependencies": {
     "@formkit/tempo": "1.1.0",
-    "@iconify-json/lucide": "1.2.136",
+    "@iconify-json/lucide": "1.2.138",
     "@nuxt/kit": "4.5.2",
-    "@nuxt/ui": "4.11.2",
+    "@nuxt/ui": "4.11.3",
     "@nuxtjs/i18n": "10.6.0",
     "@types/canvas-confetti": "1.9.0",
     "@vueuse/core": "15.0.0",
