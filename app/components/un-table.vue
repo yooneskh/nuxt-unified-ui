@@ -107,6 +107,10 @@ function getActionWarning(action, row) {
   return resolveActionValue(action.warning, row);
 }
 
+function getActionLabel(action, row) {
+  return resolveActionValue(action.label, row) ? undefined : resolveActionValue(action.tooltip, row);
+}
+
 function getSplitActionItems(action, row) {
   return (resolveActionValue(action.items, row) || []).map(it => {
     return {
@@ -225,6 +229,7 @@ const pageSizeItems = computed(() => {
                     <span class="inline-flex">
                       <u-button
                         variant="subtle"
+                        :aria-label="getActionLabel(action, row)"
                         v-bind="radOmit(action, actionButtonOmitKeys)"
                         :label="resolveActionValue(action.label, row)"
                         :to="resolveActionValue(action.to, row)"
@@ -255,6 +260,7 @@ const pageSizeItems = computed(() => {
                     <span class="inline-flex">
                       <u-button
                         variant="subtle"
+                        :aria-label="getActionLabel(action, row)"
                         v-bind="radOmit(action, actionButtonOmitKeys)"
                         class="rounded-e-none"
                         :label="resolveActionValue(action.label, row)"
@@ -270,6 +276,7 @@ const pageSizeItems = computed(() => {
                       :color="action.color"
                       icon="lucide:chevron-down"
                       class="rounded-s-none"
+                      :aria-label="$t('un.table.actions')"
                       :disabled="resolveActionValue(action.disabled, row)"
                       @click.stop
                     />
@@ -300,6 +307,7 @@ const pageSizeItems = computed(() => {
               <u-button
                 variant="subtle"
                 icon="lucide:ellipsis-vertical"
+                :aria-label="$t('un.table.actions')"
                 @click.stop
               />
             </u-dropdown-menu>
@@ -323,6 +331,7 @@ const pageSizeItems = computed(() => {
         <div class="grow" />
         <u-select
           :items="pageSizeItems"
+          :aria-label="$t('un.table.itemsPerPage')"
           v-model="itemsPerPage"
         />
         <span class="text-sm">

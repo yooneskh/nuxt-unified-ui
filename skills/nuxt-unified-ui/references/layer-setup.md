@@ -44,7 +44,7 @@ Both are required:
 
 ## Peer / stack
 
-- Peer dependency: `nuxt >= 4.5.2` (required)
+- Peer dependency: `nuxt >= 4.6.1` (required)
 - Bundled deps (layer): `@nuxt/ui`, `@nuxtjs/i18n`, `@vueuse/nuxt`, `@vueuse/core`, `radashi`, `unified-mongo-filter`, `@formkit/tempo`, `canvas-confetti`, `@types/canvas-confetti`, Lucide iconify JSON, `@nuxt/kit`
 
 ## Modules
@@ -91,6 +91,22 @@ i18n: {
 
 Locale files live in `i18n/locales/`. Series dialogs and common buttons use keys under `common.*` and `un.series.*`.
 
+Because this layer registers `@nuxtjs/i18n`, Nuxt UI reads the active i18n locale on its own: `u-app` needs no `:locale` prop, and the host must not pass one or import `@nuxt/ui/locale`. Only the locale files matching `i18n.locales` are bundled, and the locale's `dir` is applied globally, so a right-to-left entry turns the whole app RTL on its own.
+
+## App shell
+
+The host's `app.vue` wraps its tree in `u-app`:
+
+```vue
+<template>
+  <u-app>
+    <NuxtLayout />
+  </u-app>
+</template>
+```
+
+`u-app` mounts the toaster that `toast*` needs and provides the locale, tooltip, and overlay contexts every layer component reads. Never re-wrap a subtree in a second `u-app`.
+
 ## Layer CSS export
 
-`nuxt-unified-ui/nuxt-ui-fixes.css` provides theme breakpoints, `rtl`/`ltr` utilities, and small layout/table fixes (`app/assets/css/nuxt-ui-fixes.css`). Import it from the host `main.css` as shown above.
+`nuxt-unified-ui/nuxt-ui-fixes.css` declares the `tablet` and `desktop` breakpoints and the `rtl` / `ltr` direction utilities (`app/assets/css/nuxt-ui-fixes.css`). Import it from the host `main.css` as shown above.

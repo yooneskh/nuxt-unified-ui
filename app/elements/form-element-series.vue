@@ -110,6 +110,7 @@ function handleMoveItem(index, direction) {
               variant="subtle"
               icon="i-lucide-copy"
               size="xs"
+              :aria-label="$t('un.series.duplicate')"
               @click="handleDuplicateItem(index)"
             />
           </u-tooltip>
@@ -120,6 +121,7 @@ function handleMoveItem(index, direction) {
               variant="subtle"
               icon="i-lucide-chevron-left"
               size="xs"
+              :aria-label="$t('un.series.moveBack')"
               @click="handleMoveItem(index, -1)"
             />
           </u-tooltip>
@@ -130,6 +132,7 @@ function handleMoveItem(index, direction) {
               variant="subtle"
               icon="i-lucide-chevron-right"
               size="xs"
+              :aria-label="$t('un.series.moveForward')"
               @click="handleMoveItem(index, 1)"
             />
           </u-tooltip>
@@ -140,6 +143,7 @@ function handleMoveItem(index, direction) {
               color="error"
               icon="i-lucide-trash"
               size="xs"
+              :aria-label="$t('un.series.delete')"
               @click="handleDeleteItem(index)"
             />
           </u-tooltip>

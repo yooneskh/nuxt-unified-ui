@@ -36,7 +36,9 @@ Do **not** add sort, filter, or selection props to `un-table`. Resource dashboar
 
 The actions column is added when **either** `actions` or `extraActions` has length. `#actions-cell` is then owned by the wrapper — do not override it.
 
-`to` / `href` / `disabled` / `label` / `tooltip` / `warning` on an action may be a value or `(row) => …`. `vIf(row)` hides the item. `onClick(row)` receives the original row. Action clicks use `@click.stop` so they do not select the row. Buttons use `loading-auto`.
+Rows with `rowTo` are focusable and activate on Enter as well as on click, so a linked table needs no extra key handling. The focus ring sits inside the row; do not add one.
+
+`to` / `href` / `disabled` / `label` / `tooltip` / `warning` on an action may be a value or `(row) => …`. `vIf(row)` hides the item. `onClick(row)` receives the original row. Action clicks use `@click.stop` so they do not select the row. Buttons use `loading-auto`. An icon-only action takes its accessible name from `tooltip`; once it also carries a `label`, the label wins and the tooltip is dropped, so the visible text stays inside the accessible name.
 
 ### Paged table
 
@@ -205,7 +207,7 @@ const itemExtraActions = computed(() => {
 
 Rules:
 
-- Icon-only buttons: `icon` + `tooltip`, no `label`.
+- Icon-only buttons: `icon` + `tooltip`, no `label`. The tooltip is also the accessible name, so never leave one off.
 - Menu / text buttons: `label` (and `icon` when it helps).
 - Destructive: `color: 'error'`.
 - Emphasized extra action: `color: 'primary'`.

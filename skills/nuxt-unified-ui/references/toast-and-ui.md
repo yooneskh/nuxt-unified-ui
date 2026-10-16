@@ -44,7 +44,7 @@ toast({
 
 `options` are any Nuxt UI toast fields (`title`, `description`, …). The typed helpers omit `icon` / `color` from the options type; call `toast` directly for full control. All return `void`.
 
-The app tree must be wrapped in `u-app` so Nuxt UI's toaster is mounted. Do not call `toast*` outside that setup.
+The app tree must be wrapped in `u-app` so Nuxt UI's toaster is mounted. Do not call `toast*` outside that setup. `u-app` also follows the `@nuxtjs/i18n` locale, so it takes no `:locale` prop and `@nuxt/ui/locale` is never imported.
 
 ## UI components
 
@@ -84,6 +84,6 @@ Slots: `title`, `subtitle`, `append`, `append-prepend`, default body, `actions`,
 Action entries are Nuxt UI button props plus:
 
 - `actionType: 'spacer'` — flex-grow gap; `'button'` (or omitted) — a button
-- `tooltip` — wraps the button in `u-tooltip`
+- `tooltip` — wraps the button in `u-tooltip` and names it for assistive tech; an entry with a `label` keeps the label instead
 
 Action buttons have `loading-auto`, so an async `onClick` shows a spinner without extra state.

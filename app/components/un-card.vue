@@ -36,11 +36,18 @@ const emit = defineEmits<{
 
 const slots = useSlots();
 
+
+/* labels */
+
+function getActionLabel(action) {
+  return action.label ? undefined : action.tooltip;
+}
+
 </script>
 
 
 <template>
-  <u-card :ui="{ body: 'p-0 sm:p-0 divide-y divide-default' }">
+  <u-card :ui="{ body: 'p-0 divide-y divide-default' }">
 
     <un-typography
       :icon="props.icon"
@@ -64,6 +71,7 @@ const slots = useSlots();
               <template v-if="!action.actionType || action.actionType === 'button'">
                 <u-tooltip :text="action.tooltip">
                   <u-button
+                    :aria-label="getActionLabel(action)"
                     loading-auto
                     v-bind="radOmit(action, [ 'actionType', 'tooltip' ])"
                   />
@@ -86,6 +94,7 @@ const slots = useSlots();
         <template v-for="action of props.appendActions">
           <u-tooltip :text="action.tooltip">
             <u-button
+              :aria-label="getActionLabel(action)"
               loading-auto
               v-bind="radOmit(action, [ 'tooltip' ])"
             />
@@ -138,6 +147,7 @@ const slots = useSlots();
             <template v-if="!action.actionType || action.actionType === 'button'">
               <u-tooltip :text="action.tooltip">
                 <u-button
+                  :aria-label="getActionLabel(action)"
                   loading-auto
                   :block="props.verticalActions"
                   v-bind="radOmit(action, [ 'actionType', 'tooltip' ])"
