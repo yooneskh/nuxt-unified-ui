@@ -5,7 +5,7 @@ export default defineAppConfig({
 
     card: {
       slots: {
-        body: 'p-3',
+        body: 'p-3 sm:p-3',
       },
     },
 

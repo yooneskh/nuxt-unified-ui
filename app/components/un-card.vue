@@ -47,7 +47,7 @@ function getActionLabel(action) {
 
 
 <template>
-  <u-card :ui="{ body: 'p-0 divide-y divide-default' }">
+  <u-card :ui="{ body: 'p-0 sm:p-0 divide-y divide-default' }">
 
     <un-typography
       :icon="props.icon"
