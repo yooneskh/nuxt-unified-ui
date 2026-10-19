@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.5.25",
+  "version": "0.5.26",
   "main": "./nuxt.config.ts",
   "types": "./index.d.ts",
   "exports": {
@@ -20,8 +20,8 @@
   ],
   "dependencies": {
     "@formkit/tempo": "1.1.0",
-    "@iconify-json/lucide": "1.2.144",
-    "@nuxt/kit": "4.6.1",
+    "@iconify-json/lucide": "1.2.146",
+    "@nuxt/kit": "4.6.2",
     "@nuxt/ui": "4.12.0",
     "@nuxtjs/i18n": "10.6.0",
     "@types/canvas-confetti": "1.9.0",
@@ -32,6 +32,6 @@
     "unified-mongo-filter": "0.4.0"
   },
   "peerDependencies": {
-    "nuxt": ">=4.6.1"
+    "nuxt": ">=4.6.2"
   }
 }

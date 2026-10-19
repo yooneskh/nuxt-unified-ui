@@ -1,0 +1,26 @@
+{
+  "common": {
+    "items": "موارد",
+    "newItem": "مورد جدید",
+    "none": "هیچ",
+    "submit": "ثبت",
+    "cancel": "لغو",
+    "close": "بستن"
+  },
+  "un": {
+    "series": {
+      "noItems": "هنوز موردی اضافه نشده است. برای افزودن روی «مورد جدید» کلیک کنید.",
+      "duplicate": "تکثیر",
+      "moveBack": "انتقال به عقب",
+      "moveForward": "انتقال به جلو",
+      "delete": "حذف"
+    },
+    "media": {
+      "uploadSuccess": "فایل با موفقیت بارگذاری شد."
+    },
+    "table": {
+      "actions": "عملیات",
+      "itemsPerPage": "موارد در هر صفحه"
+    }
+  }
+}
