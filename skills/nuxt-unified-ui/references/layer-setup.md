@@ -76,6 +76,29 @@ ui: {
 
 `app/app.config.js` tightens Nuxt UI card/table slots. Host may override via its own `app.config` (e.g. `ui.colors.primary` / `neutral`).
 
+## Date defaults
+
+`app/app.config.js` also holds the defaults `formatDate` / `parseDate` fall back to:
+
+```js
+dateFormat: {
+  format: 'YYYY/MM/DD HH:mm',
+  locale: 'en-US',
+},
+```
+
+The host overrides them in its own `app.config` — one key at a time is enough, the layer default fills the rest:
+
+```js
+export default defineAppConfig({
+  dateFormat: {
+    locale: 'de-DE',
+  },
+});
+```
+
+`formatDate(timestamp)` and `parseDate(date, format)` use those defaults; an explicit `format` / `locale` argument still wins. The values are read from the app config, so they work in the app and in Nitro, and a runtime `updateAppConfig()` still re-renders them.
+
 ## i18n
 
 ```ts

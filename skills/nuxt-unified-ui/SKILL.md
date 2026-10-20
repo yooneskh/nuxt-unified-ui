@@ -43,7 +43,7 @@ On `dev`, `main`, or `master` it processes uncommitted `.vue`, `.js`, and `.ts` 
 | `toast`, `toastSuccess`, `toastError`, `toastWarning`, `toastInfo` | Show a toast (typed helpers set icon and color) | layer | [toast-and-ui.md](references/toast-and-ui.md) |
 | `smartMatch` | Test a function, mongo-style filter, or truthy value against an object | layer | [forms.md](references/forms.md) |
 | `unSet` | Set a nested path on an object, creating missing levels (mutates) | layer | — |
-| `formatDate` / `parseDate` | Format and parse dates (`@formkit/tempo`) | layer | — |
+| `formatDate` / `parseDate` | Format and parse dates (`@formkit/tempo`); defaults come from `app.config` `dateFormat` | layer | [layer-setup.md](references/layer-setup.md#date-defaults) |
 | `isSlotFilled` | Check whether a slot has content | layer | — |
 | `pathRelativeToBase` | Resolve a path against a file URL; also exported from the package for `nuxt.config` | layer | [layer-setup.md](references/layer-setup.md) |
 | `makeConfetti` | Fire confetti: `template` picks a built-in effect (`parade`, `on-top` / `on-left` / `on-right` / `on-bottom`, `on-frame`, `split-on-top`, `on-curtain`), `amount` sets particles per burst, other args go to `canvas-confetti` | layer | — |
