@@ -182,6 +182,57 @@ List query helpers (handled inside `handleResourceList` / siblings): `filter`, `
 
 ---
 
+## Singleton
+
+A singleton controller owns **one row** of a collection. It finds that row, or creates it through the resource controller and then uses the `_id` on the created document. Callers cannot address another document. The public type is only `schema`, `retrieve`, and `update`. List, count, create, and delete are not on the type and have no routes.
+
+It is one global row. A row per user or tenant stays on a normal resource controller.
+
+Register it like a resource. `dbo` is a `UnifiedSingletonController`, and `defaults` must satisfy the schema (they are validated when the controller is created). The first retrieve creates the row from `defaults` when the collection is empty. That `_id` is cached for later retrieve and update calls.
+
+```ts
+const { schema, type, inferred } = parseSchema({
+  'title': 'string',
+});
+
+
+declare global {
+  interface UnifiedAppRegistry {
+    site: {
+      dbo: UnifiedSingletonController<typeof inferred>
+    };
+  }
+};
+
+
+export default defineNitroPlugin(() => {
+  app.site = {
+    dbo: createUnifiedSingletonController({
+      resource: 'site',
+      schema,
+      type,
+      defaults: {
+        title: 'Khoshghadam',
+      },
+    }),
+  };
+});
+```
+
+Routes under `server/api/{kebab}/` — no `[id]` segment:
+
+| File | Handler | Typical permission suffix |
+|------|---------|---------------------------|
+| `schema.get.ts` | `handleSingletonSchema` | `.schema` |
+| `index.get.ts` | `handleSingletonRetrieve` | `.retrieve` |
+| `index.patch.ts` | `handleSingletonUpdate` | `.update` |
+
+`GET` returns the row (creating it from `defaults` when absent). `PATCH` sends a partial document. `select` and `populate` query params work on retrieve. Singletons are not relation targets.
+
+Dashboard: `<singleton-manager resource="site" />` loads that `GET`, edits it with the schema form, and `PATCH`es it back. It exposes `refreshSingleton()`.
+
+---
+
 ## 3. Dashboard: standard declaration
 
 Generic page (one page for all standard resources), `pages/dashboard/resources/[resourceName].vue`:
@@ -415,3 +466,9 @@ Keep the standard REST resource routes even when the UI is customized — other 
 - [ ] `server/plugins/{name}-resource.ts` — schema, registry, `createUnifiedResourceController`, meta for relations/UI
 - [ ] Full `server/api/{kebab-plural}/` route set with camelCase `resource` (+ permissions if admin)
 - [ ] Dashboard: nav → `dashboard.resources.single` + kebab `resourceName`, **or** dedicated page + `actions` / `resource-actions`
+
+## Checklist: new singleton
+
+- [ ] `server/plugins/{name}-resource.ts` — schema, registry, `createUnifiedSingletonController`, `defaults`
+- [ ] `schema.get.ts`, `index.get.ts`, `index.patch.ts` under `server/api/{kebab}/`
+- [ ] Page wrapping `<singleton-manager resource="..." />` when it needs a screen

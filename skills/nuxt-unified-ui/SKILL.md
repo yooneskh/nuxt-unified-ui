@@ -52,11 +52,14 @@ On `dev`, `main`, or `master` it processes uncommitted `.vue`, `.js`, and `.ts` 
 | `useUFetch` | Load reactive page data (`data`, `pending`, `refresh`) | companion | [data-fetching.md](references/data-fetching.md) |
 | `parseSchema` | Compile a resource schema DSL into `{ schema, type, inferred }` | companion | [resources.md](references/resources.md) |
 | `createUnifiedResourceController` / `UnifiedResourceController` | Create the typed Mongo controller (`dbo`) for a resource | companion | [resources.md](references/resources.md) |
+| `createUnifiedSingletonController` / `UnifiedSingletonController` | Create the typed controller for one fixed singleton row (`schema`, `retrieve`, `update`) | companion | [resources.md](references/resources.md) |
 | `app` / `UnifiedAppRegistry` | Global typed registry of resources (`app.users.dbo`) | companion | [resources.md](references/resources.md) |
 | `handleResourceSchema`, `handleResourceList`, `handleResourceCreate`, `handleResourceCount`, `handleResourceRetrieve`, `handleResourceUpdate`, `handleResourceDelete` | Implement the standard REST routes of a resource | companion | [resources.md](references/resources.md) |
+| `handleSingletonSchema`, `handleSingletonRetrieve`, `handleSingletonUpdate` | Implement the singleton routes: schema, retrieve, and update of the one row | companion | [resources.md](references/resources.md) |
 | `useResourceName` | Derive a resource's API path and display titles from its name | companion | [resources.md](references/resources.md) |
 | `useResourceMeta` | Map a resource schema to form fields and table columns | companion | [resources.md](references/resources.md) |
 | `<resource-manager>` | Full CRUD dashboard card for a resource; exposes `refreshResources()` | companion | [resources.md](references/resources.md) |
+| `<singleton-manager>` | Form card for one singleton row; exposes `refreshSingleton()` | companion | [resources.md](references/resources.md) |
 | `<resource-explorer-table>` | Filter bar + sortable headers + `un-table` for a resource | companion | [tables.md](references/tables.md) |
 | `assertBody` | Validate a request body against a schema in a server route | companion | — |
 | `assertRateLimit` | Rate-limit a server route | companion | — |
