@@ -178,7 +178,7 @@ Rules:
 - `permission` is optional; omit when the route is open to any caller that already passed other gates, or when auth is handled elsewhere. Prefer consistent `admin.{kebab}.{action}` when protecting admin CRUD.
 - Do not reimplement list/create/update logic in route files — extend via custom endpoints next to the resource (e.g. `/api/authentication/onboard-user`) when the default CRUD is not enough.
 
-List query helpers (handled inside `handleResourceList` / siblings): `filter`, `select`, `sort`, `skip`, `limit`, `populate`, and `single=xtruex` for a single `find`.
+List query helpers (handled inside `handleResourceList` / siblings): `filter`, `select`, `sort`, `skip`, `limit`, `populate`, and `single=true` for a single `find`.
 
 ---
 

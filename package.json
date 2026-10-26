@@ -1,7 +1,7 @@
 {
   "name": "nuxt-unified-ui",
   "type": "module",
-  "version": "0.5.28",
+  "version": "0.5.29",
   "main": "./nuxt.config.ts",
   "types": "./index.d.ts",
   "exports": {
@@ -28,7 +28,7 @@
     "@vueuse/core": "15.0.0",
     "@vueuse/nuxt": "15.0.0",
     "canvas-confetti": "1.9.4",
-    "radashi": "12.9.6",
+    "radashi": "12.9.7",
     "unified-mongo-filter": "0.4.0"
   },
   "peerDependencies": {
