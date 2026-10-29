@@ -4,10 +4,18 @@ The one pipeline that brings code in line with this skill. One subagent per file
 
 It runs:
 
-- **After implementation** — whenever the main agent finishes implementing work that added or edited a `.vue`, `.js`, or `.ts` file, before its final reply.
-- **On request** — when the skill is invoked with the argument `apply` (`/nuxt-unified-ui apply`), or the user asks to apply nuxt-unified-ui across the project or branch.
+- **After implementation** — whenever the main agent finishes implementing work that added or edited a `.vue`, `.js`, or `.ts` file, before its final reply. This uses the `apply` scope.
+- **On request** — `/nuxt-unified-ui apply`, `/nuxt-unified-ui apply branch`, or `/nuxt-unified-ui apply all`.
 
-Both run the same steps on the same file selection.
+The scope decides which files are selected. Every scope then runs the same pipeline. Eligible files are `*.vue`, `*.js`, and `*.ts`, excluding `*.d.ts`.
+
+| Invocation | Scope |
+|---|---|
+| `/nuxt-unified-ui apply` (also after implementation) | Uncommitted files only: staged, unstaged, and untracked |
+| `/nuxt-unified-ui apply branch` | Files the current branch added or changed relative to its base branch |
+| `/nuxt-unified-ui apply all` | Every eligible file on the current branch |
+
+Any other argument is outside these three scopes. Stop and tell the user the three forms above.
 
 ## Main agent
 
@@ -23,21 +31,15 @@ First check whether the project is a Git worktree:
 git rev-parse --is-inside-work-tree >/dev/null 2>&1
 ```
 
-If it is not, select every eligible file in the project:
+When the project is not a Git worktree, `apply` and `branch` stop: tell the user those scopes need a Git worktree. `all` selects every eligible file in the project:
 
 ```bash
 rg --files --hidden -g '*.vue' -g '*.js' -g '*.ts' -g '!*.d.ts'
 ```
 
-Otherwise, get the branch:
+When it is a worktree, select by scope.
 
-```bash
-branch=$(git branch --show-current)
-```
-
-If `branch` is empty (detached HEAD), stop and ask the user which files to process.
-
-**On `dev`, `main`, or `master`** — select only added or changed, uncommitted files (staged, unstaged, or untracked):
+**`apply`** — files with uncommitted changes, on the current checkout: staged, unstaged, and untracked. An empty result ends the run.
 
 ```bash
 {
@@ -46,13 +48,13 @@ If `branch` is empty (detached HEAD), stop and ask the user which files to proce
 } | sort -u
 ```
 
-If this selects no files because all work has been committed, select every tracked or new, non-ignored eligible file instead:
+**`branch`** — files the current branch added or changed relative to its base branch, including uncommitted and untracked work.
 
 ```bash
-git ls-files --cached --others --exclude-standard -- '*.vue' '*.js' '*.ts' ':!*.d.ts'
+branch=$(git branch --show-current)
 ```
 
-**On any other branch** — files the branch added or changed relative to its base branch, including uncommitted and untracked work.
+When `branch` is empty (detached HEAD), stop and ask the user which files to process.
 
 Find the base: the closest of `dev`, `main`, `master` (local first, then `origin/`), measured by commits since the merge base. Ties go to the earlier name in that order.
 
@@ -67,7 +69,7 @@ for candidate in dev main master; do
 done | sort -s -n -k1,1
 ```
 
-The first line is the base: `<commits> <ref> <merge-base sha>`. If there is no output, stop and ask the user for the base branch. Then list the files with the merge-base sha:
+The first line is the base: `<commits> <ref> <merge-base sha>`. When there is no output, stop and ask the user for the base branch. Set `$base` to that sha, then list the files:
 
 ```bash
 {
@@ -76,7 +78,13 @@ The first line is the base: `<commits> <ref> <merge-base sha>`. If there is no o
 } | sort -u
 ```
 
-Deleted files are excluded. Tell the user whether the project is outside Git or on a branch, the base (when there is one), whether the clean default-branch fallback was used, and how many files were selected. If none were selected, stop.
+**`all`** — every tracked or new, non-ignored eligible file on the current branch:
+
+```bash
+git ls-files --cached --others --exclude-standard -- '*.vue' '*.js' '*.ts' ':!*.d.ts'
+```
+
+Deleted files are excluded. Tell the user the scope, the branch when there is one, the base ref when the scope is `branch`, and how many files were selected. When none were selected, stop.
 
 ### 2. Launch one subagent per file
 
