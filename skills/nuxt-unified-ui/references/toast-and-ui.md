@@ -57,9 +57,25 @@ The app tree must be wrapped in `u-app` so Nuxt UI's toaster is mounted. Do not 
 
 ### `un-typography`
 
-Props: `icon`, `title`, `subtitle`, `text`, plus `*Classes` variants, and `headerLevel` (1–6, default `2`).
+Props: `icon`, `title`, `subtitle`, `text`, `headerLevel` (1–6, default `2`), and `ui`.
 
 Title renders as `h{headerLevel}`; subtitle renders as the next heading level (capped at `h6`).
+
+`ui` merges classes onto the elements below. A string merges (a conflicting utility wins). A function replaces that slot. The same keys can be set for every typography block from `app.config.ts` under `ui.unTypography`.
+
+| `ui` key | Element | Default |
+|----------|---------|---------|
+| `root` | Outer block | none |
+| `wrapper` | Icon, title, and append row | `flex items-start` |
+| `content` | Title column | `w-0 grow` |
+| `heading` | Icon and title row | `flex items-center gap-[0.5em]` |
+| `icon` | Icon | `size-[1.3em] shrink-0 grow-0` |
+| `titleWrapper` | Title size box | `text-[1.3em]` |
+| `title` | Title | `font-medium` |
+| `subtitleWrapper` | Subtitle size box | `text-[0.9em]`, plus `ms-[2em]` when `icon` is set |
+| `subtitle` | Subtitle | `font-light` |
+| `append` | Append row | `ms-auto flex items-center gap-1` |
+| `text` | Text | `mt-2` when a title or subtitle is set |
 
 Slots: `title`, `subtitle`, `append`.
 
@@ -78,6 +94,45 @@ Composes `u-card` + `un-typography`.
 | `verticalActions` | Stack actions; buttons `block` |
 | `subtitleActions` | Buttons in subtitle area |
 | `appendActions` | Buttons in typography append |
+| `ui` | Classes merged onto the card regions below. A string merges (a conflicting utility wins, so `p-6` replaces `p-3`). A function replaces that slot: `body: (defaults) => 'p-0'` |
+
+| `ui` key | Region | Default |
+|----------|--------|---------|
+| `root` | Passed through to `u-card` `ui.root` | `u-card` theme |
+| `base` | Divided stack (`u-card` body) | `p-0 sm:p-0 divide-y divide-default` |
+| `header` | Typography header | `p-3` |
+| `body` | Content region | `p-3`, or `p-0` when `fluidBody` |
+| `footer` | Action row | `flex flex-wrap items-center gap-1 p-2`, plus `flex-col` when `verticalActions` |
+| `wrapper`, `content`, `heading`, `icon`, `titleWrapper`, `title`, `subtitleWrapper`, `subtitle`, `append`, `text` | Passed through to `un-typography` | typography defaults; `text` also styles the card's body copy |
+
+```vue
+<un-card
+  title="Invoice"
+  :ui="{
+    header: 'bg-elevated',
+    body: 'p-6',
+    footer: 'justify-end',
+  }"
+/>
+```
+
+`fluidBody` and `verticalActions` still apply, and `ui` merges on top of them.
+
+The same slot keys can be set for every card from `app.config.ts`, under `ui.unCard`. A `:ui` prop on one card still overrides that.
+
+```ts
+export default defineAppConfig({
+  ui: {
+    unCard: {
+      slots: {
+        header: 'p-4',
+        body: 'p-6',
+        footer: 'justify-end',
+      },
+    },
+  },
+})
+```
 
 Slots: `title`, `subtitle`, `append`, `append-prepend`, default body, `actions`, `actions-prepend`, `actions-append`.
 

@@ -1,14 +1,25 @@
 <script setup>
 
-/* page */
+/* responsibility */
+
+// Hosts the layer playground
+// with sidebar workspaces and live demos.
+
+
+/* seo */
 
 useHead({
   title: 'Playground · Unified Nuxt UI',
 });
 
+useSeoMeta({
+  description: 'Interactive demos for nuxt-unified-ui components, forms, tables, dialogs, and helpers.',
+});
+
+
+/* shell */
 
 const section = ref('overview');
-
 
 const sections = [
   {
@@ -83,7 +94,7 @@ function openSection(id) {
 }
 
 
-/* nuxt ui */
+/* components */
 
 const counter = ref(0);
 
@@ -467,10 +478,10 @@ const tablePeople = ref([
     joined: '2025-06-29',
   },
 ]);
+
 const tableCurrentPage = ref(1);
 const tableItemsPerPage = ref(10);
 const isTableLoading = ref(false);
-
 
 const tableColumns = [
   {
@@ -544,7 +555,6 @@ const tableCompactColumns = [
     header: 'Role',
   },
 ];
-
 
 const tablePageData = computed(() => {
   const size = Number(tableItemsPerPage.value);
@@ -790,7 +800,7 @@ function handleConfettiHeavyCurtain() {
 
 /* dialog */
 
-async function openChoicePickerDialog() {
+async function handleOpenChoicePickerDialog() {
   await launchChoicePickerDialog({
     icon: 'lucide:package',
     title: 'Do you want to submit?',
@@ -816,7 +826,7 @@ async function openChoicePickerDialog() {
   });
 }
 
-async function openConfirmDialog() {
+async function handleOpenConfirmDialog() {
   await launchChoicePickerDialog({
     icon: 'lucide:trash',
     title: 'Delete this draft?',
@@ -836,7 +846,7 @@ async function openConfirmDialog() {
   });
 }
 
-async function openFormPickerDialog() {
+async function handleOpenFormPickerDialog() {
   await launchFormPickerDialog({
     icon: 'lucide:text',
     title: 'Admission Form',
@@ -1040,7 +1050,7 @@ function handleRefreshDate() {
 }
 
 
-/* match + set */
+/* match */
 
 const matchTarget = {
   role: 'admin',
@@ -1149,6 +1159,7 @@ function handleUnsetReset() {
                 icon="lucide:sparkles"
                 label="Layer demo"
               />
+
               <u-button
                 variant="subtle"
                 size="xs"
@@ -1157,6 +1168,7 @@ function handleUnsetReset() {
                 href="https://ui.nuxt.com"
                 target="_blank"
               />
+
             </template>
           </u-dashboard-navbar>
         </template>
@@ -1171,34 +1183,42 @@ function handleUnsetReset() {
                 <div class="absolute -top-20 -end-12 size-72 rounded-full bg-primary/20 blur-3xl" />
                 <div class="absolute -bottom-24 -start-16 size-64 rounded-full bg-info/15 blur-3xl" />
                 <div class="relative space-y-5 p-6 sm:p-8 lg:p-10">
+
                   <u-badge
                     variant="subtle"
                     icon="lucide:package"
                     label="nuxt-unified-ui"
                   />
+
                   <h1 class="max-w-3xl text-pretty text-3xl font-bold tracking-tight text-highlighted sm:text-4xl lg:text-5xl">
+
                     A playground that feels like the product
+
                   </h1>
+
                   <p class="max-w-2xl text-pretty text-base text-muted sm:text-lg">
+
                     Same primitives a host app would use. Open a workspace, or try a helper from here.
+
                   </p>
+
                   <div class="flex flex-wrap gap-2">
                     <u-button
                       icon="lucide:check"
                       label="Success toast"
-                      @click="handleToastSuccess"
+                      @click="handleToastSuccess()"
                     />
                     <u-button
                       variant="subtle"
                       icon="lucide:party-popper"
                       label="Parade"
-                      @click="handleConfettiParade"
+                      @click="handleConfettiParade()"
                     />
                     <u-button
                       variant="subtle"
                       icon="lucide:text"
                       label="Form picker"
-                      @click="openFormPickerDialog"
+                      @click="handleOpenFormPickerDialog()"
                     />
                   </div>
                 </div>
@@ -1259,7 +1279,7 @@ function handleUnsetReset() {
                   {{ sectionTitle }}
                 </p>
                 <p class="max-w-2xl text-pretty text-sm text-toned">
-                  un-card composes u-card with typography and action rows. The append slot is free-form. subtitleActions and appendActions cover header overflow.
+                  un-card composes u-card with typography and action rows. The append slot is free-form. subtitleActions and appendActions cover header overflow. The ui prop merges classes onto header, body, and footer.
                 </p>
               </div>
 
@@ -1376,6 +1396,28 @@ function handleUnsetReset() {
                 </un-card>
 
               </div>
+
+              <un-card
+                icon="lucide:palette"
+                title="Custom ui"
+                subtitle="Slot classes merge with the defaults"
+                text="header, body, and footer come from the ui prop. Body padding replaces p-3. The action row stays a row and picks up justify-end."
+                :ui="{
+                  header: 'bg-elevated',
+                  body: 'p-6',
+                  footer: 'justify-end',
+                }"
+                :actions="[
+                  {
+                    icon: 'lucide:check',
+                    label: 'Save',
+                  },
+                  {
+                    variant: 'ghost',
+                    label: 'Cancel',
+                  },
+                ]"
+              />
 
             </div>
           </template>
@@ -1565,30 +1607,30 @@ function handleUnsetReset() {
                     color="success"
                     icon="lucide:check"
                     label="Success"
-                    @click="handleToastSuccess"
+                    @click="handleToastSuccess()"
                   />
                   <u-button
                     color="warning"
                     icon="lucide:triangle-alert"
                     label="Warning"
-                    @click="handleToastWarning"
+                    @click="handleToastWarning()"
                   />
                   <u-button
                     color="info"
                     icon="lucide:info"
                     label="Info"
-                    @click="handleToastInfo"
+                    @click="handleToastInfo()"
                   />
                   <u-button
                     color="error"
                     icon="lucide:circle-alert"
                     label="Error"
-                    @click="handleToastError"
+                    @click="handleToastError()"
                   />
                   <u-button
                     icon="lucide:party-popper"
                     label="Custom toast()"
-                    @click="handleToastCustom"
+                    @click="handleToastCustom()"
                   />
                 </div>
               </un-card>
@@ -1601,18 +1643,18 @@ function handleUnsetReset() {
                   <u-button
                     icon="lucide:package"
                     label="Choice picker"
-                    @click="openChoicePickerDialog"
+                    @click="handleOpenChoicePickerDialog()"
                   />
                   <u-button
                     color="error"
                     icon="lucide:trash"
                     label="Confirm delete"
-                    @click="openConfirmDialog"
+                    @click="handleOpenConfirmDialog()"
                   />
                   <u-button
                     icon="lucide:text"
                     label="Form picker"
-                    @click="openFormPickerDialog"
+                    @click="handleOpenFormPickerDialog()"
                   />
                 </div>
               </un-card>
@@ -1696,32 +1738,32 @@ function handleUnsetReset() {
                   <u-button
                     icon="lucide:party-popper"
                     label="Parade"
-                    @click="handleConfettiParade"
+                    @click="handleConfettiParade()"
                   />
                   <u-button
                     icon="lucide:arrow-down"
                     label="On top"
-                    @click="handleConfettiOnTop"
+                    @click="handleConfettiOnTop()"
                   />
                   <u-button
                     icon="lucide:arrow-right"
                     label="On left"
-                    @click="handleConfettiOnLeft"
+                    @click="handleConfettiOnLeft()"
                   />
                   <u-button
                     icon="lucide:arrow-left"
                     label="On right"
-                    @click="handleConfettiOnRight"
+                    @click="handleConfettiOnRight()"
                   />
                   <u-button
                     icon="lucide:arrow-up"
                     label="On bottom"
-                    @click="handleConfettiOnBottom"
+                    @click="handleConfettiOnBottom()"
                   />
                   <u-button
                     icon="lucide:sparkle"
                     label="Raw burst"
-                    @click="handleConfettiBurst"
+                    @click="handleConfettiBurst()"
                   />
                 </div>
               </un-card>
@@ -1734,22 +1776,22 @@ function handleUnsetReset() {
                   <u-button
                     icon="lucide:square"
                     label="On frame"
-                    @click="handleConfettiOnFrame"
+                    @click="handleConfettiOnFrame()"
                   />
                   <u-button
                     icon="lucide:split"
                     label="Split on top"
-                    @click="handleConfettiSplitOnTop"
+                    @click="handleConfettiSplitOnTop()"
                   />
                   <u-button
                     icon="lucide:panels-top-left"
                     label="On curtain"
-                    @click="handleConfettiOnCurtain"
+                    @click="handleConfettiOnCurtain()"
                   />
                   <u-button
                     icon="lucide:flame"
                     label="Heavy curtain"
-                    @click="handleConfettiHeavyCurtain"
+                    @click="handleConfettiHeavyCurtain()"
                   />
                 </div>
               </un-card>

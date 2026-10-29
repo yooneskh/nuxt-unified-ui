@@ -3,12 +3,12 @@
   "version": "0.0.2",
   "type": "module",
   "scripts": {
-    "postinstall": "nuxt prepare",
-    "serve": "nuxt dev --port 8080",
-    "build": "nuxt build"
+    "postinstall": "bun --bun nuxt prepare",
+    "serve": "bun --bun nuxt dev --port 8080",
+    "build": "bun --bun nuxt build"
   },
   "dependencies": {
-    "nuxt": "4.6.1",
+    "nuxt": "4.6.3",
     "nuxt-unified-ui": "file:../"
   }
 }

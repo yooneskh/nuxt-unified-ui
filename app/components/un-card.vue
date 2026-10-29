@@ -1,8 +1,14 @@
 <script setup lang="ts">
 
+/* responsibility */
+
+// Renders a card with typography header,
+// body content, and optional action rows.
+
+
 /* interface */
 
-import type { ButtonProps } from '@nuxt/ui';
+import type { ButtonProps, SlotClass } from '@nuxt/ui';
 
 
 const props = defineProps<{
@@ -11,10 +17,6 @@ const props = defineProps<{
   title?: string;
   subtitle?: string;
   text?: string;
-  iconClasses?: string;
-  titleClasses?: string;
-  subtitleClasses?: string;
-  textClasses?: string;
   headerLevel?: number;
 
   fluidBody?: boolean;
@@ -25,6 +27,24 @@ const props = defineProps<{
 
   actions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
   verticalActions?: boolean;
+
+  ui?: {
+    root?: SlotClass;
+    base?: SlotClass;
+    header?: SlotClass;
+    body?: SlotClass;
+    footer?: SlotClass;
+    wrapper?: SlotClass;
+    content?: SlotClass;
+    heading?: SlotClass;
+    icon?: SlotClass;
+    titleWrapper?: SlotClass;
+    title?: SlotClass;
+    subtitleWrapper?: SlotClass;
+    subtitle?: SlotClass;
+    append?: SlotClass;
+    text?: SlotClass;
+  };
 
 }>();
 
@@ -37,27 +57,107 @@ const emit = defineEmits<{
 const slots = useSlots();
 
 
+/* theme */
+
+import { tv } from '@nuxt/ui/utils/tv';
+
+
+const appConfig = useAppConfig();
+
+const cardTheme = {
+  slots: {
+    root: '',
+    base: 'p-0 sm:p-0 divide-y divide-default',
+    header: 'p-3',
+    body: 'p-3',
+    footer: 'flex flex-wrap items-center gap-1 p-2',
+    wrapper: '',
+    content: '',
+    heading: '',
+    icon: '',
+    titleWrapper: '',
+    title: '',
+    subtitleWrapper: '',
+    subtitle: '',
+    append: '',
+    text: '',
+  },
+  variants: {
+    fluidBody: {
+      true: {
+        body: 'p-0',
+      },
+    },
+    verticalActions: {
+      true: {
+        footer: 'flex-col',
+      },
+    },
+  },
+};
+
+const ui = computed(() => {
+  return tv({
+    extend: cardTheme,
+    ...(appConfig.ui as { unCard?: Record<string, unknown> }).unCard,
+  })({
+    fluidBody: props.fluidBody,
+    verticalActions: props.verticalActions,
+  });
+});
+
+const typographySlots = [
+  'wrapper',
+  'content',
+  'heading',
+  'icon',
+  'titleWrapper',
+  'title',
+  'subtitleWrapper',
+  'subtitle',
+  'append',
+  'text',
+] as const;
+
+const typographyUi = computed(() => {
+
+  const theme = ui.value as Record<string, (props?: { class?: unknown }) => string>;
+
+  return Object.fromEntries(typographySlots.map((slot) => {
+    return [slot, [theme[slot]?.(), props.ui?.[slot]].filter(Boolean)];
+  }));
+
+});
+
+
 /* labels */
 
-function getActionLabel(action) {
-  return action.label ? undefined : action.tooltip;
+function getActionLabel(action: any) {
+  if (action.label) {
+    return undefined;
+  }
+  else {
+    return action.tooltip;
+  }
 }
 
 </script>
 
 
 <template>
-  <u-card :ui="{ body: 'p-0 sm:p-0 divide-y divide-default' }">
+  <u-card
+    :ui="{
+      root: [ui.root(), props.ui?.root].filter(Boolean),
+      body: ui.base({ class: props.ui?.base }),
+    }">
 
     <un-typography
       :icon="props.icon"
       :title="props.title"
       :subtitle="props.subtitle"
-      :icon-classes="props.iconClasses"
-      :title-classes="props.titleClasses"
-      :subtitle-classes="props.subtitleClasses"
       :header-level="props.headerLevel"
-      class="p-3">
+      :class="ui.header({ class: props.ui?.header })"
+      :ui="typographyUi">
 
       <template v-if="isSlotFilled(slots.title)" #title>
         <slot name="title" />
@@ -91,7 +191,7 @@ function getActionLabel(action) {
 
         <slot name="append-prepend" />
 
-        <template v-for="action of props.appendActions">
+        <template v-for="(action, index) of props.appendActions" :key="index">
           <u-tooltip :text="action.tooltip">
             <u-button
               :aria-label="getActionLabel(action)"
@@ -116,28 +216,22 @@ function getActionLabel(action) {
 
     </un-typography>
 
-    <div
-      v-if="props.text || isSlotFilled(slots.default)"
-      :class="{
-        'p-3': !props.fluidBody,
-      }">
+    <template v-if="props.text || isSlotFilled(slots.default)">
+      <div :class="ui.body({ class: props.ui?.body })">
 
-      <template v-if="props.text">
-        <p :class="[ { 'mb-3': !!slots.default }, props.textClasses ]">
-          {{ props.text }}
-        </p>
-      </template>
+        <template v-if="props.text">
+          <p :class="[ { 'mb-3': !!slots.default }, ui.text({ class: props.ui?.text }) ]">
+            {{ props.text }}
+          </p>
+        </template>
 
-      <slot />
+        <slot />
 
-    </div>
+      </div>
+    </template>
 
     <template v-if="props.actions?.length || isSlotFilled(slots.actions)">
-      <div
-        class="flex flex-wrap items-center gap-1 p-2"
-        :class="{
-          'flex-col': props.verticalActions,
-        }">
+      <div :class="ui.footer({ class: props.ui?.footer })">
         <slot name="actions">
 
           <slot name="actions-prepend" />

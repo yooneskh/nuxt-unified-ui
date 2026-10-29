@@ -10,8 +10,6 @@ Examples: `get` → `radGet`, `pick` → `radPick`, `camel` → `radCamel`, `try
 
 Prefer these `rad*` auto-imports in apps that extend `nuxt-unified-ui` instead of importing from `radashi` directly.
 
-Catalog generated from radashi `12.9.1` types bundled with this layer.
-
 | Auto-import | Original | Description | Typing |
 |---|---|---|---|
 | `radAggregateError` | `AggregateError` | The `AggregateError` object represents an error when several errors need to be wrapped in a single error. | `const AggregateError: AggregateErrorConstructor` |
@@ -39,16 +37,16 @@ Catalog generated from radashi `12.9.1` types bundled with this layer.
 | `radCastMapping` | `castMapping` | Cast the `mapping` value into a mapping function. | `function castMapping<TMapping extends Mapping \| null \| undefined>(mapping: TMapping): MappingFunction<TMapping>;` |
 | `radChain` | `chain` | Create a function that chains multiple functions together. | `function chain<T1 extends any[], T2, T3>(f1: (...arg: T1) => T2, f2: (arg: T2) => T3): (...arg: T1) => T3; (+8 overloads)` |
 | `radClamp` | `clamp` | The `clamp` function restricts a number to be within a specified range. | `function clamp(n: number, min: number \| null \| undefined, max: number \| null \| undefined): number;` |
-| `radClone` | `clone` | Creates a shallow copy of the given object/value. | `function clone<T>(obj: T): T;` |
+| `radClone` | `clone` | Creates a shallow copy of the given object/value. | `function clone<T extends object>(obj: T): T;` |
 | `radCloneDeep` | `cloneDeep` | Clone the given object and possibly other objects nested inside. | `function cloneDeep<T extends object>(root: T, customStrategy?: Partial<CloningStrategy>): T;` |
-| `radCluster` | `cluster` | Splits a single list into many lists of the desired size. | `function cluster<T, Size extends number = 2>(array: readonly T[], size?: Size): Cluster<T, Size>[];` |
+| `radCluster` | `cluster` | Splits a single list into many lists of the desired size. | `function cluster<T, Size extends number = 2>(array: readonly T[], size: Size): Cluster<T, Size>[];` |
 | `radCompose` | `compose` | Create a function that composes multiple functions together. | `function compose<F1Result, F1Args extends any[], F1NextArgs extends any[], LastResult>(f1: (next: (...args: F1NextArgs) => LastResult) => (...args: F1Args) =…` |
 | `radConcat` | `concat` | Flattens and filters nullish values from arguments, returning a new array containing only the non-nullish elements. | `function concat<T extends readonly [any, any, ...any[]]>(...values: T): Concat<T>;` |
 | `radConstruct` | `construct` | The opposite of crush, given an object that was crushed into key paths and values will return the original object reconstructed. | `function construct<TObject extends object>(obj: TObject): object;` |
-| `radCounting` | `counting` | Counts the occurrences of each unique value returned by the `identity` function when applied to each item in the array. | `function counting<T, TId extends string \| number \| symbol>(array: readonly T[], identity: (item: T) => TId): Record<TId, number>;` |
+| `radCounting` | `counting` | Counts the occurrences of each unique value returned by the `identity` function when applied to each item in the array. | `function counting<T, TId extends string \| number \| symbol>(array: readonly T[], identity: (item: T) => TId): Partial<Record<TId, number>>;` |
 | `radCrush` | `crush` | Flattens a deep object to a single dimension, converting the keys to dot notation. | `function crush<T extends object>(value: T): Crush<T>;` |
 | `radDash` | `dash` | Formats the given string in dash case fashion. | `function dash(str: string): string;` |
-| `radDebounce` | `debounce` | Returns a new function that will only call your callback after `delay` milliseconds have passed without any invocations. | `function debounce<TArgs extends any[]>({ delay, leading }: DebounceOptions, func: (...args: TArgs) => any): DebounceFunction<TArgs>;` |
+| `radDebounce` | `debounce` | Returns a new function that will only call the source function after `delay` milliseconds have passed without any invocations. | `function debounce<TCallee extends (...args: any[]) => any>({ delay, leading }: DebounceOptions, callee: TCallee): Debounced<TCallee>;` |
 | `radDeburr` | `deburr` | Removes accents and converts extended Latin ligatures to basic Latin text. | `function deburr(input: string): string;` |
 | `radDedent` | `dedent` | Remove indentation from a string. | `function dedent(template: TemplateStringsArray, ...values: unknown[]): string; (+1 overload)` |
 | `radDefer` | `defer` | Useful when for script like things where cleanup should be done on fail or success no matter. | `function defer<TResponse>(func: (register: (fn: (error?: any) => any, options?: { rethrow?: boolean; }) => void) => Promise<TResponse>): Promise<TResponse>;` |
@@ -119,7 +117,7 @@ Catalog generated from radashi `12.9.1` types bundled with this layer.
 | `radMapValues` | `mapValues` | Map over all the keys to create a new object. | `function mapValues<T extends object, U>(obj: T, mapFunc: (value: Required<T>[keyof T], key: keyof T) => U): { [K in keyof T]: U; };` |
 | `radMapify` | `mapify` | Create a new `Map` instance from an array. | `function mapify<T, Key, Value = T>(array: readonly T[], getKey: (item: T, index: number) => Key, getValue?: (item: T, index: number) => Value): Map<Key, Value>;` |
 | `radMax` | `max` | Max gets the greatest value from a list. | `function max(array: readonly [number, ...number[]]): number; (+3 overloads)` |
-| `radMemo` | `memo` | Creates a memoized function. | `function memo<TArgs extends any[], TResult>(func: (...args: TArgs) => TResult, options?: MemoOptions<NoInfer$1<TArgs>>): (...args: TArgs) => TResult;` |
+| `radMemo` | `memo` | Creates a memoized function. | `function memo<TFunc extends (...args: any[]) => any>(func: TFunc, options?: MemoOptions<NoInfer<TFunc>>): Memoized<TFunc>;` |
 | `radMemoLastCall` | `memoLastCall` | Creates a memoized version of a function that caches only its most recent call. | `function memoLastCall<Args extends any[], Result>(fn: (...args: Args) => Result): (...args: Args) => Result;` |
 | `radMerge` | `merge` | Given two arrays of the same type, iterate the first list and replace items matched by the `matcher` function in the first place. | `function merge<T>(prev: readonly T[], array: readonly T[], toKey: (item: T) => any): T[];` |
 | `radMergeOptions` | `mergeOptions` | Merges two option objects into a new object. | `function mergeOptions<A extends object \| undefined, B extends object \| undefined>(a: A, b: B): MergeOptions<A, B>;` |
@@ -137,6 +135,8 @@ Catalog generated from radashi `12.9.1` types bundled with this layer.
 | `radPick` | `pick` | Pick a list of properties from an object into a new object. | `function pick<T extends object, F extends KeyFilter<T, keyof T>>(obj: T, filter: F): Pick<T, FilteredKeys<T, F>>;` |
 | `radPluck` | `pluck` | Extracts values from an array of objects based on specified mappings. | `function pluck<T extends object, TMapping extends Mapping<T>>(array: readonly T[], mappings: readonly TMapping[]): MappedOutput<TMapping, T>[]; (+1 overload)` |
 | `radPromiseChain` | `promiseChain` | Creates a function that executes multiple functions in the same order as they are passed in arguments. | `function promiseChain<T1 extends any[], T2, T3>(f1: (...args: T1) => Awaitable<T2>, f2: (arg: T2) => Awaitable<T3>): (...arg: T1) => Promise<T3>; (+8 overloads)` |
+| `radPromiseDebounce` | `promiseDebounce` | Same as `debounce`, but a promise is returned that resolves with the result if that call was the last one. | `function promiseDebounce<TCallee extends (...args: any[]) => any>({ delay, leading }: DebounceOptions, callee: TCallee): PromiseDebounced<TCallee>;` |
+| `radPromiseMemo` | `promiseMemo` | Creates a memoized function for async operations. | `function promiseMemo<TFunc extends (...args: any[]) => Promise<any>>(func: TFunc, options?: MemoOptions<TFunc>): Memoized<TFunc>;` |
 | `radProportionalJitter` | `proportionalJitter` | Returns a value randomly jittered by a proportion of the base value. | `function proportionalJitter(base: number, factor: number): number;` |
 | `radProxied` | `proxied` | Creates a Proxy object that will dynamically call the handler argument when attributes are accessed. | `function proxied<T, K>(handler: (propertyName: T) => K): Record<string, K>;` |
 | `radQueueByKey` | `queueByKey` | Queues async function calls by key to ensure sequential execution per key. | `function queueByKey<TArgs extends any[], TResult>(asyncFn: (...args: TArgs) => TResult \| PromiseLike<TResult>, keyFn: (...args: TArgs) => string \| number): (…` |
@@ -144,8 +144,8 @@ Catalog generated from radashi `12.9.1` types bundled with this layer.
 | `radRange` | `range` | Creates a generator that will produce an iteration through the range of number as requested. | `function range<T = number>(startOrLength: number, end?: number, valueOrMapper?: T \| ((i: number) => T), step?: number): Generator<T>;` |
 | `radReduce` | `reduce` | An async reduce function. | `function reduce<T, K>(array: readonly T[], reducer: (acc: K, item: T, index: number) => Promise<K>, initialValue: K): Promise<K>; (+1 overload)` |
 | `radRemove` | `remove` | Removes elements from an array based on the specified predicate function. | `function remove<T>(array: readonly T[], predicate: (value: T) => boolean): T[];` |
-| `radReplace` | `replace` | Replace an element in an array with a new item without modifying the array and return the new value. | `function replace<T>(array: readonly T[], newItem: T, match: (item: T, idx: number) => boolean): T[];` |
-| `radReplaceOrAppend` | `replaceOrAppend` | Replace the first occurrence of an item in an array where the `match` function returns true. | `function replaceOrAppend<T>(array: readonly T[], newItem: T, match: (a: T, idx: number) => boolean): T[];` |
+| `radReplace` | `replace` | Replace an element in an array with a new item without modifying the array and return the new value. | `function replace<T, U>(array: readonly T[], newItem: U, match: (item: T, idx: number) => boolean): (T \| Defined$1<U>)[];` |
+| `radReplaceOrAppend` | `replaceOrAppend` | Replace the first occurrence of an item in an array where the `match` function returns true. | `function replaceOrAppend<T, U>(array: readonly T[], newItem: U, match: (a: T, idx: number) => boolean): (T \| Defined<U>)[];` |
 | `radRetry` | `retry` | Retries the given function the specified number of times. | `function retry<TResponse>(options: RetryOptions, func: (exit: (err: any) => void) => Promise<TResponse>): Promise<TResponse>;` |
 | `radRound` | `round` | Rounds a number to the given precision. | `function round(value: number, precision?: number, toInteger?: (value: number) => number): number;` |
 | `radSelect` | `select` | Select performs a filter and a mapper inside of a reduce, only iterating the list one time. | `function select<T, U>(array: readonly T[], mapper: (item: T, index: number) => U, condition: ((item: T, index: number) => boolean) \| null \| undefined): U[]; …` |
@@ -159,19 +159,19 @@ Catalog generated from radashi `12.9.1` types bundled with this layer.
 | `radSimilarity` | `similarity` | Calculate the similarity between two strings using the Levenshtein distance algorithm. | `function similarity(str1: string, str2: string): number;` |
 | `radSleep` | `sleep` | Create a promise that resolves after a given amount of time. | `function sleep(milliseconds: number): Promise<void>;` |
 | `radSnake` | `snake` | Formats the given string in snake case fashion. | `function snake(str: string, options?: { splitOnNumber?: boolean; }): string;` |
-| `radSort` | `sort` | Sort an array without modifying it and return the newly sorted value. | `function sort<const T extends readonly any[]>(array: T, getter?: (item: T[number]) => number, desc?: boolean): SortArray<T>;` |
+| `radSort` | `sort` | Sort an array without modifying it and return the newly sorted value. | `function sort<const T extends readonly any[]>(array: T, getter?: (item: T[number]) => number, direction?: 'asc' \| 'desc'): SortArray<T>;` |
 | `radSum` | `sum` | Add up numbers related to an array in 1 of 2 ways: 1. | `function sum(array: readonly number[]): number; (+1 overload)` |
 | `radTemplate` | `template` | Replace data by name in template strings. | `function template(str: string, data: Record<string, any>, regex?: RegExp): string;` |
 | `radThrottle` | `throttle` | Given an interval and a function returns a new function that will only call the source function if interval milliseconds have passed since the last invocation. | `function throttle<TArgs extends any[]>({ interval, trailing }: { interval: number; trailing?: boolean; }, func: (...args: TArgs) => any): ThrottledFunction<T…` |
 | `radTimeout` | `timeout` | The `timeout` function creates a promise that rejects after a specified delay, with an optional custom error message or error function. | `function timeout<TError extends Error>( /** * The number of milliseconds to wait before rejecting. */ ms: number, /** * An error message or a function that r…` |
-| `radTitle` | `title` | Formats the given string in title case fashion. | `function title(str: string \| null \| undefined): string;` |
+| `radTitle` | `title` | Formats the given string in title case fashion. | `function title(str: string): string;` |
 | `radToFloat` | `toFloat` | Combines `Number.parseFloat` with NaN handling. | `function toFloat(value: unknown): number; (+1 overload)` |
 | `radToInt` | `toInt` | Combines `Number.parseInt` with NaN handling. | `function toInt(value: unknown): number; (+1 overload)` |
 | `radToResult` | `toResult` | Converts a `PromiseLike` to a `Promise<Result>`. | `function toResult<T>(promise: PromiseLike<T>): Promise<Result<T>>;` |
 | `radToggle` | `toggle` | Either adds or removes an item from an array, based on whether it already exists in the array. | `function toggle<T>(array: readonly T[], item: T, toKey?: ((item: T, idx: number) => number \| string \| symbol) \| null, options?: { strategy?: 'prepend' \| 'app…` |
 | `radTraverse` | `traverse` | Recursively visit each property of an object (or each element of an array) and its nested objects or arrays. | `function traverse(root: object, visitor: TraverseVisitor, options?: (TraverseOptions & { rootNeedsVisit?: null; }) \| null, outerContext?: TraverseContext): b…` |
-| `radTrim` | `trim` | Trims all prefix and suffix characters from the given string. | `function trim(str: string \| null \| undefined, charsToTrim?: string): string;` |
-| `radTry` | `try` | Alias of tryit: wrap a function to return [error, result] instead of throwing. | `function tryit<TArgs extends any[], TReturn, TError extends Error = Error>(func: (...args: TArgs) => TReturn): (...args: TArgs) => TryitResult<TReturn, TError>;` |
+| `radTrim` | `trim` | Trims all prefix and suffix characters from the given string. | `function trim(str: string, charsToTrim: string): string;` |
+| `radTry` | `try` | Alias of tryit. A helper to try an async function without forking the control flow. | `function tryit<TArgs extends any[], TReturn, TError extends Error = Error>(func: (...args: TArgs) => TReturn): (...args: TArgs) => TryitResult<TReturn, TError>;` |
 | `radTryit` | `tryit` | A helper to try an async function without forking the control flow. | `function tryit<TArgs extends any[], TReturn, TError extends Error = Error>(func: (...args: TArgs) => TReturn): (...args: TArgs) => TryitResult<TReturn, TError>;` |
 | `radUid` | `uid` | Generate a random string of a given length. | `function uid(length: number, specials?: string): string;` |
 | `radUnique` | `unique` | Given a list of items returns a new list with only unique items. | `function unique<T, K = T>(array: readonly T[], toKey?: (item: T) => K): T[];` |
