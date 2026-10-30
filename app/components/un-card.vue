@@ -3,7 +3,8 @@
 /* responsibility */
 
 // Renders a card with typography header,
-// body content, and optional action rows.
+// an optional sub-actions row, body content,
+// and optional action rows.
 
 
 /* interface */
@@ -25,6 +26,8 @@ const props = defineProps<{
   subtitleActions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
   appendActions?: ( ButtonProps & { tooltip?: string; } )[];
 
+  subActions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
+
   actions?: ( ButtonProps & { tooltip?: string; actionType?: 'button' | 'spacer' } )[];
   verticalActions?: boolean;
 
@@ -33,6 +36,7 @@ const props = defineProps<{
     base?: SlotClass;
     header?: SlotClass;
     body?: SlotClass;
+    subActions?: SlotClass;
     footer?: SlotClass;
     wrapper?: SlotClass;
     content?: SlotClass;
@@ -70,6 +74,7 @@ const cardTheme = {
     base: 'p-0 sm:p-0 divide-y divide-default',
     header: 'p-3',
     body: 'p-3',
+    subActions: 'flex flex-wrap items-center gap-2 p-3',
     footer: 'flex flex-wrap items-center gap-1 p-2',
     wrapper: '',
     content: '',
@@ -215,6 +220,30 @@ function getActionLabel(action: any) {
       </template>
 
     </un-typography>
+
+    <template v-if="props.subActions?.length || isSlotFilled(slots['sub-actions'])">
+      <div :class="ui.subActions({ class: props.ui?.subActions })">
+        <slot name="sub-actions">
+          <template v-for="(action, index) of props.subActions" :key="index">
+
+            <template v-if="!action.actionType || action.actionType === 'button'">
+              <u-tooltip :text="action.tooltip">
+                <u-button
+                  :aria-label="getActionLabel(action)"
+                  loading-auto
+                  v-bind="radOmit(action, [ 'actionType', 'tooltip' ])"
+                />
+              </u-tooltip>
+            </template>
+
+            <template v-else-if="action.actionType === 'spacer'">
+              <div class="grow" />
+            </template>
+
+          </template>
+        </slot>
+      </div>
+    </template>
 
     <template v-if="props.text || isSlotFilled(slots.default)">
       <div :class="ui.body({ class: props.ui?.body })">
