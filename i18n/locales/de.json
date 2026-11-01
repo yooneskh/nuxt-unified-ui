@@ -9,6 +9,7 @@
   },
   "un": {
     "series": {
+      "item": "Element {n}",
       "noItems": "Noch keine Elemente hinzugefügt. Klicken Sie auf 'Neues Element', um eines hinzuzufügen.",
       "duplicate": "Duplizieren",
       "moveBack": "Zurück bewegen",

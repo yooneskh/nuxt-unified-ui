@@ -9,6 +9,7 @@
   },
   "un": {
     "series": {
+      "item": "Item {n}",
       "noItems": "No items added yet. Click on 'New Item' to add one.",
       "duplicate": "Duplicate",
       "moveBack": "Move Back",

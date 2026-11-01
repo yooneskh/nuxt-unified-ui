@@ -9,28 +9,58 @@ const props = defineProps({
 const modelValue = defineModel();
 
 
+/* open state */
+
+const openItems = reactive(new Set());
+
+function setItemOpen(item, open) {
+  if (open) {
+    openItems.add(item);
+  }
+  else {
+    openItems.delete(item);
+  }
+}
+
+
 /* actions */
 
 function handleAddItem() {
+
+  const item = JSON.parse(JSON.stringify( props.field.itemBase ?? {} ));
+
+  openItems.add(item);
+
   modelValue.value = [
     ...(Array.isArray(modelValue.value) ? modelValue.value : []),
-    JSON.parse(JSON.stringify( props.field.itemBase ?? {} )),
+    item,
   ];
+
 }
 
 function handleDuplicateItem(index) {
+
+  const item = {
+    ...modelValue.value[index],
+    _id: undefined,
+  };
+
+  openItems.add(item);
+
   modelValue.value = [
     ...(modelValue.value.slice(0, index + 1)),
-    {
-      ...modelValue.value[index],
-      _id: undefined,
-    },
+    item,
     ...(modelValue.value.slice(index + 1)),
   ];
+
 }
 
 function handleDeleteItem(index) {
+
+  openItems.delete(modelValue.value[index]);
+
   modelValue.value = modelValue.value.filter((_, i) => i !== index);
+
 }
 
 function handleMoveItem(index, direction) {
@@ -90,65 +120,89 @@ function handleMoveItem(index, direction) {
       }">
       <div
         v-for="(item, index) of modelValue" :key="index"
-        class="relative group">
+        class="bg-default border border-default rounded">
 
-        <un-form
-          :target="item"
-          :fields="props.field.itemFields"
-          class="p-2 bg-default border border-default rounded"
-        />
+        <div class="flex items-center gap-1 px-2 py-1">
 
-        <div
-          class="
-            absolute top-2 end-2
-            hidden pointer-events-none
-            group-hover:flex group-hover:gap-1 group-hover:pointer-events-auto
-          ">
+          <button
+            type="button"
+            class="flex min-w-0 flex-1 items-center gap-1 text-sm"
+            :aria-expanded="openItems.has(item)"
+            @click="setItemOpen(item, !openItems.has(item))">
 
-          <u-tooltip :text="$t('un.series.duplicate')">
-            <u-button
-              variant="subtle"
-              icon="i-lucide-copy"
-              size="xs"
-              :aria-label="$t('un.series.duplicate')"
-              @click="handleDuplicateItem(index)"
+            <u-icon
+              name="i-lucide-chevron-right"
+              class="size-4 shrink-0 transition-transform"
+              :class="openItems.has(item) ? 'rotate-90' : 'rtl:rotate-180'"
             />
-          </u-tooltip>
 
-          <u-tooltip :text="$t('un.series.moveBack')">
-            <u-button
-              v-if="index > 0"
-              variant="subtle"
-              icon="i-lucide-chevron-left"
-              size="xs"
-              :aria-label="$t('un.series.moveBack')"
-              @click="handleMoveItem(index, -1)"
-            />
-          </u-tooltip>
+            <span>
+              {{ $t('un.series.item', { n: index + 1 }) }}
+            </span>
 
-          <u-tooltip :text="$t('un.series.moveForward')">
-            <u-button
-              v-if="index < modelValue.length - 1"
-              variant="subtle"
-              icon="i-lucide-chevron-right"
-              size="xs"
-              :aria-label="$t('un.series.moveForward')"
-              @click="handleMoveItem(index, 1)"
-            />
-          </u-tooltip>
+          </button>
 
-          <u-tooltip :text="$t('un.series.delete')">
-            <u-button
-              variant="subtle"
-              color="error"
-              icon="i-lucide-trash"
-              size="xs"
-              :aria-label="$t('un.series.delete')"
-              @click="handleDeleteItem(index)"
-            />
-          </u-tooltip>
+          <div class="flex shrink-0 gap-1">
+
+            <u-tooltip :text="$t('un.series.duplicate')">
+              <u-button
+                variant="subtle"
+                icon="i-lucide-copy"
+                size="xs"
+                :aria-label="$t('un.series.duplicate')"
+                @click="handleDuplicateItem(index)"
+              />
+            </u-tooltip>
+
+            <u-tooltip :text="$t('un.series.moveBack')">
+              <u-button
+                v-if="index > 0"
+                variant="subtle"
+                icon="i-lucide-chevron-left"
+                size="xs"
+                :aria-label="$t('un.series.moveBack')"
+                @click="handleMoveItem(index, -1)"
+              />
+            </u-tooltip>
+
+            <u-tooltip :text="$t('un.series.moveForward')">
+              <u-button
+                v-if="index < modelValue.length - 1"
+                variant="subtle"
+                icon="i-lucide-chevron-right"
+                size="xs"
+                :aria-label="$t('un.series.moveForward')"
+                @click="handleMoveItem(index, 1)"
+              />
+            </u-tooltip>
+
+            <u-tooltip :text="$t('un.series.delete')">
+              <u-button
+                variant="subtle"
+                color="error"
+                icon="i-lucide-trash"
+                size="xs"
+                :aria-label="$t('un.series.delete')"
+                @click="handleDeleteItem(index)"
+              />
+            </u-tooltip>
+
+          </div>
 
         </div>
+
+        <u-collapsible
+          :open="openItems.has(item)"
+          :unmount-on-hide="false"
+          @update:open="setItemOpen(item, $event)">
+          <template #content>
+            <un-form
+              :target="item"
+              :fields="props.field.itemFields"
+              class="border-t border-default p-2"
+            />
+          </template>
+        </u-collapsible>
 
       </div>
     </div>

@@ -165,7 +165,7 @@ Hidden fields are not rendered, but values already on `target` stay unless you c
 }
 ```
 
-Items can be added, duplicated (the copy loses `_id`), reordered, and deleted. i18n keys: `common.*`, `un.series.*`.
+Items can be added, duplicated (the copy loses `_id`), reordered, and deleted. Each item is collapsible: items already present start collapsed, and a newly added or duplicated item starts open, with those actions on the `Item N` header. i18n keys: `common.*`, `un.series.*`.
 
 ## Custom elements
 
