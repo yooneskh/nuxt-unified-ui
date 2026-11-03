@@ -15,6 +15,7 @@ const props = defineProps({
   actions: Array,
   extraActions: Array,
   meta: Object,
+  getRowId: Function,
 });
 
 
@@ -205,6 +206,7 @@ const pageSizeItems = computed(() => {
       :columns="fullColumns"
       :loading="props.loading"
       :data="props.data || []"
+      :get-row-id="props.getRowId"
       :column-pinning="columnPinning"
       :ui="tableUi"
       :meta="props.meta"
