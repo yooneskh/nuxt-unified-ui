@@ -9,8 +9,9 @@ description: >-
   depends on nuxt-unified-ui, nuxt.config extends it, or code uses these
   APIs. Whenever implementation work is finished, run `/nuxt-unified-ui
   apply`, which applies the skill file by file to uncommitted files (staged,
-  unstaged, or untracked). `/nuxt-unified-ui apply branch` targets files the
-  current branch changed relative to its base branch. `/nuxt-unified-ui
+  unstaged, or untracked). `/nuxt-unified-ui apply branch` targets files
+  directly changed by commits that landed on the current branch since its
+  base. `/nuxt-unified-ui
   apply all` targets every eligible file on the current branch. Users can
   also invoke these directly.
 ---
@@ -21,9 +22,9 @@ The main agent decides what code exists, where it lives, and which APIs it calls
 
 ## Finishing work: `/nuxt-unified-ui apply`
 
-Whenever you finish implementing work that added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-unified-ui apply` before your final reply: follow [references/apply.md](references/apply.md). Use `apply branch` when the user asks for the current branch's changes against its base, and `apply all` when they ask for every file on the branch. Invoked without an argument, the skill only loads its guidance for the task at hand.
+Whenever you finish implementing work that added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-unified-ui apply` before your final reply: follow [references/apply.md](references/apply.md). Use `apply branch` when the user asks for the files commits on the current branch changed, and `apply all` when they ask for every file on the branch. Invoked without an argument, the skill only loads its guidance for the task at hand.
 
-`/nuxt-unified-ui apply` processes uncommitted `.vue`, `.js`, and `.ts` files (staged, unstaged, or untracked). `/nuxt-unified-ui apply branch` processes the files the current branch added or changed relative to its base branch, including uncommitted work. `/nuxt-unified-ui apply all` processes every eligible file on the current branch. One subagent per file, launched using a cheap fast model, applies the logical, structural, and code-style rules, then the main agent carries out the cross-file follow-ups.
+`/nuxt-unified-ui apply` processes uncommitted `.vue`, `.js`, and `.ts` files (staged, unstaged, or untracked). `/nuxt-unified-ui apply branch` processes eligible files directly changed by commits that landed on the current branch since its base. `/nuxt-unified-ui apply all` processes every eligible file on the current branch. One subagent per file, launched using a cheap fast model, applies the logical, structural, and code-style rules, then the main agent carries out the cross-file follow-ups.
 
 ## APIs
 

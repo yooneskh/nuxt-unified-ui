@@ -12,7 +12,7 @@ The scope decides which files are selected. Every scope then runs the same pipel
 | Invocation | Scope |
 |---|---|
 | `/nuxt-unified-ui apply` (also after implementation) | Uncommitted files only: staged, unstaged, and untracked |
-| `/nuxt-unified-ui apply branch` | Files the current branch added or changed relative to its base branch |
+| `/nuxt-unified-ui apply branch` | Eligible files directly changed by commits that landed on the current branch since its base |
 | `/nuxt-unified-ui apply all` | Every eligible file on the current branch |
 
 Any other argument is outside these three scopes. Stop and tell the user the three forms above.
@@ -48,7 +48,7 @@ When it is a worktree, select by scope.
 } | sort -u
 ```
 
-**`branch`** — files the current branch added or changed relative to its base branch, including uncommitted and untracked work.
+**`branch`** — eligible files that commits on the current branch changed directly. A commit counts when it is reachable from HEAD and not from the base. A file counts when one of those commits added, modified, or renamed it, even if a later commit put the contents back. Do not select a file only because the trees differ, and do not add uncommitted or untracked files.
 
 ```bash
 branch=$(git branch --show-current)
@@ -69,14 +69,16 @@ for candidate in dev main master; do
 done | sort -s -n -k1,1
 ```
 
-The first line is the base: `<commits> <ref> <merge-base sha>`. When there is no output, stop and ask the user for the base branch. Set `$base` to that sha, then list the files:
+The first line is the base: `<commits> <ref> <merge-base sha>`. When there is no output, stop and ask the user for the base branch. Set `$base` to that sha. List the files changed by commits in `$base..HEAD`:
 
 ```bash
-{
-  git diff --name-only --diff-filter=AMR "$base" -- '*.vue' '*.js' '*.ts' ':!*.d.ts'
-  git ls-files --others --exclude-standard -- '*.vue' '*.js' '*.ts' ':!*.d.ts'
-} | sort -u
+git --no-pager log --name-only --pretty=format: --diff-filter=AMR "$base"..HEAD -- '*.vue' '*.js' '*.ts' ':!*.d.ts' \
+  | awk 'NF' | sort -u | while IFS= read -r path; do
+      [ -f "$path" ] && printf '%s\n' "$path"
+    done
 ```
+
+Do not add `-m` or `--cc`. Merge commits then contribute no paths; a commit a merge brought in is already in `$base..HEAD` when that commit is not reachable from the base. The loop drops paths that are not files in the working tree.
 
 **`all`** — every tracked or new, non-ignored eligible file on the current branch:
 
