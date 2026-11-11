@@ -112,6 +112,8 @@ i18n: {
 }
 ```
 
+`strategy` and `defaultLocale` above are this layer's config. Nuxt merges them into an app that extends the layer, so a consuming app leaves both unset. The i18n rules in `SKILL.md` cover the app's `locales` list.
+
 Locale files live in `i18n/locales/`. Series dialogs and common buttons use keys under `common.*` and `un.series.*`.
 
 Because this layer registers `@nuxtjs/i18n`, Nuxt UI reads the active i18n locale on its own: `u-app` needs no `:locale` prop, and the host must not pass one or import `@nuxt/ui/locale`. Only the locale files matching `i18n.locales` are bundled, and the locale's `dir` is applied globally, so a right-to-left entry turns the whole app RTL on its own.

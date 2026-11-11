@@ -110,7 +110,7 @@ Return the report described there.
 
 When every subagent has reported, collect their follow-ups, remove duplicates, and apply them **one at a time** in the main agent:
 
-- **`i18n`** — add each key to the locale files of the layer that owns the reporting file, following the i18n rules in `SKILL.md` (that layer's `i18n/locales/`, under its single top-level key, in every locale it declares). When the layer has no locale files yet, create them and add its `i18n: { locales: [{ code, file }] }` declaration for the locales the aarde layer defines; global i18n settings stay in the aarde layer. Use the reported English text for English; translate for other locales when confident, otherwise use the English text and list those keys in the summary.
+- **`i18n`** — add each key to the locale files of the layer that owns the reporting file, following the i18n rules in `SKILL.md` (that layer's `i18n/locales/`, under its single top-level key, in every locale it declares). When the layer has no locale files yet, create them and add its `i18n: { locales: [{ code, file }] }` declaration for the locales the aarde layer defines. Leave `strategy` and `defaultLocale` unset. Use the reported English text for English; translate for other locales when confident, otherwise use the English text and list those keys in the summary.
 - **`split`** / **`move`** / **`promote`** — apply the file-structure rules from `SKILL.md`: create or move the files, then update every caller and import.
 - **`other`** — apply cross-file changes that follow directly from the skill (for example a missing REST route of a resource). List anything that needs a product decision in the summary instead of guessing.
 

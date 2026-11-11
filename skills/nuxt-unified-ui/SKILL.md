@@ -132,7 +132,8 @@ Make these choices while implementing. The apply pipeline checks them again afte
 **When i18n is integrated**
 
 - Every user-facing string goes through `$t`, in templates and in script. `$t` is available in both without calling `useI18n()`.
-- Global i18n settings — `strategy`, `defaultLocale`, and the full `locales` list (codes, names, languages) — go in the `nuxt.config.ts` of the **aarde layer**: the project's base app layer that extends `nuxt-unified-ui` (for example `layers/100-aarde/`). If the project has no aarde layer, use the layer that extends `nuxt-unified-ui`.
+- This layer already sets `strategy: 'no_prefix'` and `defaultLocale: 'en'` on `i18n`. Nuxt merges that config into every app that extends the layer, including an app that sets its own `i18n` options, so those two keys stay unset in the app and in every other layer. Set one only when that app needs a different value.
+- The full `locales` list (codes, names, languages) goes in the `nuxt.config.ts` of the **aarde layer**: the project's base app layer that extends `nuxt-unified-ui` (for example `layers/100-aarde/`). If the project has no aarde layer, use the layer that extends `nuxt-unified-ui`.
 - Every other layer (feature) keeps its own locale files in its own `i18n/locales/<code>.json`. In its own `nuxt.config.ts` it declares only those files — `i18n: { locales: [{ code, file }] }` — and no other i18n settings. `@nuxtjs/i18n` loads a layer's locale files only when that layer lists them, then merges the same locale from every layer into one message tree.
 - The layer that owns a file is the nearest directory above it with a `nuxt.config`. Its strings go in that layer's locale files only — never in another layer's or the host's.
 - Each layer's locale file has **exactly one top-level key**: the layer's namespace, such as `patients` or `billing`. Every key nests under it (`$t('patients.single.title')`), so merged trees never clash.
@@ -143,8 +144,6 @@ Aarde layer `nuxt.config.ts` (fragment):
 
 ```ts
 i18n: {
-  strategy: 'no_prefix',
-  defaultLocale: 'en',
   locales: [
     {
       code: 'en',
