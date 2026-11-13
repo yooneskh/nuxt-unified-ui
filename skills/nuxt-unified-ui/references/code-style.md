@@ -1,6 +1,6 @@
 # Nuxt unified code style
 
-You apply this document in the style pass of the per-file subagent ([apply.md](apply.md#per-file-subagent)), to the one `.vue`, `.js`, or `.ts` file you were given. It covers the **look and shape** of code — whitespace, wrapping, braces, template structure, sectioning, ordering, and naming that affects scanning. It never changes behavior.
+You apply this document in the style pass ([apply.md](apply.md#style-pass)), to the one `.vue`, `.js`, or `.ts` file you were given. It covers the **look and shape** of code — whitespace, wrapping, braces, template structure, sectioning, ordering, and naming that affects scanning. It never changes behavior.
 
 When editing an existing file, the rules here always win. For choices not covered (rare quote/semicolon drift), match the nearest sibling file.
 
@@ -45,7 +45,7 @@ Write code so a reader can **scan vertically** and see structure before details.
 
 Every `.vue`, `.js`, and `.ts` file does **one** job. Write that job at the top, before imports and before every other section.
 
-The job is the one reason the file exists. If saying it takes two independent jobs, the file is two files: report a `split` follow-up (see [apply.md](apply.md#per-file-subagent)) and write the header for the file's current main job.
+The job is the one reason the file exists. If saying it takes two independent jobs, the place-and-split pass should already have split the file ([apply.md](apply.md#place-and-split-pass)). Write the header for the file's current main job, report that it still needs a split, and do not split or move the file.
 
 Shape, in this order:
 

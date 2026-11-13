@@ -1,6 +1,6 @@
 # `/nuxt-unified-ui apply`
 
-The one pipeline that brings code in line with this skill. One subagent per file applies the skill's logical, structural, and code-style rules; the main agent picks the files, launches the subagents, and carries out the cross-file follow-ups they report.
+The one pipeline that brings a file in line with this skill. The main agent picks the files and launches one orchestrator per file. The orchestrator does not edit. It gives the file three passes, each to its own subagent, in order: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
 
 It runs:
 
@@ -17,9 +17,11 @@ The scope decides which files are selected. Every scope then runs the same pipel
 
 Any other argument is outside these three scopes. Stop and tell the user the three forms above.
 
+The orchestrator must be allowed to spawn its own subagents. On Grok that means `subagents.max_depth` of at least 2, or `GROK_SUBAGENTS_MAX_DEPTH`. If a pass spawn fails because nesting is disabled, stop the run and tell the user. Do not fold a pass back into the orchestrator or the main agent.
+
 ## Main agent
 
-Do not edit files while subagents are running.
+Do not edit files while orchestrators are running. Do not load `references/code-style.md`.
 
 ### 1. Pick the files
 
@@ -88,83 +90,194 @@ git ls-files --cached --others --exclude-standard -- '*.vue' '*.js' '*.ts' ':!*.
 
 Deleted files are excluded. Tell the user the scope, the branch when there is one, the base ref when the scope is `branch`, and how many files were selected. When none were selected, stop.
 
-### 2. Launch one subagent per file
+### 2. Launch one orchestrator per file
 
-Launch exactly one subagent per selected file — never several files in one subagent. Run them in parallel batches. Each subagent edits only its own file, so parallel runs do not conflict.
+Launch exactly one orchestrator per selected file — never several files in one orchestrator. Run them in parallel.
 
-**Model:** launch every per-file subagent using a cheap fast model. The main agent keeps its own model for steps 1, 3, and 5.
+**Model:** launch every orchestrator using a cheap fast model. The orchestrator launches each pass agent on a cheap fast model too. The main agent keeps its own model for file selection, leftover follow-ups, and the summary.
 
 Use this prompt:
 
 ```text
-Apply nuxt-unified-ui to this file only:
+You are the apply orchestrator for one file. Do not edit files.
+
+File:
 <absolute target path>
 
 Read and follow, in full:
-<absolute skill path>/references/apply.md (section "Per-file subagent")
+<absolute skill path>/references/apply.md (section "Per-file orchestrator")
 
 Return the report described there.
 ```
 
-### 3. Carry out the follow-ups
+### 3. Carry out leftover follow-ups
 
-When every subagent has reported, collect their follow-ups, remove duplicates, and apply them **one at a time** in the main agent:
+When every orchestrator has reported, collect the follow-ups they could not finish, remove duplicates, and apply them **one at a time**. Do not redo a move or split a pass already finished.
 
-- **`i18n`** — add each key to the locale files of the layer that owns the reporting file, following the i18n rules in `SKILL.md` (that layer's `i18n/locales/`, under its single top-level key, in every locale it declares). When the layer has no locale files yet, create them and add its `i18n: { locales: [{ code, file }] }` declaration for the locales the aarde layer defines. Leave `strategy` and `defaultLocale` unset. Use the reported English text for English; translate for other locales when confident, otherwise use the English text and list those keys in the summary.
-- **`split`** / **`move`** / **`promote`** — apply the file-structure rules from `SKILL.md`: create or move the files, then update every caller and import.
-- **`other`** — apply cross-file changes that follow directly from the skill (for example a missing REST route of a resource). List anything that needs a product decision in the summary instead of guessing.
+- A caller whose import the place-and-split pass could not update: update that import.
+- Anything else the pass reported: apply it when it follows directly from the file-structure rules in `SKILL.md`. List anything that needs a product decision in the summary.
 
-### 4. Second round for what step 3 touched
+### 4. Second round
 
-Launch the same per-file subagent (step 2, using a cheap fast model) for every `.vue`, `.js`, or `.ts` file created or edited in step 3, then apply their `i18n` follow-ups. Do not start a third round: list any other follow-ups from this round in the summary.
+Launch the same orchestrator (step 2, cheap fast model) for every `.vue`, `.js`, or `.ts` file created or edited in step 3 that has not already been through the library pass and the style pass. An import-only caller edit does not start an orchestrator. Do not start a third round: list any follow-ups from this round in the summary.
 
 ### 5. Verify and summarize
 
-Run the project's `lint` and `typecheck` scripts when `package.json` defines them, and fix failures caused by this run. Then report: files processed, files changed, follow-ups applied, follow-ups left for the user, and any subagent that failed.
+Run the project's `lint` and `typecheck` scripts when `package.json` defines them, and fix failures caused by this run. Then report: files processed, files changed, follow-ups applied, follow-ups left for the user, and any orchestrator or pass agent that failed.
 
-## Per-file subagent
+## Per-file orchestrator
 
-You bring one `.vue`, `.js`, or `.ts` file in line with the nuxt-unified-ui skill.
+You coordinate three passes on one file. You do not edit files. You do not load `code-style.md`.
 
-**Boundaries**
+Spawn one subagent per pass, using a cheap fast model. Wait for a pass to finish before you start the next. Passes run in this order:
 
-- Edit only the target file. Never create, move, rename, or delete files, and never edit locale files — report those needs as follow-ups.
-- You may read and search the rest of the codebase to understand callers and context.
-- Keep every feature of the file working. Changes required by the skill's conventions (button variants, `$t` keys, SEO, API swaps) are expected; other behavior changes are not.
-- Do not change the file's public API (exports, props, emits, exposed members) unless the skill requires it; report callers that would need updating as `other` follow-ups.
-- Leave generated, vendored, or third-party code unchanged and report `unchanged`.
+1. Place and split — section "Place-and-split pass"
+2. Radashi and VueUse — section "Library pass"
+3. Code style — section "Style pass"
 
-**Steps**
+Use this prompt, with the section name and the absolute path filled in:
 
-1. Read `SKILL.md` (next to this `references/` folder) in full, then the whole target file.
-2. Decide what the file is (page, component, dialog, form element, server route, plugin, util, config, …) and read the references the `SKILL.md` "Before writing" table lists for it.
-3. **Logical pass** — fix in place:
-   - Replace hand-rolled code with the APIs in `SKILL.md`: raw `$fetch` / `useFetch` → `ufetch` / `useUFetch`; hand-built modals → dialog launchers; direct `radashi` imports → `radXxx`; and so on.
-   - Apply the decisions in `SKILL.md` and the rules of the references you read: page `definePageMeta.name` and SEO, dialog logic in `onClick`, named routes, `to` for navigation-only actions, a dumb `un-table`, reactive fetch gates, component conventions.
-   - Only when the project has integrated i18n (`SKILL.md` i18n rules): move user-facing literals to `$t('...')` keys under the owning layer's top-level key. Reuse existing keys, including this layer's `common.*` labels. Record each new key as an `i18n` follow-up with its full path. In a project without i18n, leave literal strings as they are.
-   - Make `atoms` / `libs` imports relative.
-4. **Structural pass** — decide, do not execute:
-   - Two or more independent responsibilities → `split` follow-up with each responsibility and its suggested path.
-   - Wrong directory for its visibility (`SKILL.md` file structure) → `move` or `promote` follow-up. Search for callers in other layers before proposing it.
-   - Anything else that needs another file changed → `other` follow-up.
-5. **Style pass** — read [code-style.md](code-style.md) in full, then:
-   - Add or correct the `/* responsibility */` header. When the file needs a split, describe its current main job and keep the `split` follow-up.
-   - Apply every relevant rule in `code-style.md` to the whole file.
-   - Run every item of its "Checklist before finishing an edit" and correct what remains.
-6. Re-read the whole result and confirm the file still does everything it did.
+```text
+Do this one pass on this file only:
+<absolute path>
+
+Read and follow, in full, and do nothing else:
+<absolute skill path>/references/apply.md (section "<section name>")
+
+Return the report described there.
+```
+
+If a spawn fails because nested subagents are disabled, stop and report that failure. Do not do the pass yourself.
+
+After place and split, run the library pass and then the style pass on every file that now holds this code. That is the original file, or the paths the place-and-split report lists. An `unchanged` place report means the original file. Sibling files from one split may run in parallel inside a single pass. Never run two passes on the same file at once.
+
+If the place-and-split pass fails before it moves anything, run the later passes on the original file. If a later pass fails, report it and continue with the remaining passes on the files that exist.
 
 **Report**
 
 ```text
-applied: <absolute path>
+file: <absolute path you were given>
+results:
+- place: <unchanged, or what moved or split, and the paths that now hold the code>
+- libraries: <per path: unchanged, or one line per change>
+- style: <per path: unchanged, or one line per change>
+follow-ups:
+- <what a pass could not finish, and why>
+```
+
+Omit an empty `follow-ups` section. If every pass left the file unchanged and there are no follow-ups, return `unchanged: <absolute path>`.
+
+## Place-and-split pass
+
+You put one file in the right directory, and you split it when it has more than one job.
+
+**Read**
+
+- The "File structure" section of `SKILL.md` (next to this `references/` folder).
+- The whole target file.
+- Callers, by searching the repo. The layer that owns a file is the nearest directory above it with a `nuxt.config`. A caller in another layer means the file is public.
+
+**Do not read** the library pass, the style pass, or `code-style.md`.
+
+**Boundaries**
+
+- Do this pass's work only. Do not restyle. Do not replace code with radashi or VueUse. Do not change behavior except the paths, imports, and statements that have to move with a responsibility.
+- Do not edit locale files.
+- Leave generated, vendored, or third-party code unchanged and report `unchanged`.
+
+**Steps**
+
+1. Decide place and split from "File structure" in `SKILL.md`. Search callers before you move a file inward or promote it.
+2. Move, promote, or split when those rules require it. Each file you create or leave behind must still parse and must still do its job.
+3. Fix imports the move or split broke, inside the moved file and in its callers. Re-read a caller immediately before editing it.
+   - A move or promote changes only the existing import that names this file. A promote removes that import when the public module is auto-imported.
+   - A split may add an import of a new file, or retarget an import onto it.
+   - If the caller edit would touch anything besides that import, do not edit the caller. Report it as a follow-up.
+4. Do not reformat the surrounding code.
+
+**Report**
+
+```text
+place: <absolute path>
+paths:
+- <absolute path of each file that now holds this code>
+changes:
+- <one line per move, promote, or split>
+follow-ups:
+- <caller you could not update, or a promote you could not decide>
+```
+
+If nothing needed moving or splitting, return `unchanged: <absolute path>`.
+
+## Library pass
+
+You replace hand-rolled code in one file with radashi and VueUse where that removes duplication.
+
+**Read**
+
+- The "Naming rule" section of [radashi.md](radashi.md). Look a function up in that file's table before you write a `radXxx` name.
+- The whole target file.
+
+**Do not read** the place-and-split pass, the style pass, or `code-style.md`.
+
+**Boundaries**
+
+- Edit only the target file. Do not create, move, rename, or delete files.
+- Keep behavior. Skip a swap that would change timing, null handling, or the public API (exports, props, emits, exposed members), and report it as a follow-up.
+- Do not restyle. Leave whitespace, wrapping, and ordering as they are, apart from the lines the swap itself changes.
+- Leave generated, vendored, or third-party code unchanged.
+
+**Steps**
+
+1. Replace a direct import from `radashi` with the `radXxx` auto-import. The name is `rad` plus the PascalCase of the radashi export (`get` → `radGet`).
+2. Where manual code duplicates a radashi function or a VueUse composable, and the library does the same job, call the library instead.
+3. VueUse composables come from `@vueuse/nuxt`, which this layer already registers, so use the auto-import. Do not add an import from `@vueuse/core` for a composable Nuxt already provides.
+4. Skip the swap when the manual code is clearer, no such helper exists, or the file is server code a VueUse composable does not cover. Radashi `radXxx` auto-imports exist on the server. VueUse mostly does not.
+
+**Report**
+
+```text
+libraries: <absolute path>
+changes:
+- <one line per swap>
+follow-ups:
+- <a swap you skipped because it would change behavior or the public API>
+```
+
+If nothing needed changing, return `unchanged: <absolute path>`.
+
+## Style pass
+
+You apply the code style to one file. You do not change what the file does.
+
+**Read**
+
+- [code-style.md](code-style.md) in full.
+- The whole target file.
+
+**Do not read** the place-and-split pass or the library pass.
+
+**Boundaries**
+
+- Edit only the target file. Do not create, move, rename, or delete files, and do not edit locale files.
+- No behavior change. Do not swap in libraries. Do not change the public API.
+- Leave generated, vendored, or third-party code unchanged.
+
+**Steps**
+
+1. Add or correct the `/* responsibility */` header, as `code-style.md` describes. Describe the job the file has now. If the file still has two independent jobs, write the header for its current main job, report that it still needs a split, and do not split it.
+2. Apply every relevant rule in `code-style.md` to the whole file.
+3. Run every item of its "Checklist before finishing an edit" and correct what remains.
+4. Re-read the whole result and confirm the file still does everything it did.
+
+**Report**
+
+```text
+style: <absolute path>
 changes:
 - <one line per change>
 follow-ups:
-- i18n: <key> = "<English text>"
-- split: <responsibility> -> <suggested path>
-- move: <current path> -> <suggested path> (<reason>)
-- promote: <current path> -> <suggested path> (<layer that needs it>)
-- other: <file> — <change needed and why>
+- split still needed: <the two jobs>
 ```
 
-Omit empty sections. If nothing needed changing, return `unchanged: <absolute path>`.
+If nothing needed changing, return `unchanged: <absolute path>`.

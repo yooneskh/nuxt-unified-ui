@@ -18,13 +18,13 @@ description: >-
 
 # nuxt-unified-ui
 
-The main agent decides what code exists, where it lives, and which APIs it calls. When the work is done, the apply pipeline runs one subagent per file to check the skill's rules and apply the code style; it is the only place formatting rules apply. The main agent does not load `references/code-style.md`.
+The main agent decides what code exists, where it lives, and which APIs it calls. When the work is done, the apply pipeline runs one orchestrator per file. The orchestrator does not edit. It gives the file three passes, each to its own subagent: place and split, then radashi and VueUse, then code style. Code style is the only place formatting rules apply. The main agent does not load `references/code-style.md`.
 
 ## Finishing work: `/nuxt-unified-ui apply`
 
 Whenever you finish implementing work that added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-unified-ui apply` before your final reply: follow [references/apply.md](references/apply.md). Use `apply branch` when the user asks for the files commits on the current branch changed, and `apply all` when they ask for every file on the branch. Invoked without an argument, the skill only loads its guidance for the task at hand.
 
-`/nuxt-unified-ui apply` processes uncommitted `.vue`, `.js`, and `.ts` files (staged, unstaged, or untracked). `/nuxt-unified-ui apply branch` processes eligible files directly changed by commits that landed on the current branch since its base. `/nuxt-unified-ui apply all` processes every eligible file on the current branch. One subagent per file, launched using a cheap fast model, applies the logical, structural, and code-style rules, then the main agent carries out the cross-file follow-ups.
+`/nuxt-unified-ui apply` processes uncommitted `.vue`, `.js`, and `.ts` files (staged, unstaged, or untracked). `/nuxt-unified-ui apply branch` processes eligible files directly changed by commits that landed on the current branch since its base. `/nuxt-unified-ui apply all` processes every eligible file on the current branch. One orchestrator per file, launched using a cheap fast model, spawns the three pass agents. The main agent carries out the follow-ups those passes could not finish.
 
 ## APIs
 
@@ -73,20 +73,22 @@ Whenever you finish implementing work that added or edited a `.vue`, `.js`, or `
 
 ## File structure
 
-The main agent decides where a file lives and which one job it has, and does it while implementing. Apply subagents only report misplaced files; they never move files or update callers.
+The main agent decides where a file lives and which one job it has, and does it while implementing. The apply place-and-split pass moves or splits a file that breaks these rules.
 
-Each `.vue`, `.js`, and `.ts` file has one responsibility. When a file would have two independent jobs, create two files.
+Each `.vue`, `.js`, and `.ts` file has one responsibility. When a file has two independent jobs, split it into two files. A component and the script that exists to render it are one job. Do not split a template from its script.
 
-Nuxt auto-imports `app/components/` and `app/utils/` across every layer. `app/composables/` is public in the same way. A file that must stay inside one layer does not go in those directories.
+Nuxt auto-imports `app/components/`, `app/composables/`, and `app/utils/` across every layer. A file used only inside its own layer does not go there: a Vue file goes to `app/atoms/`, and a function, composable, or helper goes to `app/libs/`.
 
 | Role | Directory | Visibility |
 |---|---|---|
 | Private Vue component | `app/atoms/` | This layer only |
 | Private function, composable, or helper | `app/libs/` | This layer only |
 | Public Vue component | `app/components/` | Whole app, auto-imported |
-| Public util | `app/utils/` | Whole app, auto-imported |
+| Public util or composable | `app/utils/` | Whole app, auto-imported |
 
-Generate private first. New components start in `app/atoms/`. New functions and similar helpers start in `app/libs/`. Promote a file to `app/components/` or `app/utils/` only when another layer needs it. After a promote, update every caller and remove the relative import; public modules are auto-imported.
+Generate private first. New components start in `app/atoms/`. New functions, composables, and similar helpers start in `app/libs/`. Promote a file to `app/components/` or `app/utils/` only when another layer needs it. Do not put a file in `app/composables/`. After a move, a promote, or a split, update every caller in the same change. A promote also removes the relative import; public modules are auto-imported.
+
+Pages, layouts, middleware, plugins, server routes, modules, `nuxt.config`, `app.vue`, and `error.vue` stay where Nuxt requires them.
 
 Import `atoms` and `libs` with relative paths only (`../atoms/foo.vue`, `../libs/bar`). Never use `~/`, `@/`, `#layers/`, or another alias. Never import another layer's `atoms` or `libs`; promote that file first, then use the public auto-import.
 
@@ -110,14 +112,13 @@ Read the reference that matches the task before creating or editing files. The d
 
 ## Decisions the main agent owns
 
-Make these choices while implementing. The apply pipeline checks them again afterward.
+Make these choices while implementing. The apply pipeline re-checks file placement, one responsibility, radashi and VueUse use, and code style. It does not re-check the other decisions in this list.
 
 - Prefer the APIs above over hand-rolled equivalents (raw `$fetch`, hand-built `u-modal` flows, direct `radashi` imports).
 - A new resource includes its server plugin, the full REST route set, and a dashboard nav entry or a custom `<resource-manager>` page.
 - Use `ufetch` for a one-off request. Use `useUFetch` for reactive page data.
 - Every page has an explicit `definePageMeta.name` and sets SEO with `useHead` (title) and `useSeoMeta` (description).
 - Buttons, badges, and icons follow the component conventions in [references/toast-and-ui.md](references/toast-and-ui.md#component-conventions). Read them before writing any button.
-- When splitting or promoting a file, update its callers in the same task.
 - Installing the layer includes the required host `assets/css/main.css` and the `pathRelativeToBase` CSS entry in `nuxt.config`.
 
 ## i18n
