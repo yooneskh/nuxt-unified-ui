@@ -1,26 +1,8 @@
 # Nuxt unified code style
 
-You apply this document in the style pass ([apply.md](apply.md#style-pass)), to the one `.vue`, `.js`, or `.ts` file you were given. It covers the **look and shape** of code — whitespace, wrapping, braces, template structure, sectioning, ordering, and naming that affects scanning. It never changes behavior.
+Apply this in the style pass ([apply.md](apply.md#style-pass)), to the one `.vue`, `.js`, or `.ts` file you were given. It covers look and shape: whitespace, wrapping, braces, template structure, sectioning, ordering, and naming that affects scanning. It never changes behavior.
 
-When editing an existing file, the rules here always win. For choices not covered (rare quote/semicolon drift), match the nearest sibling file.
-
----
-
-## Principles
-
-Write code so a reader can **scan vertically** and see structure before details.
-
-1. **Sections contain declaration-kind groups** — see [Sections and declaration groups](#sections-and-declaration-groups).
-2. **Function body spacing follows the work** — see [Function bodies](#function-bodies).
-3. **One idea per line in structured data** — see [Literals and calls](#literals-and-calls).
-4. **Templates stay single-line unless a multiline attribute — or a childless multi-attribute tag — forces a split** — see [Attribute wrapping](#attribute-wrapping-hard-rule).
-5. **Blank lines in templates count children, not size** — see [Child spacing](#child-spacing-hard-rule).
-6. **Section comments are the map**; imports sit in the section that needs them.
-7. **Names match role** — see [Naming](#naming).
-8. **Vue scripts stay runtime-shaped**: `<script setup>` without TypeScript, matching the Nuxt UI / unified-ui codebase.
-9. **One file, one responsibility** — see [One responsibility](#one-responsibility).
-
----
+When editing an existing file, these rules win. For a choice this document does not cover, match the nearest sibling file.
 
 ## Absolute baseline
 
@@ -30,20 +12,18 @@ Write code so a reader can **scan vertically** and see structure before details.
 | Quotes | single quotes `'` |
 | Semicolons | use them |
 | Trailing commas | always in multi-line literals |
-| Vue script tag | `<script setup>` only — **never** `lang="ts"` |
-| Vue script types | **no** TypeScript annotations; use runtime prop types (`String`, `Object`, `Array`, `Boolean`, `Number`, `Function`) |
-| Server / util `.ts` | may use TypeScript where the file already does; all other rules still apply |
+| Vue script tag | `<script setup>` only — never `lang="ts"` |
+| Vue script types | no TypeScript annotations; runtime prop types (`String`, `Object`, `Array`, `Boolean`, `Number`, `Function`) |
+| Server / util `.ts` | may use TypeScript where the file already does; every other rule still applies |
 | Component tags | lowercase kebab-case (`u-button`, `un-card`) — never PascalCase |
 | Braces | always for `if` / `else` / `for` / `while` — no brace-less single-liners |
-| `else` / `catch` | on their **own line** after `}` |
+| `else` / `catch` | on their own line after `}` — never `} else {` |
 | File start | [One responsibility](#one-responsibility) header on every `.vue`, `.js`, and `.ts` file |
-| JS/TS line length | **Never wrap a statement only because it is long.** Break lines only where a rule below requires it. Templates follow [Attribute wrapping](#attribute-wrapping-hard-rule) |
-
----
+| JS/TS line length | Never wrap a statement only because it is long. Break only where a rule below requires it. Templates follow [Attribute wrapping](#attribute-wrapping-hard-rule) |
 
 ## One responsibility
 
-Every `.vue`, `.js`, and `.ts` file does **one** job. Write that job at the top, before imports and before every other section.
+Every `.vue`, `.js`, and `.ts` file does one job. Write that job at the top, before imports and before every other section.
 
 The job is the one reason the file exists. If saying it takes two independent jobs, the place-and-split pass should already have split the file ([apply.md](apply.md#place-and-split-pass)). Write the header for the file's current main job, report that it still needs a split, and do not split or move the file.
 
@@ -52,15 +32,17 @@ Shape, in this order:
 1. One blank line
 2. The line `/* responsibility */`
 3. One blank line
-4. The job, as short `//` comments. Use several short lines. Do not write one long line, and do not put the job in a second `/* */` block
-5. **Two** blank lines
+4. The job, as short `//` comments. Several short lines. Not one long line, and not a second `/* */` block
+5. Two blank lines
 6. The rest of the file
 
-Those two blank lines are the whole gap between the header and what follows — whether that is a section comment, an import, or the first statement. Never one, never three.
+Those two blank lines are the whole gap before the next section comment, import, or statement. Never one, never three.
 
 `.js` / `.ts`: this block is the start of the file. Nothing comes before the leading blank line. Imports, when the file has them, start after step 5.
 
-`.vue`: line 1 is `<script setup>`. The same block is the first thing inside the script. Do not put `/* */` or `//` above `<script setup>`.
+`.vue`: line 1 is `<script setup>`. The same block is the first thing inside the script. No `/* */` or `//` above `<script setup>`.
+
+The `//` lines name the job. They do not narrate steps, list options, or repeat the file name.
 
 ```ts
 
@@ -85,46 +67,28 @@ import { join } from 'node:path';
 /* login */
 ```
 
-```ts
-// ❌ imports above the header, or no header
-import { join } from 'node:path';
-```
+## Comments
 
-```vue
-<!-- ❌ comments above the script tag -->
+Do not comment code. Remove every comment that is not one of these:
 
-/* responsibility */
+1. The `/* responsibility */` header and the `//` lines under it that state the file's job. See [One responsibility](#one-responsibility).
+2. A `/* section name */` comment that separates logical parts of a `.vue`, `.js`, or `.ts` file. It names a domain, not a declaration kind. See [Sections and declaration groups](#sections-and-declaration-groups).
+3. A `//` comment that records a business decision. Keep it only when that decision is not stated anywhere else in the codebase, the docs, or the backend. Search before keeping it. If the comment restates the code, the docs, or the backend, remove it.
 
-<script setup>
-```
-
-```ts
-// ❌ only one blank line under the // lines
-
-/* responsibility */
-
-// Issues a session token
-// after checking the login payload.
-
-import { join } from 'node:path';
-```
-
-The `//` lines name the job. They do not narrate steps, list options, or repeat the file name.
-
----
+Remove HTML comments, JSDoc, TODOs, commented-out code, and any other comment. Then apply the spacing rules to what remains.
 
 ## Script layout
 
 ### Sections and declaration groups
 
-- Start every logical `<script setup>` domain with `/* section name */`, followed by one blank line. The comment names a logical domain (`/* login */`, `/* resource */`), not a declaration kind. Do not add a section only because the declaration kind changes.
-- Within a section, group declarations by kind, in this order: imports, props / emits / models, refs, computeds, watchers / lifecycle, functions, outlets.
-- **Two blank lines** between different declaration groups.
-- Consecutive **single-line** refs stay together with **no blank lines**.
-- **One blank line** between consecutive declarations in every other same-kind group (computeds, watchers, functions, consecutive calls such as `useHead` / `useSeoMeta`).
-- A multiline assignment is isolated with one blank line before and after — see [Multiline assignment isolation](#multiline-assignment-isolation).
-- Sections are separated by two blank lines.
-- Blank line before `</script>`; **two** blank lines between `</script>` and `<template>`.
+- Start every logical part of a `.vue`, `.js`, or `.ts` file with `/* section name */`, then one blank line. In a `<script setup>` this is each domain. The comment names a domain (`/* login */`, `/* resource */`), not a declaration kind. Do not add a section only because the declaration kind changes.
+- Within a section, group by kind, in order: imports, props / emits / models, refs, computeds, watchers / lifecycle, functions, outlets.
+- Two blank lines between different declaration groups.
+- Consecutive single-line refs stay together with no blank lines.
+- One blank line between consecutive declarations in every other same-kind group (computeds, watchers, functions, consecutive calls such as `useHead` / `useSeoMeta`).
+- A multiline statement has one blank line before and after — see [Statement spacing](#statement-spacing).
+- Two blank lines between sections.
+- One blank line before `</script>`. Two blank lines between `</script>` and `<template>`.
 
 | Common section | Contents |
 |----------------|----------|
@@ -170,7 +134,7 @@ function refreshAll() {
 
 ### Import co-location
 
-Place non-auto-imported imports **inside the section that uses them**, not hoisted in a block at the top of the file:
+Place non-auto-imported imports inside the section that uses them, not in a block at the top of the file:
 
 ```ts
 /* charts */
@@ -180,16 +144,7 @@ import { VisXYContainer, VisLine } from '@unovis/vue';
 
 ### `atoms` / `libs` imports
 
-Import `atoms` and `libs` with relative paths only (`../atoms/foo.vue`, `../libs/bar`). Rewrite `~/`, `@/`, `#layers/`, or other aliases in this file to the relative path. Never move the file.
-
-```ts
-// ✅
-import ResourceExplorerCell from '../atoms/resource-explorer-cell.vue';
-import { formatColumn } from '../libs/format-column';
-
-// ❌
-import ResourceExplorerCell from '~/atoms/resource-explorer-cell.vue';
-```
+Import `atoms` and `libs` with relative paths only (`../atoms/foo.vue`, `../libs/bar`). Rewrite `~/`, `@/`, `#layers/`, or any other alias in this file to the relative path. Never move the file.
 
 ### Props / emits / models
 
@@ -209,22 +164,18 @@ const captchaId = defineModel('id', {
 });
 ```
 
-- Always assign `defineProps` / `defineEmits` / `defineModel` to a variable
-- `defineProps`: shorthand `name: Type` only — never `{ type: Type, required: true }`
-- `defineEmits`: array of strings, **always multi-line** (even one event); empty stays `defineEmits([])`
-- `defineModel` uses `{ type, default? }` (required by Vue) — that object still follows the multi-line literal rule
+- Always assign `defineProps` / `defineEmits` / `defineModel` to a variable.
+- `defineProps`: shorthand `name: Type` only — never `{ type: Type, required: true }`.
+- `defineEmits`: array of strings, always multi-line (even one event). Empty stays `defineEmits([])`.
+- `defineModel` uses `{ type, default? }` (Vue requires the object). That object still follows the multi-line literal rule.
 
 ### Script ordering
 
-The `/* responsibility */` header comes first in both lists. It is not a domain section.
+The `/* responsibility */` header comes first. It is not a domain section.
 
-**Components / dialogs**
+**Components / dialogs:** `/* interface */`, then domain sections in reading order, then `/* outlets */` (`defineExpose`) if needed.
 
-1. `/* interface */`
-2. Domain sections in reading order
-3. `/* outlets */` (`defineExpose`) if needed
-
-**Pages**
+**Pages:**
 
 1. `/* page */` — `definePageMeta` only
 2. `/* params */` — only when the page reads `route.params` or `route.query`
@@ -234,7 +185,7 @@ The `/* responsibility */` header comes first in both lists. It is not a domain 
 6. Watchers / lifecycle
 7. Handlers (`handleXxx`)
 
-**`/* params */` block**: `const route = useRoute();`, two blank lines, then one computed per value — `route.params` first, then `route.query` — with one blank line between computeds. Never leave an empty `/* params */` block; if another section needs `route` for something else (e.g. `route.fullPath`), call `useRoute()` in that section.
+**`/* params */`:** `const route = useRoute();`, two blank lines, then one computed per value — `route.params` first, then `route.query` — with one blank line between computeds. Never leave an empty `/* params */` block. If another section needs `route` for something else (for example `route.fullPath`), call `useRoute()` in that section.
 
 ```ts
 /* params */
@@ -251,13 +202,13 @@ const journeySlug = computed(() => {
 });
 ```
 
-**`/* seo */` block**: sits directly under the last block it reads — under `/* params */` or a data section when it uses them, otherwise directly under `/* page */`. Never put `useHead` / `useSeoMeta` / `useJsonld` inside `/* page */`. Order: `useHead`, `useSeoMeta`, `useJsonld`, one blank line between calls. Keep `useJsonld(() => !data ? null : {` on **one line**; the object follows the literal rules.
+**`/* seo */`:** directly under the last block it reads — under `/* params */` or a data section when it uses them, otherwise directly under `/* page */`. Never put `useHead` / `useSeoMeta` / `useJsonld` inside `/* page */`. Order: `useHead`, `useSeoMeta`, `useJsonld`, one blank line between calls. Keep `useJsonld(() => !data ? null : {` on one line; the object follows the literal rules.
 
 ### Watchers
 
-- Prefer `watchImmediate` over `watch(..., { immediate: true })`
-- Pass function **references** directly — no `() => { fn(); }` wrappers
-- Two plain references stay on one line (`watchImmediate(resourcePath, refreshResources);`). When the source is a getter function, put one argument per line:
+- Prefer `watchImmediate` over `watch(..., { immediate: true })`.
+- Pass function references. No `() => { fn(); }` wrappers.
+- Two plain references stay on one line: `watchImmediate(resourcePath, refreshResources);`. When the source is a getter, one argument per line:
 
 ```ts
 watchImmediate(
@@ -266,15 +217,79 @@ watchImmediate(
 );
 ```
 
-Guards go **inside** the handler function so the reference stays clean.
+Guards go inside the handler so the reference stays clean.
 
----
+## Statement spacing
+
+In `.js` and `.ts`, including a Vue `<script>`. Templates do not use this section.
+
+A statement is multiline when a wrapping rule splits it across lines (an object or array literal, `useUFetch`, `fn(arg, {`, and the same kind of wrap), or when it is a code block (`if`, `for`, `while`, `try`, a function body, or an arrow body). An object or array literal is not a code block. A connected chain (`if` / `else if` / `else`, or `try` / `catch` / `finally`) is one statement. Its parts stay adjacent. No blank line between them.
+
+A multiline statement has one blank line before it and one after it. Do not pad it when it is the only statement in its parent block. It stays flush with that block's braces.
+
+Inside a `{ ... }` that holds statements:
+
+- One statement: no blank line after `{` or before `}`.
+- Several statements, all single-line: no blank line after `{` or before `}`.
+- Several statements, and at least one is multiline: one blank line after `{` and one before `}`.
+
+That edge blank is the before-blank of a multiline first statement and the after-blank of a multiline last statement. Do not add a second. A `finally` that only flips one flag is one statement and stays flush.
+
+```ts
+const ready = ref(true);
+
+if (ready.value) {
+  return;
+}
+
+const done = ref(false);
+```
+
+```ts
+if (ready.value) {
+
+  await save();
+
+  toastSuccess({
+    title: 'Saved',
+  });
+
+}
+```
+
+No blank lines inside a literal. The padding sits around the statement.
+
+```ts
+const itemsPerPage = ref(25);
+const currentPage = ref(1);
+
+const columns = [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+  },
+];
+
+const sortDirection = ref('desc');
+```
+
+| Situation | What to keep |
+|-----------|----------------|
+| Two multiline statements in a row | One blank line between them |
+| Next to a single-line statement | One blank before and after the multiline statement |
+| The only statement in a block | Flush, even when that statement is multiline |
+| Several statements, all single-line | Flush with the braces |
+| Several statements, one of them multiline | One blank after `{` and before `}` |
+| Declaration-group boundary, `/* params */` gap, or major-step boundary (already two blanks) | Keep the two |
+| First statement after the responsibility header | Keep the header's two |
+| Blank already required after `/* section */` | That blank is the before-blank |
+| Inside an object or array literal | No blank lines |
 
 ## Function bodies
 
-### Non-trivial workflow functions
+### Major steps
 
-Async handlers, multi-step loaders, and non-trivial callbacks:
+In an async handler, a multi-step loader, or a non-trivial callback, put two blank lines between the guard or setup and the main work, and between major steps. Keep those two where [Statement spacing](#statement-spacing) only asks for one. Guards are full blocks. The blank after `{` and before `}` comes from statement spacing, not from this section.
 
 ```ts
 async function handleLogin() {
@@ -302,14 +317,9 @@ async function handleLogin() {
 }
 ```
 
-- Blank line after opening `{`
-- Guards as full blocks
-- Double blank between guard/setup and main work, and between major steps
-- Blank line before closing `}`
+### One statement, or only single-line statements
 
-### Tiny functions stay tight
-
-No decorative blanks when the body is a single delegation or a one-line reset. Same for a `finally` that only flips one flag.
+These stay flush with their braces. A single delegation, a one-line reset, and several single-line statements are the same case.
 
 ```ts
 async function refreshResources() {
@@ -322,9 +332,9 @@ async function handleSubmitSelection(items) {
 }
 ```
 
-### Single-block functions stay flush
+### A chain or a loop that is the whole body
 
-When a function body is **only** one control block (`for`, `while`, `if`, …) or **only** one connected chain (`if` / `else if` / `else`, or `try` / `catch` / `finally`), put no blank lines before or after that block. The parts of a connected chain are always adjacent, so the whole chain counts as one block.
+When the body is only one control block (`for`, `while`, `if`, …) or only one connected chain, that is one statement, so the body stays flush. Spacing inside the inner block still follows [Statement spacing](#statement-spacing). When the parent has another statement and one of them is multiline, the parent gets the edge blanks, and a major step still keeps two.
 
 ```ts
 function fireBumps(bumps) {
@@ -351,22 +361,9 @@ async function saveOrToast() {
 }
 ```
 
-```ts
-// ❌ breathing-room blanks around a lone block
-function fireBumps(bumps) {
-
-  for (const bump of bumps) {
-    ...
-  }
-
-}
-```
-
-If the function has **any other statement** besides that one block (a guard plus a loop, setup then a `for`, two separate `if`s, …), use workflow spacing instead. Spacing *inside* the block still follows the other rules.
-
 ### Return-only decision functions
 
-When a function's whole job is to choose and return a value from multiple criteria, write the decision as one compact `if` / `else if` / `else` chain, flush with the function braces:
+When the whole job is to choose and return a value from multiple criteria, write one compact `if` / `else if` / `else` chain, flush with the function braces. Use this only when value selection is essentially the whole body. Broader work may use guard clauses and early returns.
 
 ```ts
 function getSortLabel(column) {
@@ -382,9 +379,9 @@ function getSortLabel(column) {
 }
 ```
 
-Use this only when value selection is essentially the whole body. Functions that do broader work may use guard clauses and early returns.
-
 ### `else` / `catch`
+
+`else` and `catch` each start on their own line after `}`.
 
 ```ts
 if (condition) {
@@ -395,22 +392,11 @@ else {
 }
 ```
 
-```ts
-// ❌
-if (condition) {
-  ...
-} else {
-  ...
-}
-```
-
----
-
 ## Literals and calls
 
 ### Script literals — multi-line unless empty
 
-In script and `.ts` files, object and array literals use one property / element per line and a trailing comma — **including single-property / single-element literals** in call args:
+In script and `.ts` files, object and array literals use one property or element per line and a trailing comma, including a single-property or single-element literal in call args. No blank lines inside a literal.
 
 ```ts
 toastSuccess({
@@ -426,131 +412,48 @@ await ufetch('/api/authentication/login', {
 });
 ```
 
-```ts
-// ❌
-toastSuccess({ title: 'Saved' });
-```
-
-No blank lines **inside** a literal.
-
 ### Empty literals
 
-An object or array with **no** entries is always `{}` or `[]` on one line — no newline inside, no trailing comma, no inner spaces. A single entry is not empty and still splits. `defineEmits([])` and similar stay compact.
+An object or array with no entries is `{}` or `[]` on one line: no newline inside, no trailing comma, no inner spaces. A single entry is not empty and still splits. `defineEmits([])` and similar stay compact.
 
 ```ts
 const form = {};
 const selectedIds = [];
-
-// ❌
-const form = {
-};
 ```
 
 ### Parameter type literals
 
-The multi-line rule covers object **values**, not types. An object type written inline as the type of a function parameter stays on **one line**, however many members it has:
+The multi-line rule covers object values, not types. An object type written inline as a function parameter type stays on one line, however many members it has:
 
 ```ts
 export async function launchDialog(options: { component: any, props: any }) {
   ...
 }
-
-// ❌
-export async function launchDialog(options: {
-  component: any,
-  props: any,
-}) {
-  ...
-}
 ```
-
-### Multiline assignment isolation
-
-A **multiline assignment** is any `const` / `let` / `var` / `export const` declaration, or any `=` reassignment, whose statement spans more than one line (usually a multi-line object, array, call, or destructure: `useUFetch`, `computed(() => { … })`, `defineProps({ … })`, …).
-
-Isolate it with **exactly one** blank line before and **exactly one** after. Calls and returns that span lines (`await navigateTo({ … })`, `toastSuccess({ … })`, `return { … }`) are not assignments and get no padding from this rule.
-
-```ts
-const itemsPerPage = ref(25);
-const currentPage = ref(1);
-
-const columns = [
-  {
-    accessorKey: 'name',
-    header: 'Name',
-  },
-];
-
-const sortDirection = ref('desc');
-```
-
-```ts
-// ❌ flush against neighbors
-const currentPage = ref(1);
-const columns = [
-  {
-    accessorKey: 'name',
-    header: 'Name',
-  },
-];
-const sortDirection = ref('desc');
-
-// ❌ two blank lines just because the assignment is multiline
-const columns = [
-  {
-    accessorKey: 'name',
-    header: 'Name',
-  },
-];
-
-
-const sortDirection = ref('desc');
-```
-
-How this combines with other spacing:
-
-| Situation | What to keep |
-|-----------|----------------|
-| Two multiline assignments in a row | **One** blank line between them |
-| Next to a single-line statement (including consecutive refs) | Isolation **wins**: one blank before and after |
-| First statement after a function `{` that already wants a blank, or last before a `}` that wants one | **Share** that blank — do not add a second |
-| Declaration-group or major-step boundary (already **two** blanks) | Keep the **two** |
-| First statement right after the responsibility header | Keep the header's **two** |
-| Blank already required after `/* section */` | That blank **is** the before-blank |
-| Single-line assignment, including `{}` / `[]` | Not multiline — no isolation |
-| Tiny / single-block function whose only statement is the assignment | Stay **flush** with the braces |
 
 ### Call wrapping
 
 Keep `fn(arg, {` on one line and put the options on the following lines. Do not move the first argument onto its own line above `{`.
 
 ```ts
-// ✅
 const response = await ufetch(`/api/${resourcePath.value}`, {
   method: 'post',
   body: form,
 });
-
-// ❌
-const response = await ufetch(
-  `/api/${resourcePath.value}`,
-  {
-    method: 'post',
-    body: form,
-  },
-);
 ```
 
 ### Fetch calls
 
-**`ufetch` options order**: behavior flags (`silent`, `responseType`) → `method` → `body` → `query` / others. For reads without `method` / `body`, behavior flags come before `query`.
+`ufetch` options order: behavior flags (`silent`, `responseType`) → `method` → `body` → `query` / others. For a read without `method` / `body`, behavior flags come before `query`.
 
-**`useUFetch` shape** — always:
+`useUFetch` is always this shape:
 
 1. `const { ... } = useUFetch(` on the first line
 2. URL argument (string or `computed(() => ...)`) on the next line
 3. Optional options object as a multi-line second argument
 4. Closing `);` on its own line
+
+Never a one-liner. Consecutive `useUFetch` calls in one section have one blank line between them. Query objects are multi-line. Quoted keys are fine when they match API conventions (`'filter'`, `'sort'`).
 
 ```ts
 const { data: mediaData, pending: isMediaPending, refresh: refreshMedia } = useUFetch(
@@ -568,15 +471,6 @@ const { data: patientData, pending: isPatientPending, refresh: refreshPatient } 
 );
 ```
 
-```ts
-// ❌ one-liner
-const { data: patientData } = useUFetch(`/api/patients/${patientUid.value}`);
-```
-
-Consecutive `useUFetch` calls in one section have **one** blank line between them. Query objects are multi-line; quoted keys are fine when they match API conventions (`'filter'`, `'sort'`).
-
----
-
 ## Naming
 
 Rename only identifiers declared in this file, and update every use in the file.
@@ -585,11 +479,11 @@ Rename only identifiers declared in this file, and update every use in the file.
 |---------|------------|
 | Async / UI action handlers | `handleXxx` (`handleLogin`, `handleResourceDelete`) |
 | Short sync helpers | no `handle` prefix (`refresh`, `formatDate`) |
-| Short `.map` / `.filter` / `.find` (≤ ~3 lines) | parameter `it`, no parens: `it =>` |
-| `for...of` / `v-for` | descriptive names — not `u`, `fo`, `doc` abbreviations |
-| `ufetch` result | `response`, or a more specific `xxxResponse` (`loginResponse`) — not `result` |
+| Short `.map` / `.filter` / `.find` (about 3 lines or fewer) | parameter `it`, no parens: `it =>` |
+| `for...of` / `v-for` | descriptive names — not `u`, `fo`, `doc` |
+| `ufetch` result | `response`, or `xxxResponse` (`loginResponse`) — not `result` |
 | `useUFetch` destructure | `data: xxxData`, `pending: isXxxPending`, `refresh: refreshXxx` |
-| `computed` returning array/object | block body + explicit `return` — not concise `() => [...]` |
+| `computed` returning an array or object | block body and explicit `return` — not `() => [...]` |
 
 ```ts
 const actions = computed(() => {
@@ -606,13 +500,11 @@ const actions = computed(() => {
 items.value.find(it => it.id === selectedId.value);
 ```
 
-Pass handler **references** into action objects and watchers (`onClick: handleResourceCreate`) instead of `() => handleResourceCreate()` wrappers — unless the wrapper adapts arguments.
-
----
+Pass handler references into action objects and watchers (`onClick: handleResourceCreate`). Do not wrap them in `() => handleResourceCreate()` unless the wrapper adapts arguments.
 
 ## Object property order
 
-Omit unused properties; keep the rest in this order:
+Omit unused properties. Keep the rest in this order:
 
 | Object | Order |
 |--------|-------|
@@ -621,13 +513,11 @@ Omit unused properties; keep the rest in this order:
 | Tab / select / menu item objects | `value` → `icon` → `label` → others |
 | `ufetch` options | see [Fetch calls](#fetch-calls) |
 
----
-
 ## Template rules
 
 ### Structural directives on `<template>`
 
-Always put `v-if` / `v-else-if` / `v-else` / `v-for` on `<template>` wrappers — never on the rendered element:
+Put `v-if` / `v-else-if` / `v-else` / `v-for` on a `<template>` wrapper, never on the rendered element.
 
 ```vue
 <template v-if="captcha">
@@ -646,22 +536,15 @@ Always put `v-if` / `v-else-if` / `v-else` / `v-for` on `<template>` wrappers �
 </template>
 ```
 
-```vue
-<!-- ❌ -->
-<div v-if="captcha">
-```
-
 ### Child spacing (hard rule)
 
-Blank lines **inside** a tag depend only on **how many direct children it has** — never on how tall or important they look.
+Blank lines inside a tag depend only on how many direct children it has, never on how tall they look.
 
-- **Exactly one child:** no blank lines. The child starts on the line after the opening tag; the closing tag comes right after the child.
-- **Two or more children:** **exactly one** blank line after the opening tag, between each pair of children, and before the closing tag. Never two, never zero.
-- **No children:** the tag is self-closing (see [Attribute wrapping](#attribute-wrapping-hard-rule)).
+- Exactly one child: no blank lines. The child starts on the line after the opening tag. The closing tag comes right after the child.
+- Two or more children: exactly one blank line after the opening tag, between each pair of children, and before the closing tag. Never two, never zero.
+- No children: the tag is self-closing (see [Attribute wrapping](#attribute-wrapping-hard-rule)).
 
-When a split puts `>` at the end of the last attribute line, that line **is** the opening tag — the blank line goes right below it.
-
-What counts as one child:
+When a split puts `>` at the end of the last attribute line, that line is the opening tag. The blank line goes right below it.
 
 | Child node | Counts as |
 |------------|-----------|
@@ -669,13 +552,11 @@ What counts as one child:
 | `<template>` wrapper (`v-if`, `v-for`, named or scoped slot) | one child |
 | `<slot />` | one child |
 | A run of text / interpolation (`Welcome, {{ user.name }}!`) | one child |
-| Each branch of a `v-if` / `v-else-if` / `v-else` chain | **one child per branch** |
-| An HTML comment | part of the child below it — the blank line goes above the comment |
+| Each branch of a `v-if` / `v-else-if` / `v-else` chain | one child per branch |
 
-A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only at its own direct children: a single-child parent stays flush even when its child has many children.
+A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only at its own direct children. A single-child parent stays flush even when that child has many children.
 
 ```vue
-<!-- ✅ single child — parent hugs it -->
 <u-tooltip :text="action.tooltip">
   <u-button
     loading-auto
@@ -683,7 +564,6 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
   />
 </u-tooltip>
 
-<!-- ✅ multiple children, including v-if branches -->
 <div class="flex items-center gap-1">
 
   <template v-if="state === 'complete'">
@@ -705,7 +585,6 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
 
 </div>
 
-<!-- ✅ a text run next to an element is its own child -->
 <p class="text-sm">
 
   Signed in as {{ userData.name }}
@@ -719,51 +598,20 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
 </p>
 ```
 
-```vue
-<!-- ❌ blanks around a lone child -->
-<u-tooltip :text="action.tooltip">
-
-  <u-button variant="subtle" />
-
-</u-tooltip>
-
-<!-- ❌ siblings or branches packed together -->
-<div class="flex flex-col">
-  <template v-if="state === 'complete'">
-    ...
-  </template>
-  <template v-else>
-    ...
-  </template>
-</div>
-
-<!-- ❌ two blank lines between children -->
-<div class="space-y-3">
-
-  <un-card :title="title" />
-
-
-  <un-card :title="otherTitle" />
-
-</div>
-```
-
 ### Attribute wrapping (hard rule)
 
-- **Childless tags are self-closing:** `<tag ... />`, never an empty open/close pair.
-- **Childless, one single-line attribute:** one line (`<u-icon name="lucide:check" />`).
-- **Childless, more than one attribute or any multiline attribute:** opening `<tag` on its own line, one attribute per line, `/>` on its own line.
-- **Tags with children:** all attributes stay on the **same line** as the opening tag, regardless of count or length. This applies to every tag, including `u-modal` and structural `<template>` wrappers.
-- **The only split trigger for tags with children is a multiline attribute**: an array, object, or function literal bound to an attribute that spans multiple lines. Then the opening `<tag` goes on its own line, every attribute gets its own line, and the multiline value is formatted like a JS literal.
-- References, calls, and scalar expressions (`:field="field"`, `v-bind="radOmit(action, [...])"`, `@click="handleSave()"`) are **not** multiline attributes. A single-pair object with scalar values (`:ui="{ content: 'max-w-5xl' }"`) stays inline. Multi-key or nested object / array bindings are multiline attributes.
+- Childless tags are self-closing: `<tag ... />`, never an empty open/close pair (`<div class="grow"></div>`).
+- Childless, one single-line attribute: one line (`<u-icon name="lucide:check" />`).
+- Childless, more than one attribute, or any multiline attribute: `<tag` on its own line, one attribute per line, `/>` on its own line. Never one line.
+- Tags with children: every attribute stays on the same line as the opening tag, whatever the count or length. This includes `u-modal` and structural `<template>` wrappers. Do not split them without a multiline attribute.
+- The only split trigger for a tag with children is a multiline attribute: an array, object, or function literal bound to an attribute and spanning lines. Then `<tag` goes on its own line, every attribute gets its own line, and the value is formatted like a JS literal. Do not leave that value on the opening line.
+- A reference, call, or scalar (`:field="field"`, `v-bind="radOmit(action, [...])"`, `@click="handleSave()"`) is not a multiline attribute. A single-pair object of scalars (`:ui="{ content: 'max-w-5xl' }"`) stays inline. A multi-key or nested object or array binding is a multiline attribute.
 
 ```vue
-<!-- ✅ children, no multiline attribute — one line -->
 <u-modal :ui="{ content: 'max-w-5xl' }" scrollable @update:open="!$event && emit('close')">
   ...
 </u-modal>
 
-<!-- ✅ children + multiline attribute — split -->
 <div
   v-if="show"
   :class="{
@@ -772,7 +620,6 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
   ...
 </div>
 
-<!-- ✅ childless, several attributes -->
 <u-button
   variant="subtle"
   icon="lucide:refresh-ccw"
@@ -780,47 +627,17 @@ A lone `v-if` with no `v-else` is one child and stays flush. Each tag looks only
 />
 ```
 
-```vue
-<!-- ❌ childless multi-attribute tag on one line -->
-<u-button variant="subtle" icon="lucide:refresh-ccw" @click="refresh()" />
-
-<!-- ❌ empty open/close pair -->
-<div class="grow"></div>
-
-<!-- ❌ tag with children split without a multiline attribute -->
-<un-card
-  icon="lucide:key"
-  :title="title"
-  fluid-body>
-  ...
-</un-card>
-
-<!-- ❌ multiline attribute kept on the opening line -->
-<div v-if="show" :class="{
-  'p-3': !fluidBody,
-}">
-```
-
 ### `>` and `/>` placement
 
-- Single-line tags keep the closer on the same line.
-- Split tags with children: `>` on the **same line** as the last attribute.
-- Split self-closing tags: `/>` on its **own line**.
-- Always a space before `/>` on single-line self-closing tags.
-- Closing tags of block components (`</un-card>`, `</u-modal>`) are always on their own line.
-
-```vue
-<!-- ❌ > on its own line -->
-<div
-  :class="{
-    'p-3': !fluidBody,
-  }"
->
-```
+- A single-line tag keeps the closer on that line.
+- A split tag with children: `>` on the same line as the last attribute, never on its own line.
+- A split self-closing tag: `/>` on its own line.
+- Always a space before `/>` on a single-line self-closing tag.
+- The closing tag of a block component (`</un-card>`, `</u-modal>`) is always on its own line.
 
 ### Attribute order
 
-Applies whenever attributes are on separate lines:
+When attributes are on separate lines:
 
 1. Refs / identity: `ref`, `id`, `name`
 2. Component visual props: `variant`, `color`, `size`, `icon`, static `label`
@@ -832,19 +649,18 @@ Applies whenever attributes are on separate lines:
 
 Shortcuts:
 
-- `img`: `src` / `:src` is always the **first** attribute, before everything else (including `ref` and `id`); the rest follow the order above
+- `img`: `src` / `:src` is always the first attribute, before `ref` and `id`. The rest follow the order above.
 - `u-button`: `variant` → `color` → `size` → `icon` → label/value → `trailing-icon` → `block` → `disabled` → `loading-auto` → events
 - `u-input` / `u-select*`: `:placeholder`, `:label` → `:loading`, `:disabled` → `:items` → `class` → `v-model` → events
-- `un-table`: `:columns` → `class` / `:ui` → `:loading` → `:data` → `hide-pagination` → `:total-items` → `:items-per-page-items` → `:row-to` → `v-model:items-per-page` → `v-model:current-page` → `sticky-actions` → `:actions` → `:extra-actions` → `:meta` (page size model always before page model)
+- `un-table`: `:columns` → `class` / `:ui` → `:loading` → `:data` → `hide-pagination` → `:total-items` → `:items-per-page-items` → `:row-to` → `v-model:items-per-page` → `v-model:current-page` → `sticky-actions` → `:actions` → `:extra-actions` → `:meta`. The page-size model always comes before the page model.
 
 ### Template bindings
 
-- Simple scalars and simple ternaries stay inline.
-- When one condition changes several attributes, labels / icons, or an object binding such as `to`, use sibling `<template v-if>` / `v-else-if` / `v-else` branches with explicit component variants instead of nested ternaries.
+Simple scalars and simple ternaries stay inline. When one condition changes several attributes, labels, icons, or an object binding such as `to`, use sibling `<template v-if>` / `v-else-if` / `v-else` branches with explicit component variants instead of nested ternaries.
 
 ### Event handlers
 
-A function bound with `@event` is always called explicitly, with its arguments written out — never passed as a bare reference:
+A function bound with `@event` is called explicitly, with its arguments written out. Never pass a bare reference.
 
 | The function receives | Write |
 |-----------------------|-------|
@@ -854,59 +670,25 @@ A function bound with `@event` is always called explicitly, with its arguments w
 
 Name arrow parameters after what the event passes.
 
-When converting a bare reference (`@click="handleSave"`), keep what Vue passed it: if the function declares parameters, pass the event's arguments explicitly (`$event` for one, an arrow for several); if it declares none, call it with `()`. If a component event's argument count is unclear, check its `emits` / docs; if still unclear, pass `$event`.
+When converting a bare reference (`@click="handleSave"`), keep what Vue passed. If the function declares parameters, pass the event's arguments (`$event` for one, an arrow for several). If it declares none, call it with `()`. If a component event's argument count is unclear, check its `emits` or docs. If it is still unclear, pass `$event`.
 
-Inline statements that are not a single function call (`@update:page="currentPage = $event"`, `@update:open="!$event && emit('close')"`) stay as they are. This rule covers `@` bindings only — `onClick` in action objects and watcher callbacks still take references (see [Naming](#naming)).
-
-```vue
-<!-- ✅ -->
-<u-button
-  variant="subtle"
-  icon="lucide:save"
-  @click="handleSave()"
-/>
-
-<u-select
-  :items="statusItems"
-  @update:model-value="handleStatusChange($event)"
-/>
-
-<draggable-list
-  :items="items"
-  @move="(item, index) => handleMove(item, index)"
-/>
-
-<!-- ❌ bare references -->
-<u-button
-  variant="subtle"
-  icon="lucide:save"
-  @click="handleSave"
-/>
-```
+An inline statement that is not a single function call (`@update:page="currentPage = $event"`, `@update:open="!$event && emit('close')"`) stays as it is. This rule covers `@` bindings only. `onClick` in action objects and watcher callbacks still take references (see [Naming](#naming)).
 
 ### Default attribute values
 
-Omit props that restate a default:
+Omit a prop that restates a default:
 
 | Component / context | Convention |
 |---------------------|------------|
-| `un-table` `actions` / `extraActions` objects | omit `variant: 'subtle'` — `un-table` already sets it. Do not add or remove `variant` on any other button or action object; which variant it uses is a design choice, not formatting |
-| `u-badge` | omit `color` for neutral (`undefined` in ternaries, never `color="neutral"`); no `size` |
+| `un-table` `actions` / `extraActions` objects | omit `variant: 'subtle'` — `un-table` already sets it. Do not add or remove `variant` on any other button or action object. Which variant it uses is a design choice, not formatting |
+| `u-badge` | omit `color` for neutral (`undefined` in a ternary, never `color="neutral"`); no `size` |
 | `u-tooltip` | do not set `:delay-duration` |
 
 ```vue
-<!-- ✅ -->
 <u-badge
   variant="subtle"
   :color="item.digital ? 'info' : undefined"
   :label="item.digital ? 'Digital' : 'Physical'"
-/>
-
-<!-- ❌ -->
-<u-badge
-  variant="subtle"
-  color="neutral"
-  :label="item.name"
 />
 ```
 
@@ -918,24 +700,19 @@ Put text and `{{ ... }}` on their own line, never glued to the tags. Static and 
 <h1 class="text-2xl font-semibold">
   Welcome, {{ user.name }}!
 </h1>
-
-<!-- ❌ -->
-<h1 class="text-2xl font-semibold">{{ user.name }}</h1>
 ```
 
 ### Root structure
 
-One root node when possible. If several sibling sections are needed, wrap them in one root (`<div class="space-y-3">`), which follows child spacing like any other tag.
+One root node when possible. When several sibling sections are needed, wrap them in one root (`<div class="space-y-3">`). That wrapper follows child spacing like any other tag.
 
 ### Refs in templates
 
-Refs unwrap automatically — no `.value` in template expressions or in object literals bound from the template.
-
----
+Refs unwrap automatically. No `.value` in a template expression or in an object literal bound from the template.
 
 ## Server / plain TS files
 
-Same whitespace, brace, literal, and call rules as script blocks, starting with the responsibility header. Prefer `async event =>` consistent with siblings:
+Same whitespace, brace, literal, and call rules as script blocks, starting with the responsibility header. Prefer `async event =>`, consistent with siblings.
 
 ```ts
 
@@ -978,28 +755,27 @@ export default defineEventHandler(async event => {
 });
 ```
 
----
-
 ## Checklist before finishing an edit
 
 - [ ] Responsibility header: blank line, `/* responsibility */`, blank line, short `//` lines, two blank lines; in Vue inside `<script setup>`; nothing above it
+- [ ] No other comments. Remove HTML comments, JSDoc, TODOs, commented-out code, and any comment that restates the code, the docs, or the backend. Keep a `//` business-decision comment only when a search shows that decision exists nowhere else
 - [ ] `<script setup>` without `lang="ts"`; no TS annotations in Vue
 - [ ] 2-space indent; single quotes; semicolons; trailing commas in multi-line literals
-- [ ] Every domain section starts with `/* section name */` + blank line; sections separated by two blank lines; imports co-located
+- [ ] Every domain section starts with `/* section name */` and a blank line; two blank lines between sections; imports co-located
 - [ ] Declaration groups: two blanks between groups; single-line refs stacked; one blank between other same-kind declarations
-- [ ] Multiline assignments have exactly one blank line before and after (shared with required blanks; group boundaries keep two)
-- [ ] Workflow functions: blank after `{`, double blanks between major steps, blank before `}`; tiny helpers tight; single-block functions flush; return-only decisions as one `if` / `else if` / `else` chain
+- [ ] Multiline statements (a wrapped statement or a code block) have one blank before and after, unless they are the only statement in their block. Share a required blank. Declaration groups, `/* params */`, and major steps keep two blanks. One statement, or only single-line statements, stays flush. Several statements with a multiline one have one blank after `{` and before `}`
+- [ ] Major steps keep two blanks. A return-only decision stays one `if` / `else if` / `else` chain
 - [ ] Braces everywhere; `else` / `catch` on their own line
 - [ ] Script literals multi-line, except `{}` / `[]`; inline object types of function parameters on one line; no statement wrapped only for length; `fn(arg, {` on one line
 - [ ] Page scripts: section order, `/* params */` shape, `/* seo */` placement and call order
 - [ ] `useUFetch` shape; `ufetch` options order; destructure names `xxxData` / `isXxxPending` / `refreshXxx`; `response` for `ufetch` results
-- [ ] `handleXxx` handlers; `it` for short callbacks; descriptive loop names; structure-returning computeds use block + `return`; handler references, not wrappers
+- [ ] `handleXxx` handlers; `it` for short callbacks; descriptive loop names; structure-returning computeds use a block and `return`; handler references, not wrappers
 - [ ] Action / column / item object property order
 - [ ] Kebab-case component tags; `v-if` / `v-for` on `<template>` wrappers
-- [ ] Child spacing: one child flush; 2+ children with exactly one blank after the opener, between children, and before the closer (each branch counts)
-- [ ] Attribute wrapping: tags with children single-line unless a multiline attribute forces a split; childless tags self-closing, split when more than one attribute; `>` / `/>` placement
-- [ ] Attribute order; redundant defaults omitted
-- [ ] `@event` bindings call their function explicitly: `fn()`, `fn($event)`, or `(a, b) => fn(a, b)`; no bare references
-- [ ] Text / `{{ }}` on its own line
+- [ ] Child spacing: one child flush; two or more children with exactly one blank after the opener, between children, and before the closer (each branch counts)
+- [ ] Attribute wrapping: tags with children stay one line unless a multiline attribute forces a split; childless tags self-close and split when they have more than one attribute; `>` / `/>` placement
+- [ ] Attribute order; redundant defaults omitted (`un-table` action `variant`, neutral `u-badge` color, `u-tooltip` delay)
+- [ ] `@event` bindings call their function: `fn()`, `fn($event)`, or `(a, b) => fn(a, b)`; no bare references; non-call inline statements stay
+- [ ] Text / `{{ }}` on its own line; template refs have no `.value`
 - [ ] `atoms` / `libs` imports relative; file not moved
 - [ ] No behavior change

@@ -1,6 +1,6 @@
 # Pages and routing
 
-What every page in this stack contains and how it navigates.
+What every page in this stack contains, and how it navigates.
 
 ## Page skeleton
 
@@ -74,10 +74,10 @@ async function handleAction() {
 
 ## `definePageMeta`
 
-- **Always** set an explicit `name`
-- Dot notation: `dashboard.home`, `flash-cards.single`, `authentication.login`
-- `layout: 'empty'` for login / full-bleed auth-style pages only
-- Never use `layout: false`
+- Always set an explicit `name`.
+- Dot notation: `dashboard.home`, `flash-cards.single`, `authentication.login`.
+- `layout: 'empty'` for login and other full-bleed auth pages only.
+- Never use `layout: false`.
 
 ```ts
 definePageMeta({
@@ -88,20 +88,20 @@ definePageMeta({
 
 ## Page params
 
-- Files: `[patientUid].vue`, `[flashCardSlug]/index.vue`
-- Params: **camelCase** in brackets and when reading `route.params`
-- Query keys stay as they appear on the URL; the variable name is camelCase (`returnUrl` for `returnUrl`)
-- Read every param and query value through its own `computed` so it stays reactive; do not snapshot `route.params.x` into a bare `const`
+- Files: `[patientUid].vue`, `[flashCardSlug]/index.vue`.
+- Params are camelCase in the brackets and when reading `route.params`.
+- Query keys stay as they appear on the URL. The variable name is camelCase (`returnUrl` for `returnUrl`).
+- Read every param and query value through its own `computed`. Do not snapshot `route.params.x` into a bare `const`.
 
 ## Page SEO
 
-Every page **must** set SEO:
+Every page sets SEO:
 
 1. `useHead({ title })` — required
 2. `useSeoMeta({ description })` — required
-3. `useJsonld(() => …)` — only when the project has `nuxt-jsonld` set up (`package.json` / `nuxt.config` modules), and only on public indexable pages. Skip it on `noindex` / dashboard / auth pages.
+3. `useJsonld(() => …)` — only when the project has `nuxt-jsonld` (`package.json` or `nuxt.config` modules), and only on public indexable pages. Skip it on `noindex`, dashboard, and auth pages.
 
-Use static strings when the copy is fixed and getters when the value comes from fetched data (`() => flashCardData.value?.name`). Optional chaining is fine on title/description getters.
+Use a static string when the copy is fixed. Use a getter when the value comes from fetched data (`() => flashCardData.value?.name`). Optional chaining is fine on title and description getters.
 
 ```ts
 useHead({
@@ -113,9 +113,7 @@ useSeoMeta({
 });
 ```
 
-**`useJsonld` data guard**
-
-When JSON-LD is included, inline the schema in the page (no shared `makeXxxJsonld` helpers). Guard absent data with a ternary that returns `null` so no tag is emitted; do **not** replace this guard with optional chaining inside the object:
+When JSON-LD is included, inline the schema in the page. No shared `makeXxxJsonld` helper. Guard absent data with a ternary that returns `null`, so no tag is emitted. Do not replace that guard with optional chaining inside the object:
 
 ```ts
 useJsonld(() => !flashCardData.value ? null : {
@@ -132,7 +130,7 @@ useJsonld(() => !flashCardData.value ? null : {
 
 ## Navigation
 
-Always prefer **named routes**:
+Prefer named routes:
 
 ```ts
 await navigateTo({
@@ -152,9 +150,7 @@ await navigateTo({
 </nuxt-link>
 ```
 
-### Navigation in action objects
-
-When an action only navigates, use `to` — not `onClick: () => navigateTo(...)`:
+When an action only navigates, use `to`. Do not use `onClick: () => navigateTo(...)`.
 
 ```ts
 {
@@ -172,5 +168,5 @@ When an action only navigates, use `to` — not `onClick: () => navigateTo(...)`
 
 ## Page headings
 
-- Primary title: `h1` with `class="text-2xl font-semibold"` (match local siblings if they consistently differ)
-- Subtitle / secondary line: a smaller size, `text-sm` or `text-xs`, rather than another heading weight
+- Primary title: `h1` with `class="text-2xl font-semibold"`. Match local siblings when they consistently differ.
+- A subtitle or secondary line uses a smaller size, `text-sm` or `text-xs`, rather than another heading weight.

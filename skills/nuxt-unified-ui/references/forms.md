@@ -1,6 +1,6 @@
 # Forms (`useForm` / `un-form`)
 
-Schema-driven forms via `useForm` / `un-form`. Field type is selected with **`identifier`** (not `type`).
+Schema-driven forms. The element kind is `identifier`, not `type`. Reserve `type` for the HTML input type (`email`, `password`, `file`).
 
 ## Quick start
 
@@ -66,20 +66,13 @@ const { form, formTag } = useForm({
 </template>
 ```
 
-Or bind directly:
-
-```vue
-<un-form
-  :target="form"
-  :fields="fields"
-/>
-```
+Or bind `un-form` directly: `<un-form :target="form" :fields="fields" />`.
 
 ## `useForm`
 
 - `target?`: `MaybeRefOrGetter<any>` — object to edit (default `{}`). A plain object passed here is mutated as the user edits.
 - `fields`: `MaybeRefOrGetter<any[]>` — field schema
-- Returns `{ form, formTag }`: `form` is `toRef(target || {})`; `formTag` renders `un-form` bound to `form` + `fields`
+- Returns `{ form, formTag }`. `form` is `toRef(target || {})`. `formTag` renders `un-form` bound to `form` and `fields`.
 
 ## Field schema
 
@@ -87,33 +80,33 @@ Or bind directly:
 
 | Prop | Required | Meaning |
 |------|----------|---------|
-| `key` | yes | Path into `target`; supports `a.b` and `arr[0].x`. Read with `radGet`, written with `unSet`, which creates missing objects / arrays |
+| `key` | yes | Path into `target`. Supports `a.b` and `arr[0].x`. Read with `radGet`. Written with `unSet`, which creates missing objects and arrays |
 | `identifier` | yes | Element kind: a built-in below, or a custom one |
 | `width` | no | 1–12 grid columns (default 12) |
 | `if` | no | Show only when `smartMatch(if, target)` is truthy |
-| `label` / `hint` / `help` / `description` | no | Rendered by `u-form-field` (checkbox: see below) |
+| `label` / `hint` / `help` / `description` | no | Rendered by `u-form-field`. Checkbox: see below |
 
 Any other prop is forwarded to the underlying Nuxt UI control.
 
 ## Built-in elements
 
-Built-in elements are internal to the layer: select them by `identifier`, never import them.
+Built-ins are internal. Select them by `identifier`. Never import them.
 
 | `identifier` | Control | Notes |
 |--------------|---------|-------|
-| `input` | `u-input` | `type` (`email`, `password`, `file`, …). `type: 'file'` stores a `File`, or a `FileList` with `multiple`; use `accept` to filter |
+| `input` | `u-input` | `type` (`email`, `password`, `file`, …). `type: 'file'` stores a `File`, or a `FileList` when `multiple`. Use `accept` to filter |
 | `textarea` | `u-textarea` | standard textarea props |
-| `select` | `u-select-menu` | `items` as strings or `{ value, label }`; `value-key="value"` is fixed |
-| `date` | read-only input + `u-calendar` popover | stores a timestamp; month / year dropdowns |
-| `checkbox` | `u-checkbox` | `fieldLabel` is the form-field label; `label` is the checkbox text |
+| `select` | `u-select-menu` | `items` as strings or `{ value, label }`. `value-key="value"` is fixed |
+| `date` | read-only input + `u-calendar` popover | stores a timestamp. Month and year dropdowns |
+| `checkbox` | `u-checkbox` | `fieldLabel` is the form-field label. `label` is the checkbox text. The outer label does not come from `label` |
 | `series` | list of nested `un-form`s | see [Series fields](#series-fields) |
 
 ## Conditional fields (`if` + `smartMatch`)
 
 `smartMatch(filter, target)`:
 
-1. If `filter` is a **function** → `filter(target)`
-2. Else if **object** → mongo-style match via `unified-mongo-filter`
+1. `filter` is a function → `filter(target)`
+2. Else `filter` is an object → mongo-style match via `unified-mongo-filter`
 3. Else → truthiness of `filter`
 
 ```js
@@ -127,7 +120,7 @@ Built-in elements are internal to the layer: select them by `identifier`, never 
 }
 ```
 
-Hidden fields are not rendered, but values already on `target` stay unless you clear them yourself.
+A hidden field is not rendered. A value already on `target` stays until you clear it.
 
 ## Series fields
 
@@ -165,7 +158,7 @@ Hidden fields are not rendered, but values already on `target` stay unless you c
 }
 ```
 
-Items can be added, duplicated (the copy loses `_id`), reordered, and deleted. Each item is collapsible: items already present start collapsed, and a newly added or duplicated item starts open, with those actions on the `Item N` header. i18n keys: `common.*`, `un.series.*`.
+Items can be added, duplicated (the copy loses `_id`), reordered, and deleted. Each item is collapsible. Items already present start collapsed. A newly added or duplicated item starts open. Those actions sit on the `Item N` header. i18n keys: `common.*`, `un.series.*`.
 
 ## Custom elements
 
@@ -199,7 +192,7 @@ const modelValue = defineModel();
 </template>
 ```
 
-Register it once from a Nuxt plugin. The identifier must be unique among built-ins and extras:
+Register it once from a Nuxt plugin. The identifier must be unique among built-ins and extras. Do not push into `useFormExtraElements()` directly. `registerFormExtraElement` is the only writer. `useFormExtraElements()` reads the list.
 
 ```ts
 
@@ -217,19 +210,4 @@ export default defineNuxtPlugin(() => {
 });
 ```
 
-## Form picker overlap
-
 `launchFormPickerDialog` takes the same `fields` schema. See [dialogs.md](dialogs.md).
-
-## Do / don’t
-
-**Do**
-
-- Use `identifier` for element selection; reserve `type` for HTML input types
-- Register custom elements once, from a Nuxt plugin, with `registerFormExtraElement`
-
-**Don’t**
-
-- Use `type: 'select'` instead of `identifier: 'select'`
-- Expect the checkbox's outer label from `label` — use `fieldLabel`
-- Push into `useFormExtraElements()` directly

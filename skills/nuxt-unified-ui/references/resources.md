@@ -1,47 +1,31 @@
 # Unified resources
 
-How CRUD **resources** are declared and consumed in apps built on this stack. Use this whenever adding or customizing a resource end-to-end.
+How a CRUD resource is declared and consumed. Use this when adding or customizing a resource end to end.
 
-## Mental model
-
-A resource is one Mongo collection + typed schema + optional field meta, registered on a global `app` registry, exposed through a fixed REST file set, and managed in the dashboard via `<resource-manager>`.
+A resource is one Mongo collection, a typed schema, and optional field meta. It is registered on the global `app` registry, exposed through a fixed REST file set, and managed in the dashboard with `<resource-manager>`.
 
 | Layer | Role |
 |-------|------|
 | Nitro plugin (`*-resource.ts`) | `parseSchema` → augment `UnifiedAppRegistry` → `app.foo = { dbo: createUnifiedResourceController(...) }` |
 | REST under `server/api/{kebab-plural}/` | Thin handlers calling `handleResource*` |
-| Dashboard | Generic `[resourceName]` page, or a dedicated page wrapping `<resource-manager>` with extra actions |
-
-Naming:
+| Dashboard | Generic `[resourceName]` page, or a dedicated page that wraps `<resource-manager>` with extra actions |
 
 | Context | Shape | Example |
 |---------|-------|---------|
 | Registry / `dbo` / `handleResource*` `resource` | camelCase plural | `flashCards`, `authorizationRoles`, `users` |
-| API folder + URL path | kebab-case plural | `flash-cards`, `authorization-roles`, `users` |
-| Dashboard `resourceName` param | same as API path | `flash-cards` |
-| Permissions (when used) | `admin.{kebab-plural}.{action}` | `admin.users.list`, `admin.flash-cards.create` |
+| API folder and URL path | kebab-case plural | `flash-cards`, `authorization-roles`, `users` |
+| Dashboard `resourceName` param | same as the API path | `flash-cards` |
+| Permissions, when used | `admin.{kebab-plural}.{action}` | `admin.users.list`, `admin.flash-cards.create` |
 
-Client helpers (`useResourceName`) derive:
+`useResourceName` derives `resource` (Pascal singular, internal), `resourcePath` (kebab plural, the API path), and `title` / `titlePlural` (display strings).
 
-- `resource` → Pascal singular (internal)
-- `resourcePath` → kebab plural (API)
-- `title` / `titlePlural` → display strings
-
-Pass either camelCase or kebab-case into `<resource-manager resource="...">`; path/title conversion is handled for you. Prefer the name that matches the surrounding context (dashboard nav uses kebab; dedicated pages often pass camel like `users`).
-
----
+Pass camelCase or kebab-case to `<resource-manager resource="...">`. Path and title conversion is handled for you. Prefer the name that matches the surrounding context. Dashboard nav uses kebab. A dedicated page often passes camelCase, such as `users`.
 
 ## 1. Declare in a server plugin
 
-File: `server/plugins/{name}-resource.ts`
+File: `server/plugins/{name}-resource.ts`.
 
-Pattern:
-
-1. `parseSchema({ ... })` → `{ schema, type, inferred }`.
-2. `declare global { interface UnifiedAppRegistry { ... } }` so `app.resourceName` is typed.
-3. `defineNitroPlugin` assigns `app.resourceName = { dbo: createUnifiedResourceController({ resource, schema, type, meta? }) }`.
-
-Minimal example:
+`parseSchema({ ... })` returns `{ schema, type, inferred }`. `declare global { interface UnifiedAppRegistry { ... } }` types `app.resourceName`. `defineNitroPlugin` assigns `app.resourceName = { dbo: createUnifiedResourceController({ resource, schema, type, meta? }) }`.
 
 ```ts
 
@@ -77,7 +61,7 @@ export default defineNitroPlugin(() => {
 });
 ```
 
-With relations and UI meta:
+Relations and UI meta:
 
 ```ts
 createUnifiedResourceController({
@@ -105,13 +89,11 @@ createUnifiedResourceController({
 });
 ```
 
-Extra non-dbo fields on the registry entry are allowed (e.g. `app.media.directory` alongside `dbo`).
+Extra non-dbo fields on the registry entry are allowed (for example `app.media.directory` next to `dbo`).
 
 ### Schema DSL (`parseSchema`)
 
-Keys are field names; optional fields use a trailing `?` in the key (`'tags?'`, `'permissions?'`).
-
-Common value shapes:
+Keys are field names. An optional field uses a trailing `?` on the key (`'tags?'`, `'permissions?'`).
 
 | Value | Meaning |
 |-------|---------|
@@ -120,24 +102,22 @@ Common value shapes:
 | `'Record<string, string>'` | String map |
 | `[{ ...fields }, '[]']` | Array of nested objects (series UI) |
 
-`createUnifiedResourceController` validates create/update with the compiled ArkType `type`, auto-adds `_id` / `createdAt` / nested `_id`s, and uses `resource` as the Mongo collection name.
+`createUnifiedResourceController` validates create and update with the compiled ArkType `type`, auto-adds `_id`, `createdAt`, and nested `_id`s, and uses `resource` as the Mongo collection name.
 
-### Field `meta` (drives schema API + forms + table)
+### Field `meta`
+
+Drives the schema API, forms, and the table. `GET .../schema` returns schema properties merged with this meta. The client maps that into form fields and columns with `useResourceMeta`.
 
 | Meta | Effect |
 |------|--------|
-| `resource: 'otherResource'` | Relation: populate + form `identifier: 'resource'` (or `media` when target is `media`) |
+| `resource: 'otherResource'` | Relation: populate, and a form `identifier` of `resource` (or `media` when the target is `media`) |
 | `hidden: true` | Omit from form fields |
-| `hideInTable: true` | Omit from table columns (still in forms unless `hidden`) |
+| `hideInTable: true` | Omit from table columns. Still in forms unless `hidden` |
 | `longText: true` | Textarea |
 | `enum: [{ label, value }]` | Select |
 | `labelFormat: '...'` | Date field |
 | `width` | Form field width hint |
 | `children: { ... }` | Nested meta for object-array item fields |
-
-`GET .../schema` returns schema properties merged with this meta; the client maps that into form fields and columns via `useResourceMeta`.
-
----
 
 ## 2. Standard REST routes
 
@@ -172,23 +152,18 @@ export default defineEventHandler(async event => {
 });
 ```
 
-Rules:
-
-- `resource` is always the **camelCase registry key**, not the folder name.
-- `permission` is optional; omit when the route is open to any caller that already passed other gates, or when auth is handled elsewhere. Prefer consistent `admin.{kebab}.{action}` when protecting admin CRUD.
-- Do not reimplement list/create/update logic in route files — extend via custom endpoints next to the resource (e.g. `/api/authentication/onboard-user`) when the default CRUD is not enough.
-
-List query helpers (handled inside `handleResourceList` / siblings): `filter`, `select`, `sort`, `skip`, `limit`, `populate`, and `single=true` for a single `find`.
-
----
+- `resource` is the camelCase registry key, not the folder name.
+- `permission` is optional. Omit it when the route is open to any caller that already passed other gates, or when auth is handled elsewhere. Prefer a consistent `admin.{kebab}.{action}` when protecting admin CRUD.
+- Do not reimplement list, create, or update in the route file. When default CRUD is not enough, add a custom endpoint next to the resource (for example `/api/authentication/onboard-user`).
+- List query helpers, handled inside `handleResourceList` and its siblings: `filter`, `select`, `sort`, `skip`, `limit`, `populate`, and `single=true` for a single `find`.
 
 ## Singleton
 
-A singleton controller owns **one row** of a collection. It finds that row, or creates it through the resource controller and then uses the `_id` on the created document. Callers cannot address another document. The public type is only `schema`, `retrieve`, and `update`. List, count, create, and delete are not on the type and have no routes.
+A singleton owns one row of a collection. It finds that row, or creates it through the resource controller and then uses the `_id` on the created document. Callers cannot address another document. The public type is only `schema`, `retrieve`, and `update`. List, count, create, and delete are not on the type and have no routes.
 
 It is one global row. A row per user or tenant stays on a normal resource controller.
 
-Register it like a resource. `dbo` is a `UnifiedSingletonController`, and `defaults` must satisfy the schema (they are validated when the controller is created). The first retrieve creates the row from `defaults` when the collection is empty. That `_id` is cached for later retrieve and update calls.
+Register it like a resource. `dbo` is a `UnifiedSingletonController`. `defaults` must satisfy the schema. They are validated when the controller is created. The first retrieve creates the row from `defaults` when the collection is empty. That `_id` is cached for later retrieve and update calls.
 
 ```ts
 const { schema, type, inferred } = parseSchema({
@@ -219,7 +194,7 @@ export default defineNitroPlugin(() => {
 });
 ```
 
-Routes under `server/api/{kebab}/` — no `[id]` segment:
+Routes under `server/api/{kebab}/`, with no `[id]` segment:
 
 | File | Handler | Typical permission suffix |
 |------|---------|---------------------------|
@@ -227,15 +202,13 @@ Routes under `server/api/{kebab}/` — no `[id]` segment:
 | `index.get.ts` | `handleSingletonRetrieve` | `.retrieve` |
 | `index.patch.ts` | `handleSingletonUpdate` | `.update` |
 
-`GET` returns the row (creating it from `defaults` when absent). `PATCH` sends a partial document. `select` and `populate` query params work on retrieve. Singletons are not relation targets.
+`GET` returns the row, creating it from `defaults` when it is absent. `PATCH` sends a partial document. `select` and `populate` work on retrieve. A singleton is not a relation target.
 
-Dashboard: `<singleton-manager resource="site" />` loads that `GET`, edits it with the schema form, and `PATCH`es it back. It exposes `refreshSingleton()`.
-
----
+`<singleton-manager resource="site" />` loads that `GET`, edits it with the schema form, and `PATCH`es it back. It exposes `refreshSingleton()`.
 
 ## 3. Dashboard: standard declaration
 
-Generic page (one page for all standard resources), `pages/dashboard/resources/[resourceName].vue`:
+One generic page for every standard resource, `pages/dashboard/resources/[resourceName].vue`:
 
 ```vue
 <script setup>
@@ -285,7 +258,7 @@ useSeoMeta({
 </template>
 ```
 
-Nav links pass the **kebab API segment**:
+Nav links pass the kebab API segment:
 
 ```ts
 {
@@ -299,15 +272,19 @@ Nav links pass the **kebab API segment**:
 },
 ```
 
-`<resource-manager>` provides Create / Refresh toolbar actions, table via `<resource-explorer-table>`, and per-row Edit / Delete dialogs wired to `/api/{resourcePath}`.
+`<resource-manager>` provides Create and Refresh toolbar actions, the table via `<resource-explorer-table>`, and per-row Edit and Delete dialogs wired to `/api/{resourcePath}`.
 
----
+## 4. Dashboard: customize
 
-## 4. Dashboard: customize (users pattern)
+When the default Create or Edit is wrong for the domain, do not overload the generic `[resourceName]` page. Add a dedicated page that still uses `<resource-manager>` and supplies extra actions. Point nav at that named route, not at `dashboard.resources.single`.
 
-When default Create/Edit is wrong for the domain, **do not** overload the generic `[resourceName]` page. Add a dedicated page that still uses `<resource-manager>` but supplies extra actions.
+Example: `pages/resources/users.vue`, route name `dashboard.resources.users`, `layout: 'dashboard'`, middleware `is-authenticated`. `resource="users"`.
 
-Example: `pages/resources/users.vue` (named route, not necessarily under `dashboard/resources/`):
+| Prop | Placement | Merge order |
+|------|-----------|-------------|
+| `actions` | Card toolbar | After the default Create, before Refresh |
+| `resourceActions` | Per-row table actions | Before the default Edit and Delete |
+| `ref` → `refreshResources()` | After a custom mutation | Call it so the table reloads |
 
 ```vue
 <script setup>
@@ -354,11 +331,6 @@ async function handleOnboardUser() {
         key: 'name',
         identifier: 'input',
         label: 'Name',
-      },
-      {
-        key: 'username',
-        identifier: 'input',
-        label: 'Username',
       },
     ],
     submitButton: {
@@ -434,15 +406,16 @@ async function handleResetPassword(user) {
 </template>
 ```
 
-Customization knobs on `<resource-manager>`:
+A custom handler:
 
-| Prop | Placement | Merge order |
-|------|-----------|-------------|
-| `actions` | Card toolbar | After default **Create**, before **Refresh** |
-| `resourceActions` | Per-row table actions | Before default **Edit** / **Delete** |
-| `ref` → `refreshResources()` | After custom mutations | Call so the table reloads |
+1. Opens `launchFormPickerDialog` or `launchChoicePickerDialog` with explicit `fields`.
+2. Calls `ufetch` on a domain endpoint, not necessarily the generic resource CRUD.
+3. `await resourceManagerEl.value?.refreshResources()`.
+4. Shows `toastSuccess` or `toastError`.
 
-Point nav at the custom named route instead of `dashboard.resources.single`:
+Keep the standard REST routes even when the UI is customized. Other tools, and the generic schema and list, still depend on them.
+
+Nav:
 
 ```ts
 to: {
@@ -450,25 +423,14 @@ to: {
 },
 ```
 
-Custom handlers typically:
-
-1. `launchFormPickerDialog` / `launchChoicePickerDialog` with explicit `fields`
-2. `ufetch` to a **domain** endpoint (not necessarily the generic resource CRUD)
-3. `await resourceManagerEl.value?.refreshResources()`
-4. `toastSuccess` / `toastError`
-
-Keep the standard REST resource routes even when the UI is customized — other tools and the generic schema/list still depend on them.
-
----
-
 ## Checklist: new resource
 
-- [ ] `server/plugins/{name}-resource.ts` — schema, registry, `createUnifiedResourceController`, meta for relations/UI
-- [ ] Full `server/api/{kebab-plural}/` route set with camelCase `resource` (+ permissions if admin)
-- [ ] Dashboard: nav → `dashboard.resources.single` + kebab `resourceName`, **or** dedicated page + `actions` / `resource-actions`
+- [ ] `server/plugins/{name}-resource.ts` — schema, registry, `createUnifiedResourceController`, meta for relations and UI
+- [ ] Full `server/api/{kebab-plural}/` route set, with a camelCase `resource` and permissions when the API is admin
+- [ ] Dashboard nav to `dashboard.resources.single` with a kebab `resourceName`, or a dedicated page with `actions` / `resource-actions`
 
 ## Checklist: new singleton
 
 - [ ] `server/plugins/{name}-resource.ts` — schema, registry, `createUnifiedSingletonController`, `defaults`
-- [ ] `schema.get.ts`, `index.get.ts`, `index.patch.ts` under `server/api/{kebab}/`
-- [ ] Page wrapping `<singleton-manager resource="..." />` when it needs a screen
+- [ ] `schema.get.ts`, `index.get.ts`, and `index.patch.ts` under `server/api/{kebab}/`
+- [ ] A page wrapping `<singleton-manager resource="..." />` when it needs a screen

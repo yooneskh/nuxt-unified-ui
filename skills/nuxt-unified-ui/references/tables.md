@@ -1,44 +1,44 @@
 # `un-table`
 
-`app/components/un-table.vue` wraps Nuxt UI `u-table` with an optional actions column and a pagination footer. It is a **presentational page of rows**. The parent owns fetching, sorting, filtering, and which slice of data is passed in.
+`app/components/un-table.vue` wraps Nuxt UI `u-table` with an optional actions column and a pagination footer. It is a presentational page of rows. The parent owns fetching, sorting, filtering, and which slice of data is passed in.
 
-i18n keys used by the table: `un.table.actions`, `un.table.itemsPerPage`.
+i18n keys: `un.table.actions`, `un.table.itemsPerPage`.
 
 ## Mental model
 
 | Belongs on `un-table` | Belongs on the parent |
 |-----------------------|-----------------------|
 | Columns, current page of `data`, loading flag | `useUFetch` / `ufetch`, query params |
-| Footer page / page-size models | `skip` / `limit` (or client slice) from those models |
+| Footer page / page-size models | `skip` / `limit` (or a client slice) from those models |
 | Row `actions` / `extraActions` | Sort cycle, filter chips, toolbar |
 | Slot forwarding | `{accessorKey}-header` / `-cell` contents |
 
-Do **not** add sort, filter, or selection props to `un-table`. Resource dashboards put that above the table (`resource-explorer-table` pattern): filter bar + header slots, then `<un-table>`.
+Do not add sort, filter, or selection props to `un-table`. A resource dashboard puts that above the table. `<resource-explorer-table>` is that stack: filter chips, sort headers, then `<un-table>`. Search and filter chrome sits inside the card, above `<un-table>`, not on the table. Use `class` / `:ui` only when a product theme overrides the table chrome. Do not invent layout props for that chrome.
 
 ## Props
 
 | Prop / model | Role |
 |--------------|------|
 | `columns` | TanStack / Nuxt UI column defs |
-| `loading` | Passed to `u-table` (OR of list + count pending) |
-| `data` | **Current page** of row objects, not the full collection |
-| `hidePagination` | Drop the footer (dialogs, already-sliced lists) |
-| `totalItems` | Count for `u-pagination` (server `/count` or `array.length`) |
-| `actions` | Visible row buttons; adds the trailing `actions` column |
-| `extraActions` | Overflow `u-dropdown-menu` (ellipsis); also creates the column |
-| `stickyActions` | Pin the `actions` column to the right |
+| `loading` | Passed to `u-table`. OR of the list pending flag and the count pending flag |
+| `data` | The current page of row objects, not the full collection. While the footer is visible, do not pass the unpaged array |
+| `hidePagination` | Drop the footer (dialogs, already-sliced lists). `data` may then be the full in-memory list. Do not bind the page models just to hide them |
+| `totalItems` | Count for `u-pagination` (server `/count`, or `array.length`) |
+| `actions` | Visible row buttons. Adds the trailing `actions` column |
+| `extraActions` | Overflow `u-dropdown-menu` (ellipsis). Also creates the column |
+| `stickyActions` | Pin the `actions` column to the right. For wide column sets that scroll horizontally. Most pages do not need it |
 | `rowTo` | `(row) => location`. Selecting a row calls `navigateTo` with that location and adds `cursor-pointer`. Return a falsy value to skip. Clicks on buttons and links stay on the action |
 | `ui` | Merged into `u-table` `:ui`. Default `tr` classes (`data-[expanded=true]:bg-elevated!`, plus `cursor-pointer` when `rowTo` is set) are prepended to `ui.tr` |
 | `meta` | Passed through to `u-table` |
-| `v-model:itemsPerPage` | Page size (default `'25'`; choices 5 / 10 / 25 / 50 / 100) |
-| `itemsPerPageItems` | Overrides the page-size select options |
-| `v-model:currentPage` | Page number (default `'1'`) |
+| `v-model:itemsPerPage` | Page size. Default `25`. Choices: 5 / 10 / 25 / 50 / 100. Bind a number |
+| `itemsPerPageItems` | Replaces the page-size select options |
+| `v-model:currentPage` | Page number. Default `1`. Bind a number |
 
-The actions column is added when **either** `actions` or `extraActions` has length. `#actions-cell` is then owned by the wrapper — do not override it.
+The actions column is added when either `actions` or `extraActions` has length. `#actions-cell` is then owned by the wrapper. Do not override it.
 
-Rows with `rowTo` are focusable and activate on Enter as well as on click, so a linked table needs no extra key handling. The focus ring sits inside the row; do not add one.
+A `rowTo` row is focusable and activates on Enter as well as on click, so a linked table needs no extra key handling. The focus ring sits inside the row. Do not add one.
 
-`to` / `href` / `disabled` / `label` / `tooltip` / `warning` on an action may be a value or `(row) => …`. `vIf(row)` hides the item. `onClick(row)` receives the original row. Action clicks use `@click.stop` so they do not select the row. Buttons use `loading-auto`. An icon-only action takes its accessible name from `tooltip`; once it also carries a `label`, the label wins and the tooltip is dropped, so the visible text stays inside the accessible name.
+`to` / `href` / `disabled` / `label` / `tooltip` / `warning` on an action may be a value or `(row) => …`. `vIf(row)` hides the item. `onClick(row)` receives the original row. Action clicks use `@click.stop`, so they do not select the row. Buttons use `loading-auto`. An icon-only action takes its accessible name from `tooltip`. Once it also has a `label`, the label wins and the tooltip is dropped, so the visible text stays inside the accessible name.
 
 ### Paged table
 
@@ -65,11 +65,9 @@ No footer, no page models, no `total-items`:
 </un-card>
 ```
 
-Do not invent extra layout props on `un-table` — put search / filter toolbars in the parent, above the table. Use `class` / `:ui` only when a product theme overrides the table chrome.
-
 ## Column defs
 
-One object per column. Use `id` instead of `accessorKey` only when the cell is computed and there is no row field (duration, size, …).
+One object per column. Use `id` instead of `accessorKey` only when the cell is computed and there is no row field (duration, size).
 
 ```js
 const columns = [
@@ -88,7 +86,7 @@ const columns = [
 ];
 ```
 
-Keep column lists in the template when they are short and static. Move them to a script const / computed when they are reused or built from schema (`useResourceMeta` maps `key` → `accessorKey`, `radTitle(key)` → `header`).
+Keep a column list in the template when it is short and static. Move it to a script const or computed when it is reused or built from a schema. `useResourceMeta` maps `key` → `accessorKey` and `radTitle(key)` → `header`.
 
 ## Slots
 
@@ -96,10 +94,10 @@ All `u-table` slots are forwarded.
 
 | Slot | Use |
 |------|-----|
-| `{accessorKey}-cell` | Custom cell. Bind `{ row }` and read **`row.original`** |
-| `{accessorKey}-header` | Custom header (sort button + filter popover) |
+| `{accessorKey}-cell` | Custom cell. Bind `{ row }` and read `row.original` |
+| `{accessorKey}-header` | Custom header (sort button and filter popover) |
 | `empty` | Empty state (`u-empty` or copy) |
-| `actions-cell` | **Do not set** when `actions` / `extraActions` are passed |
+| `actions-cell` | Do not set this when `actions` or `extraActions` are passed |
 
 ```vue
 <template #status-cell="{ row }">
@@ -119,20 +117,18 @@ All `u-table` slots are forwarded.
 </template>
 ```
 
-Status / role / type cells use `u-badge`. Dates use `formatDate`. Several visual states → explicit `<template v-if>` / `v-else` badge variants, not nested ternaries.
+Status, role, and type cells use `u-badge`. Dates use `formatDate`. Several visual states use explicit `<template v-if>` / `v-else` badge variants, not nested ternaries.
 
 ## Row actions
 
-Two channels:
-
 | Prop | UI | Typical fields |
 |------|----|----------------|
-| `actions` | Inline icon (or labeled) buttons | `icon` + `tooltip`, or `label` |
+| `actions` | Inline icon or labeled buttons | `icon` + `tooltip`, or `label` |
 | `extraActions` | Overflow menu | `icon` + `label` (menu items need text) |
 
 Use `actions` for the one or two primary row operations (view, edit, delete). Use `extraActions` for the rest (assign, revoke, copy, archive). A vertical separator is inserted between the two groups automatically.
 
-`actionType` values on `actions`:
+`actionType` on `actions`:
 
 | `actionType` | UI |
 |--------------|----|
@@ -140,7 +136,7 @@ Use `actions` for the one or two primary row operations (view, edit, delete). Us
 | `'split'` | Primary button plus a chevron `u-dropdown-menu` |
 | `'separator'` | Vertical rule between button groups |
 
-`warning` is a string or `(row) => string | undefined` rendered under the button (triangle + text). Split `items` may be an array or `(row) => array`. Each item uses `label` (value or `(row) => …`) and `onSelect(row)` — do not put `onClick` on split items.
+`warning` is a string or `(row) => string | undefined`, rendered under the button (triangle and text). Split `items` may be an array or `(row) => array`. Each item uses `label` (a value or `(row) => …`) and `onSelect(row)`. Do not put `onClick` on a split item.
 
 ```js
 const itemActions = computed(() => {
@@ -205,18 +201,15 @@ const itemExtraActions = computed(() => {
 });
 ```
 
-Rules:
-
-- Icon-only buttons: `icon` + `tooltip`, no `label`. The tooltip is also the accessible name, so never leave one off.
-- Menu / text buttons: `label` (and `icon` when it helps).
-- Destructive: `color: 'error'`.
-- Emphasized extra action: `color: 'primary'`.
+- Icon-only buttons: `icon` + `tooltip`, no `label`. The tooltip is the accessible name, so never leave it off.
+- Menu and text buttons: `label`, and `icon` when it helps.
+- Destructive: `color: 'error'`. Emphasized extra action: `color: 'primary'`.
 - `{ actionType: 'separator' }` is a lone-key object between visual groups in `actions`.
-- `{ actionType: 'split', items, onClick }` is a default click plus overflow choices; item handlers are `onSelect`.
-- `vIf` / `disabled` / `to` / `href` / `label` / `tooltip` / `warning` take `(row) => …` when they depend on the row.
+- `{ actionType: 'split', items, onClick }` is a default click plus overflow choices. Item handlers are `onSelect`.
+- `vIf`, `disabled`, `to`, `href`, `label`, `tooltip`, and `warning` take `(row) => …` when they depend on the row.
 - Do not put toolbar Create / Refresh on the row. Those belong on the parent `un-card` (`:actions` / `:append-actions`).
 
-Resource managers prepend custom row actions, then default Edit / Delete:
+`<resource-manager>` prepends custom row actions, then the default Edit and Delete:
 
 ```js
 const resourceActions = computed(() => {
@@ -239,25 +232,22 @@ const resourceActions = computed(() => {
 
 ## Pagination
 
-Parent state:
-
 ```js
 const itemsPerPage = ref(25);
 const currentPage = ref(1);
 ```
 
-- Layer default page size is `25` if the parent does not bind the model. Set the ref explicitly; its value must be one of the page-size choices.
-- Page-size choices default to `5 / 10 / 25 / 50 / 100`. Pass `:items-per-page-items` to replace that list.
+- The default page size is `25` and the default page is `1` when the parent does not bind the models. Bind numbers: `ref(25)` and `ref(1)`. The page-size value must be one of the choices.
+- Page-size choices default to 5 / 10 / 25 / 50 / 100. Pass `:items-per-page-items` to replace that list.
 - Server lists: `skip = (currentPage - 1) * itemsPerPage`, `limit = itemsPerPage`, `total-items` from the `/count` endpoint.
-- Client lists: pass `data` already sliced; `total-items` is the uncut length.
-- Reset `currentPage` to `1` when page size, filters, or the resource path change.
+- Client lists: pass `data` already sliced. `total-items` is the uncut length.
+- Reset `currentPage` to `1` when the page size, the filters, or the resource path change.
 - After deletes, clamp `currentPage` if it is past the last page.
-- `loading` should cover **both** the page request and the count request.
-- `hide-pagination` still accepts `data` as the full in-memory list. Do not bind the page models just to hide them.
+- `loading` covers both the page request and the count request.
 
 ## Layout
 
-Prefer an `un-card` with `fluid-body` so the table and footer are edge-to-edge:
+Prefer an `un-card` with `fluid-body` so the table and footer are edge to edge:
 
 ```vue
 <un-card :title="`Manage ${titlePlural}`" fluid-body :append-actions="toolbarActions">
@@ -273,20 +263,4 @@ Prefer an `un-card` with `fluid-body` so the table and footer are edge-to-edge:
 </un-card>
 ```
 
-Search / filter chrome sits **inside** the card, **above** `<un-table>`, not on the table. `resource-explorer-table` is the reusable version of that stack (filter chips + sort headers + `<un-table>`).
-
-`sticky-actions` is for wide column sets that scroll horizontally. Most pages do not need it.
-
-## Do / don’t
-
-**Do**
-
-- Keep `<un-table>` dumb: current page of rows in, actions and slots out
-- Forward cell work through `{key}-cell` and `row.original`
-- Put Create / Refresh on the card, Edit / Delete on the row
-
-**Don’t**
-
-- Pass the full unpaged array while the footer is visible
-- Override `#actions-cell`
-- Implement sort / filter as `un-table` props
+Put Create / Refresh on the card. Put Edit / Delete on the row. Keep `<un-table>` dumb: the current page of rows goes in, and actions and slots come out. Forward cell work through `{key}-cell` and `row.original`.

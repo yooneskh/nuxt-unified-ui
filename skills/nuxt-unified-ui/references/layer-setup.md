@@ -12,7 +12,9 @@ Consumers must:
 @import 'nuxt-unified-ui/nuxt-ui-fixes.css';
 ```
 
-2. Extend the layer and register that CSS file:
+`nuxt-unified-ui/nuxt-ui-fixes.css` (`app/assets/css/nuxt-ui-fixes.css`) declares the `tablet` and `desktop` breakpoints and the `rtl` / `ltr` direction utilities.
+
+2. Extend the layer and register that CSS file. `pathRelativeToBase(base, path)` resolves a path relative to a file URL. It is re-exported from the package root and implemented in `app/utils/path-relative.ts`.
 
 ```js
 
@@ -35,12 +37,7 @@ export default defineNuxtConfig({
 });
 ```
 
-Both are required:
-
-- `css: [pathRelativeToBase(import.meta.url, './assets/css/main.css')]`
-- `@import 'nuxt-unified-ui/nuxt-ui-fixes.css'` inside that host CSS file
-
-`pathRelativeToBase(base, path)` resolves a path relative to a file URL / base (re-exported from package root; implemented in `app/utils/path-relative.ts`).
+Both are required: `css: [pathRelativeToBase(import.meta.url, './assets/css/main.css')]`, and `@import 'nuxt-unified-ui/nuxt-ui-fixes.css'` inside that host CSS file.
 
 ## Peer / stack
 
@@ -49,7 +46,7 @@ Both are required:
 
 ## Modules
 
-Configured in layer `nuxt.config.ts`:
+Configured in the layer `nuxt.config.ts`:
 
 ```ts
 modules: [
@@ -59,7 +56,7 @@ modules: [
 ]
 ```
 
-Additionally, Nuxt auto-loads `modules/radashi.ts`, which registers every radashi export as `rad` + PascalCase name (`get` → `radGet`, `pick` → `radPick`, `camel` → `radCamel`, …) in both the Vue app (`addImports`) and Nitro server (`addServerImports`). Full catalog: [radashi.md](radashi.md).
+Nuxt also auto-loads `modules/radashi.ts`, which registers every radashi export as `rad` + PascalCase (`get` → `radGet`, `pick` → `radPick`, `camel` → `radCamel`, …) in the Vue app (`addImports`) and on the Nitro server (`addServerImports`). Catalog: [radashi.md](radashi.md).
 
 ## UI defaults
 
@@ -74,7 +71,7 @@ ui: {
 }
 ```
 
-`app/app.config.js` tightens Nuxt UI card/table slots. Host may override via its own `app.config` (e.g. `ui.colors.primary` / `neutral`).
+`app/app.config.js` tightens Nuxt UI card and table slots. The host may override them in its own `app.config` (for example `ui.colors.primary` / `neutral`).
 
 ## Date defaults
 
@@ -87,7 +84,7 @@ dateFormat: {
 },
 ```
 
-The host overrides them in its own `app.config` — one key at a time is enough, the layer default fills the rest:
+The host overrides them in its own `app.config`. One key at a time is enough; the layer default fills the rest:
 
 ```js
 export default defineAppConfig({
@@ -97,7 +94,7 @@ export default defineAppConfig({
 });
 ```
 
-`formatDate(timestamp)` and `parseDate(date, format)` use those defaults; an explicit `format` / `locale` argument still wins. The values are read from the app config, so they work in the app and in Nitro, and a runtime `updateAppConfig()` still re-renders them.
+`formatDate(timestamp)` and `parseDate(date, format)` use those defaults. An explicit `format` or `locale` argument still wins. The values are read from the app config, so they work in the app and in Nitro, and a runtime `updateAppConfig()` still re-renders them.
 
 ## i18n
 
@@ -106,17 +103,31 @@ i18n: {
   strategy: 'no_prefix',
   defaultLocale: 'en',
   locales: [
-    { code: 'en', file: 'en.json' },
-    { code: 'de', file: 'de.json' },
+    {
+      code: 'en',
+      language: 'en-US',
+      file: 'en.json',
+    },
+    {
+      code: 'de',
+      language: 'de-DE',
+      file: 'de.json',
+    },
+    {
+      code: 'fa',
+      language: 'fa-IR',
+      dir: 'rtl',
+      file: 'fa.json',
+    },
   ],
 }
 ```
 
-`strategy` and `defaultLocale` above are this layer's config. Nuxt merges them into an app that extends the layer, so a consuming app leaves both unset. The i18n rules in `SKILL.md` cover the app's `locales` list.
+`strategy` and `defaultLocale` are this layer's config. Nuxt merges them into an app that extends the layer. Locale ownership, and leaving those two keys unset in the app, is in `SKILL.md`.
 
 Locale files live in `i18n/locales/`. Series dialogs and common buttons use keys under `common.*` and `un.series.*`.
 
-Because this layer registers `@nuxtjs/i18n`, Nuxt UI reads the active i18n locale on its own: `u-app` needs no `:locale` prop, and the host must not pass one or import `@nuxt/ui/locale`. Only the locale files matching `i18n.locales` are bundled, and the locale's `dir` is applied globally, so a right-to-left entry turns the whole app RTL on its own.
+Because this layer registers `@nuxtjs/i18n`, Nuxt UI reads the active locale on its own. `u-app` needs no `:locale` prop. The host must not pass one or import `@nuxt/ui/locale`. Only the locale files matching `i18n.locales` are bundled. The locale's `dir` is applied globally, so a right-to-left entry turns the whole app RTL on its own.
 
 ## App shell
 
@@ -131,7 +142,3 @@ The host's `app.vue` wraps its tree in `u-app`:
 ```
 
 `u-app` mounts the toaster that `toast*` needs and provides the locale, tooltip, and overlay contexts every layer component reads. Never re-wrap a subtree in a second `u-app`.
-
-## Layer CSS export
-
-`nuxt-unified-ui/nuxt-ui-fixes.css` declares the `tablet` and `desktop` breakpoints and the `rtl` / `ltr` direction utilities (`app/assets/css/nuxt-ui-fixes.css`). Import it from the host `main.css` as shown above.

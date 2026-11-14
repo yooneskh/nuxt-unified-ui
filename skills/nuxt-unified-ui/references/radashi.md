@@ -1,14 +1,16 @@
 # Radashi auto-imports (`radXxx`)
 
-Layer module `modules/radashi.ts` registers every runtime export from `radashi` as a Nuxt auto-import in both the Vue app (`addImports`) and Nitro server (`addServerImports`):
+`modules/radashi.ts` registers every runtime `radashi` export in the Vue app (`addImports`) and on the Nitro server (`addServerImports`). Prefer these auto-imports over importing from `radashi`.
 
-```text
-rad + PascalCase(originalName)
+## Naming rule
+
+```ts
+const as = `rad${radashi.pascal(name)}`
 ```
 
-Examples: `get` → `radGet`, `pick` → `radPick`, `camel` → `radCamel`, `try` → `radTry`, `tryit` → `radTryit`.
+`get` → `radGet`, `pick` → `radPick`, `camel` → `radCamel`, `try` → `radTry`, `tryit` → `radTryit`, `AggregateError` → `radAggregateError`, `isEqual` → `radIsEqual`, `DefaultCloningStrategy` → `radDefaultCloningStrategy`.
 
-Prefer these `rad*` auto-imports in apps that extend `nuxt-unified-ui` instead of importing from `radashi` directly.
+Look a function up in the table before writing a `radXxx` name.
 
 | Auto-import | Original | Description | Typing |
 |---|---|---|---|
@@ -180,11 +182,3 @@ Prefer these `rad*` auto-imports in apps that extend `nuxt-unified-ui` instead o
 | `radWithResolvers` | `withResolvers` | Creates a new promise and returns the resolve and reject functions along with the promise itself. | `function withResolvers<T>(): PromiseWithResolvers<T>;` |
 | `radZip` | `zip` | Creates an array of grouped elements, the first of which contains the first elements of the given arrays, the second of which contains the second elements of the given arrays, and | `function zip<T1, T2, T3, T4, T5>(array1: readonly T1[], array2: readonly T2[], array3: readonly T3[], array4: readonly T4[], array5: readonly T5[]): [T1, T2,…` |
 | `radZipToObject` | `zipToObject` | Creates an object mapping the specified keys to their corresponding values. | `function zipToObject<K extends string \| number \| symbol, V>(keys: readonly K[], values: V \| ((key: K, idx: number) => V) \| readonly V[]): Record<K, V>;` |
-
-## Naming rule
-
-```ts
-const as = `rad${radashi.pascal(name)}`
-```
-
-So `AggregateError` → `radAggregateError`, `isEqual` → `radIsEqual`, `DefaultCloningStrategy` → `radDefaultCloningStrategy`.

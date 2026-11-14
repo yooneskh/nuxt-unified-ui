@@ -2,13 +2,15 @@
 
 Overlay dialogs built on Nuxt UI `useOverlay`. Button variants follow [toast-and-ui.md](toast-and-ui.md#component-conventions).
 
-## Action handling rule
+## Action handling
 
-For launched dialogs, put business logic in the button **`onClick`** handlers (choice buttons or form `submitButton.onClick`). That is the standard pattern — not post-processing the resolved promise for the primary action.
+Put business logic in the button `onClick` (choice buttons, or form `submitButton.onClick`). Do not post-process the resolved promise for the primary action.
 
-The launcher awaits `onClick` before closing, so the dialog stays open (with a loading button) until the work finishes.
+The launcher awaits `onClick` before closing, so the dialog stays open, with a loading button, until the work finishes.
 
-`value` on choice-picker buttons is **optional**. Prefer omitting it; rely on `onClick` for side effects. Only set `value` when a caller truly needs the promise result to distinguish buttons.
+`value` on a choice-picker button is optional. Omit it. Rely on `onClick` for side effects. Set `value` only when a caller needs the promise result to distinguish buttons.
+
+Prefer `launchFormPickerDialog` / `launchChoicePickerDialog` over a hand-rolled `u-modal` for these flows. Field lists use `identifier`, not `type`, for the element kind (see [forms.md](forms.md)).
 
 ## Quick start
 
@@ -88,7 +90,7 @@ const result = await launchDialog({
 });
 ```
 
-The component receives `props` and emits `close` with an optional payload; that payload is the resolved `result`. Write the component with `u-modal` and emit `close` from its `@update:open` when it is dismissed, as the built-in pickers do.
+The component receives `props` and emits `close` with an optional payload. That payload is the resolved `result`. Write the component with `u-modal` and emit `close` from its `@update:open` when it is dismissed, as the built-in pickers do.
 
 ## API map
 
@@ -105,12 +107,12 @@ The component receives `props` and emits `close` with an optional payload; that 
 - `icon`, `title`, `subtitle`, `text`
 - `modalOptions?: ModalProps`
 - `fields: any[]` — `un-form` schema (see [forms.md](forms.md))
-- `initialForm?` — deep-cloned with `JSON.parse(JSON.stringify(...))` before editing, so `Date`, `File`, and other non-JSON values do not survive; otherwise the form starts from `{}`
+- `initialForm?` — deep-cloned with `JSON.parse(JSON.stringify(...))` before editing, so `Date`, `File`, and other non-JSON values do not survive. Otherwise the form starts from `{}`
 - `submitButton?` — Nuxt UI `ButtonProps` plus:
-  - **`onClick?.(form)`** — standard place for submit logic; awaited, then the dialog closes with the form
-  - `disabled` may be boolean | `(form) => boolean` | mongo-style object (`smartMatch`)
+  - `onClick?.(form)` — where submit logic goes. It is awaited, then the dialog closes with the form
+  - `disabled` may be a boolean, `(form) => boolean`, or a mongo-style object (`smartMatch`)
   - label defaults to `$t('common.submit')`
-- `cancelButton?` — merged into the default Cancel (`variant: 'ghost'`, `$t('common.cancel')`); always closes without payload, and its own `onClick` is ignored
+- `cancelButton?` — merged into the default Cancel (`variant: 'ghost'`, `$t('common.cancel')`). It always closes without a payload. Its own `onClick` is ignored
 
 Action row: Submit, spacer, Cancel.
 
@@ -118,18 +120,5 @@ Action row: Submit, spacer, Cancel.
 
 - `icon`, `title`, `subtitle`, `text`, `modalOptions`
 - `startButtons?` — falls back with `||` to one Submit button (`$t('common.submit')`, `value: true`)
-- `endButtons?` — falls back with `??` to one ghost Cancel (`$t('common.cancel')`, `value: false`); pass `[]` to hide it
-- Each button: `ButtonProps & { value?: string }` plus **`onClick?.(value)`** — awaited, then the dialog closes with `value`
-
-## Do / don’t
-
-**Do**
-
-- Prefer `launchFormPickerDialog` / `launchChoicePickerDialog` over hand-rolled `u-modal` for these flows
-- Handle actions in button / submit `onClick`
-- Keep field lists consistent with `un-form` (`identifier`, not `type`, for element kind)
-
-**Don’t**
-
-- Set `value` on choice buttons by default — omit it unless needed
-- Put primary dialog logic only after `await` when `onClick` should own it
+- `endButtons?` — falls back with `??` to one ghost Cancel (`$t('common.cancel')`, `value: false`). Pass `[]` to hide it
+- Each button: `ButtonProps & { value?: string }` plus `onClick?.(value)`. It is awaited, then the dialog closes with `value`
