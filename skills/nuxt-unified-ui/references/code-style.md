@@ -283,7 +283,35 @@ const sortDirection = ref('desc');
 | Declaration-group boundary, `/* params */` gap, or major-step boundary (already two blanks) | Keep the two |
 | First statement after the responsibility header | Keep the header's two |
 | Blank already required after `/* section */` | That blank is the before-blank |
-| Inside an object or array literal | No blank lines |
+| Inside an object or array literal | No blank lines, except a `defineNuxtConfig` object under [Nuxt config](#nuxt-config) |
+
+### Nuxt config
+
+In a `nuxt.config.ts` file, this applies to the object passed to `defineNuxtConfig` and to no other object. A value is an object when it is written as `{ ... }`, including on one line. An array is not an object.
+
+When that object has more than one top-level property, and at least one of those values is an object:
+
+- one blank line after `{`
+- one blank line before `}`
+- one blank line between each top-level property
+
+Nested objects stay packed. One top-level property stays packed. Several top-level properties whose values are all non-objects stay packed.
+
+```ts
+export default defineNuxtConfig({
+
+  compatibilityDate: 'latest',
+
+  devtools: {
+    enabled: false,
+  },
+
+  modules: [
+    '@nuxt/ui',
+  ],
+
+});
+```
 
 ## Function bodies
 
@@ -396,7 +424,7 @@ else {
 
 ### Script literals — multi-line unless empty
 
-In script and `.ts` files, object and array literals use one property or element per line and a trailing comma, including a single-property or single-element literal in call args. No blank lines inside a literal.
+In script and `.ts` files, object and array literals use one property or element per line and a trailing comma, including a single-property or single-element literal in call args. No blank lines inside a literal, except the `defineNuxtConfig` object in [Nuxt config](#nuxt-config).
 
 ```ts
 toastSuccess({
@@ -766,7 +794,7 @@ export default defineEventHandler(async event => {
 - [ ] Multiline statements (a wrapped statement or a code block) have one blank before and after, unless they are the only statement in their block. Share a required blank. Declaration groups, `/* params */`, and major steps keep two blanks. One statement, or only single-line statements, stays flush. Several statements with a multiline one have one blank after `{` and before `}`
 - [ ] Major steps keep two blanks. A return-only decision stays one `if` / `else if` / `else` chain
 - [ ] Braces everywhere; `else` / `catch` on their own line
-- [ ] Script literals multi-line, except `{}` / `[]`; inline object types of function parameters on one line; no statement wrapped only for length; `fn(arg, {` on one line
+- [ ] Script literals multi-line, except `{}` / `[]`; inline object types of function parameters on one line; no statement wrapped only for length; `fn(arg, {` on one line. A `defineNuxtConfig` with more than one top-level property and at least one object value has one blank after `{`, before `}`, and between each top-level property
 - [ ] Page scripts: section order, `/* params */` shape, `/* seo */` placement and call order
 - [ ] `useUFetch` shape; `ufetch` options order; destructure names `xxxData` / `isXxxPending` / `refreshXxx`; `response` for `ufetch` results
 - [ ] `handleXxx` handlers; `it` for short callbacks; descriptive loop names; structure-returning computeds use a block and `return`; handler references, not wrappers

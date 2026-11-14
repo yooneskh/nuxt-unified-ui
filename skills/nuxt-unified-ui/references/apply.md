@@ -1,6 +1,6 @@
 # `/nuxt-unified-ui apply`
 
-The one pipeline that brings a file in line with this skill. The main agent picks the files and launches one orchestrator per file. The orchestrator does not edit. It gives the file three passes, each to its own subagent, in order: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
+The one pipeline that brings a file in line with this skill. The main agent picks the files and launches one orchestrator per file, in batches of four. The orchestrator does not edit. It gives the file three passes, each to its own subagent, in order: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
 
 It runs:
 
@@ -92,9 +92,7 @@ Deleted files are excluded. Tell the user the scope, the branch when there is on
 
 ### 2. Launch one orchestrator per file
 
-Launch exactly one orchestrator per selected file — never several files in one orchestrator. Run them in parallel.
-
-**Model:** launch every orchestrator using a cheap fast model. The orchestrator launches each pass agent on a cheap fast model too. The main agent keeps its own model for file selection, leftover follow-ups, and the summary.
+Launch exactly one orchestrator per selected file — never several files in one orchestrator. Run them in batches of four. Start the first four together, wait until that whole batch has reported, then start the next four. The last batch may be smaller. Never run more than four file orchestrators at once. The second round in step 4 uses the same batches.
 
 Use this prompt:
 
@@ -119,7 +117,7 @@ When every orchestrator has reported, collect the follow-ups they could not fini
 
 ### 4. Second round
 
-Launch the same orchestrator (step 2, cheap fast model) for every `.vue`, `.js`, or `.ts` file created or edited in step 3 that has not already been through the library pass and the style pass. An import-only caller edit does not start an orchestrator. Do not start a third round: list any follow-ups from this round in the summary.
+Launch the same orchestrator (step 2) for every `.vue`, `.js`, or `.ts` file created or edited in step 3 that has not already been through the library pass and the style pass. An import-only caller edit does not start an orchestrator. Do not start a third round: list any follow-ups from this round in the summary.
 
 ### 5. Verify and summarize
 
@@ -129,7 +127,7 @@ Run the project's `lint` and `typecheck` scripts when `package.json` defines the
 
 You coordinate three passes on one file. You do not edit files. You do not load `code-style.md`.
 
-Spawn one subagent per pass, using a cheap fast model. Wait for a pass to finish before you start the next. Passes run in this order:
+Spawn one subagent per pass. Wait for a pass to finish before you start the next. Passes run in this order:
 
 1. Place and split — section "Place-and-split pass"
 2. Radashi and VueUse — section "Library pass"
