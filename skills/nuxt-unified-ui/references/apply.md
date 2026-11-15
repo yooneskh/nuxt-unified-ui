@@ -1,6 +1,6 @@
 # `/nuxt-unified-ui apply`
 
-The one pipeline that brings a file in line with this skill. The main agent picks the files and launches one orchestrator per file, in batches of four. The orchestrator does not edit. It gives the file three passes, each to its own subagent, in order: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
+The one pipeline that brings a file in line with this skill. The main agent picks the files and launches one orchestrator per file, in batches of eight. The orchestrator does not edit. It gives the file three passes, each to its own subagent, in order: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
 
 It runs:
 
@@ -92,7 +92,7 @@ Deleted files are excluded. Tell the user the scope, the branch when there is on
 
 ### 2. Launch one orchestrator per file
 
-Launch exactly one orchestrator per selected file — never several files in one orchestrator. Run them in batches of four. Start the first four together, wait until that whole batch has reported, then start the next four. The last batch may be smaller. Never run more than four file orchestrators at once. The second round in step 4 uses the same batches.
+Launch exactly one orchestrator per selected file — never several files in one orchestrator. Spawn each orchestrator at medium effort. Run them in batches of eight. Start the first eight together, wait until that whole batch has reported, then start the next eight. The last batch may be smaller. Never run more than eight file orchestrators at once. The second round in step 4 uses the same batches.
 
 Use this prompt:
 
@@ -127,7 +127,7 @@ Run the project's `lint` and `typecheck` scripts when `package.json` defines the
 
 You coordinate three passes on one file. You do not edit files. You do not load `code-style.md`.
 
-Spawn one subagent per pass. Wait for a pass to finish before you start the next. Passes run in this order:
+Spawn one subagent per pass, at medium effort. Wait for a pass to finish before you start the next. Passes run in this order:
 
 1. Place and split — section "Place-and-split pass"
 2. Radashi and VueUse — section "Library pass"
@@ -147,7 +147,7 @@ Return the report described there.
 
 If a spawn fails because nested subagents are disabled, stop and report that failure. Do not do the pass yourself.
 
-After place and split, run the library pass and then the style pass on every file that now holds this code. That is the original file, or the paths the place-and-split report lists. An `unchanged` place report means the original file. Sibling files from one split may run in parallel inside a single pass. Never run two passes on the same file at once.
+After place and split, run the library pass and then the style pass on every file that now holds this code. That is the original file, or the paths the place-and-split report lists. An `unchanged` place report means the original file. Sibling files from one split may run in parallel inside a single pass, in batches of eight. Never run more than eight pass subagents at once. Never run two passes on the same file at once.
 
 If the place-and-split pass fails before it moves anything, run the later passes on the original file. If a later pass fails, report it and continue with the remaining passes on the files that exist.
 

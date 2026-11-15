@@ -27,7 +27,7 @@ When implementation added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-u
 | `apply branch` | Eligible files commits on the current branch changed directly since its base |
 | `apply all` | Every eligible file on the current branch |
 
-One orchestrator per file, in batches of four. It does not edit. Three passes, each its own subagent: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
+One orchestrator per file, in batches of eight. It does not edit. Three passes, each its own subagent: place and split, then radashi and VueUse, then code style. Spawn every subagent at medium effort, including each nested pass. The main agent carries out the follow-ups those passes could not finish.
 
 ## APIs
 
