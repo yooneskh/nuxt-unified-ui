@@ -80,7 +80,7 @@ The main agent places each file while implementing. The apply place-and-split pa
 
 Each `.vue`, `.js`, and `.ts` file has one responsibility. Two independent jobs means two files. A component and the script that exists to render it are one job. Do not split a template from its script.
 
-Nuxt auto-imports `app/components/`, `app/composables/`, and `app/utils/` across every layer. A file used only inside its own layer does not go there.
+Nuxt auto-imports `app/components/`, `app/composables/`, and `app/utils/` in the app, and `server/composables/` and `server/utils/` on the server, across every layer. A file used only inside its own layer does not go there.
 
 | Role | Directory | Visibility |
 |---|---|---|
@@ -89,8 +89,11 @@ Nuxt auto-imports `app/components/`, `app/composables/`, and `app/utils/` across
 | Public Vue component | `app/components/` | Whole app, auto-imported |
 | Public composable whose file name starts with `use-` | `app/composables/` | Whole app, auto-imported |
 | Public util | `app/utils/` | Whole app, auto-imported |
+| Private function, composable, or helper | `server/libs/` | This layer only |
+| Public composable whose file name starts with `use-` | `server/composables/` | Whole server, auto-imported |
+| Public util | `server/utils/` | Whole server, auto-imported |
 
-Generate private first. New components start in `app/atoms/`. New functions, composables, and helpers start in `app/libs/`. Promote only when another layer needs the file: a Vue file to `app/components/`, a file whose name starts with `use-` to `app/composables/`, and any other function to `app/utils/`. A `use-` file does not go in `app/utils/`. A file whose name does not start with `use-` does not go in `app/composables/`. After a move, a promote, or a split, update every caller in the same change. A promote removes the relative import; public modules are auto-imported.
+Generate private first. New components start in `app/atoms/`. New functions, composables, and helpers start in that tree's `libs/` (`app/libs/` or `server/libs/`). Promote only when another layer needs the file, and stay in the same tree: a Vue file to `app/components/`, a file whose name starts with `use-` to that tree's `composables/`, and any other function to that tree's `utils/`. A `use-` file does not go in `utils/`. A file whose name does not start with `use-` does not go in `composables/`. After a move, a promote, or a split, update every caller in the same change. A promote removes the relative import; public modules are auto-imported.
 
 Pages, layouts, middleware, plugins, server routes, modules, `nuxt.config`, `app.vue`, and `error.vue` stay where Nuxt requires them.
 
