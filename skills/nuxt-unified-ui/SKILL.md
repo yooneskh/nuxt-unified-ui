@@ -19,7 +19,7 @@ The main agent decides what code exists, where it lives, and which APIs it calls
 
 ## Finishing work
 
-When implementation added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-unified-ui apply` before the final reply. Follow [references/apply.md](references/apply.md) for selection, orchestrators, and passes. With no argument, load only the reference for the task at hand.
+When implementation added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-unified-ui apply` before the final reply. Follow [references/apply.md](references/apply.md) for selection and passes. With no argument, load only the reference for the task at hand.
 
 | Invocation | Files |
 |---|---|
@@ -27,7 +27,7 @@ When implementation added or edited a `.vue`, `.js`, or `.ts` file, run `/nuxt-u
 | `apply branch` | Eligible files commits on the current branch changed directly since its base |
 | `apply all` | Every eligible file on the current branch |
 
-One orchestrator per file, in batches of eight. It does not edit. Three passes, each its own subagent: place and split, then radashi and VueUse, then code style. Spawn every subagent at medium effort, including each nested pass. The main agent carries out the follow-ups those passes could not finish.
+Three passes, each one subagent per file, in batches of eight: place and split, then radashi and VueUse, then code style. Spawn every pass subagent at medium effort. A pass agent does not spawn subagents. The main agent carries out the follow-ups those passes could not finish.
 
 ## APIs
 

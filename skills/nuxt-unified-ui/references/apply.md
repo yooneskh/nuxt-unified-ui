@@ -1,6 +1,6 @@
 # `/nuxt-unified-ui apply`
 
-The one pipeline that brings a file in line with this skill. The main agent picks the files and launches one orchestrator per file, in batches of eight. The orchestrator does not edit. It gives the file three passes, each to its own subagent, in order: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
+The one pipeline that brings a file in line with this skill. The main agent picks the files and runs three passes, each pass one subagent per file, in order: place and split, then radashi and VueUse, then code style. The main agent carries out the follow-ups those passes could not finish.
 
 It runs:
 
@@ -17,11 +17,11 @@ The scope decides which files are selected. Every scope then runs the same pipel
 
 Any other argument is outside these three scopes. Stop and tell the user the three forms above.
 
-The orchestrator must be allowed to spawn its own subagents. On Grok that means `subagents.max_depth` of at least 2, or `GROK_SUBAGENTS_MAX_DEPTH`. If a pass spawn fails because nesting is disabled, stop the run and tell the user. Do not fold a pass back into the orchestrator or the main agent.
+There is one level of subagents. The main agent spawns each pass directly. A pass agent does not spawn subagents. If a spawn fails, stop the run and tell the user. Do not do the pass in the main agent.
 
 ## Main agent
 
-Do not edit files while orchestrators are running. Do not load `references/code-style.md`.
+Do not edit files while a wave is running. Do not load `references/code-style.md`.
 
 ### 1. Pick the files
 
@@ -90,48 +90,18 @@ git ls-files --cached --others --exclude-standard -- '*.vue' '*.js' '*.ts' ':!*.
 
 Deleted files are excluded. Tell the user the scope, the branch when there is one, the base ref when the scope is `branch`, and how many files were selected. When none were selected, stop.
 
-### 2. Launch one orchestrator per file
+### 2. Run the three passes
 
-Launch exactly one orchestrator per selected file — never several files in one orchestrator. Spawn each orchestrator at medium effort. Run them in batches of eight. Start the first eight together, wait until that whole batch has reported, then start the next eight. The last batch may be smaller. Never run more than eight file orchestrators at once. The second round in step 4 uses the same batches.
+Spawn each pass subagent at medium effort. One subagent does one pass on one file. Run each wave in batches of eight. Start the first eight together, wait until that whole batch has reported, then start the next eight. The last batch may be smaller. Never run more than eight pass subagents at once. Never start the next wave until every subagent in the current wave has reported. Never run two passes on the same file at once. The second round in step 4 uses the same waves.
 
-Use this prompt:
+Waves, in order:
 
-```text
-You are the apply orchestrator for one file. Do not edit files.
+1. **Place and split** — section "Place-and-split pass", one subagent per selected file.
+2. **Collect paths.** From each place report, take the paths that now hold the code. An `unchanged` report means the original file. If that pass fails before it moves anything, keep the original file. Dedupe the paths. Drop a path that is no longer a file.
+3. **Radashi and VueUse** — section "Library pass", one subagent per collected path. Start only after every place agent has reported.
+4. **Code style** — section "Style pass", one subagent per collected path. Start only after every library agent for those paths has reported.
 
-File:
-<absolute target path>
-
-Read and follow, in full:
-<absolute skill path>/references/apply.md (section "Per-file orchestrator")
-
-Return the report described there.
-```
-
-### 3. Carry out leftover follow-ups
-
-When every orchestrator has reported, collect the follow-ups they could not finish, remove duplicates, and apply them **one at a time**. Do not redo a move or split a pass already finished.
-
-- A caller whose import the place-and-split pass could not update: update that import.
-- Anything else the pass reported: apply it when it follows directly from the file-structure rules in `SKILL.md`. List anything that needs a product decision in the summary.
-
-### 4. Second round
-
-Launch the same orchestrator (step 2) for every `.vue`, `.js`, or `.ts` file created or edited in step 3 that has not already been through the library pass and the style pass. An import-only caller edit does not start an orchestrator. Do not start a third round: list any follow-ups from this round in the summary.
-
-### 5. Verify and summarize
-
-Run the project's `lint` and `typecheck` scripts when `package.json` defines them, and fix failures caused by this run. Then report: files processed, files changed, follow-ups applied, follow-ups left for the user, and any orchestrator or pass agent that failed.
-
-## Per-file orchestrator
-
-You coordinate three passes on one file. You do not edit files. You do not load `code-style.md`.
-
-Spawn one subagent per pass, at medium effort. Wait for a pass to finish before you start the next. Passes run in this order:
-
-1. Place and split — section "Place-and-split pass"
-2. Radashi and VueUse — section "Library pass"
-3. Code style — section "Style pass"
+A later wave still runs when an earlier pass on that file failed, on the files that exist. Record the failure and continue. If a spawn fails, stop the run and tell the user. Do not do the pass yourself.
 
 Use this prompt, with the section name and the absolute path filled in:
 
@@ -143,27 +113,24 @@ Read and follow, in full, and do nothing else:
 <absolute skill path>/references/apply.md (section "<section name>")
 
 Return the report described there.
+
+Do not spawn subagents.
 ```
 
-If a spawn fails because nested subagents are disabled, stop and report that failure. Do not do the pass yourself.
+### 3. Carry out leftover follow-ups
 
-After place and split, run the library pass and then the style pass on every file that now holds this code. That is the original file, or the paths the place-and-split report lists. An `unchanged` place report means the original file. Sibling files from one split may run in parallel inside a single pass, in batches of eight. Never run more than eight pass subagents at once. Never run two passes on the same file at once.
+When every style pass has reported, collect the follow-ups the passes could not finish, remove duplicates, and apply them **one at a time**. Do not redo a move or split a pass already finished.
 
-If the place-and-split pass fails before it moves anything, run the later passes on the original file. If a later pass fails, report it and continue with the remaining passes on the files that exist.
+- A caller whose import the place-and-split pass could not update: update that import.
+- Anything else the pass reported: apply it when it follows directly from the file-structure rules in `SKILL.md`. List anything that needs a product decision in the summary.
 
-**Report**
+### 4. Second round
 
-```text
-file: <absolute path you were given>
-results:
-- place: <unchanged, or what moved or split, and the paths that now hold the code>
-- libraries: <per path: unchanged, or one line per change>
-- style: <per path: unchanged, or one line per change>
-follow-ups:
-- <what a pass could not finish, and why>
-```
+Run the same three waves (step 2) for every `.vue`, `.js`, or `.ts` file created or edited in step 3 that has not already been through the library pass and the style pass. An import-only caller edit does not enter this round. Do not start a third round: list any follow-ups from this round in the summary.
 
-Omit an empty `follow-ups` section. If every pass left the file unchanged and there are no follow-ups, return `unchanged: <absolute path>`.
+### 5. Verify and summarize
+
+Run the project's `lint` and `typecheck` scripts when `package.json` defines them, and fix failures caused by this run. Then report: files processed, files changed, follow-ups applied, follow-ups left for the user, and any pass agent that failed.
 
 ## Place-and-split pass
 
