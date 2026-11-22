@@ -56,19 +56,20 @@ const filteredFields = computed(() => {
   <div class="grid grid-cols-12 gap-3">
     <div
       v-for="field of filteredFields" :key="field.key"
+      class="col-span-12"
       :class="{
-        'col-span-12': field.width === 12 || !field.width,
-        'col-span-11': field.width === 11,
-        'col-span-10': field.width === 10,
-        'col-span-9': field.width === 9,
-        'col-span-8': field.width === 8,
-        'col-span-7': field.width === 7,
-        'col-span-6': field.width === 6,
-        'col-span-5': field.width === 5,
-        'col-span-4': field.width === 4,
-        'col-span-3': field.width === 3,
-        'col-span-2': field.width === 2,
-        'col-span-1': field.width === 1,
+        'tablet:col-span-12': field.width === 12 || !field.width,
+        'tablet:col-span-11': field.width === 11,
+        'tablet:col-span-10': field.width === 10,
+        'tablet:col-span-9': field.width === 9,
+        'tablet:col-span-8': field.width === 8,
+        'tablet:col-span-7': field.width === 7,
+        'tablet:col-span-6': field.width === 6,
+        'tablet:col-span-5': field.width === 5,
+        'tablet:col-span-4': field.width === 4,
+        'tablet:col-span-3': field.width === 3,
+        'tablet:col-span-2': field.width === 2,
+        'tablet:col-span-1': field.width === 1,
       }">
       <component
         :is="elementsMap[field.identifier]"
